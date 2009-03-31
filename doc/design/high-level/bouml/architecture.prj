@@ -1,0 +1,805 @@
+format 58
+"architecture"
+  revision 15
+  modified_by 32 "billy"
+
+
+  
+  // class settings
+  default_attribute_visibility protected default_relation_visibility protected default_operation_visibility public
+  //class diagram settings
+  draw_all_relations yes hide_attributes no hide_operations no show_members_full_definition no show_members_visibility no show_members_stereotype no show_members_multiplicity no show_members_initialization no member_max_width 127 show_parameter_dir yes show_parameter_name yes package_name_in_tab no class_drawing_mode natural drawing_language uml show_context_mode no auto_label_position yes show_infonote no shadow yes show_stereotype_properties no
+  //use case diagram settings
+  package_name_in_tab no show_context no auto_label_position yes draw_all_relations yes class_drawing_mode actor shadow yes show_stereotype_properties no
+  //sequence diagram settings
+  show_full_operations_definition no write_horizontally yes class_drawing_mode natural drawing_language uml draw_all_relations yes shadow yes show_stereotype_properties no
+  //collaboration diagram settings
+  show_full_operations_definition no show_hierarchical_rank no write_horizontally yes drawing_language uml package_name_in_tab no show_context no draw_all_relations yes shadow yes show_stereotype_properties no
+  //object diagram settings
+   write_horizontally yes package_name_in_tab no show_context no auto_label_position yes draw_all_relations yes shadow yes show_stereotype_properties no
+  //component diagram settings
+  package_name_in_tab no show_context no auto_label_position yes draw_all_relations yes shadow yes
+  draw_component_as_icon no show_component_req_prov no show_component_rea no show_stereotype_properties no
+  //deployment diagram settings
+  package_name_in_tab no show_context no write_horizontally yes auto_label_position yes draw_all_relations yes shadow yes
+  draw_component_as_icon no show_component_req_prov no show_component_rea no show_stereotype_properties no
+  //state diagram settings
+  package_name_in_tab no show_context no auto_label_position yes write_trans_label_horizontally yes show_trans_definition no draw_all_relations yes shadow yes
+  show_activities yes region_horizontally yes drawing_language uml show_stereotype_properties no
+  //activity diagram settings
+  package_name_in_tab no show_context no show_opaque_action_definition no auto_label_position yes write_flow_label_horizontally no draw_all_relations yes shadow yes
+  show_infonote yes drawing_language uml show_stereotype_properties no
+  
+  class_color yellow duration_color transparent continuation_color gray note_color blue fragment_color transparent subject_color transparent usecase_color yellow package_color transparent component_color green artifact_color green deploymentnode_color gray state_color yellow stateaction_color transparent activity_color transparent activityregion_color transparent activityaction_color transparent parameterpin_color white 
+  font_size 9
+  diagram_format A0-Landscape
+
+  mark_for_import
+  
+  ncouples 1
+  key "html dir" value "/home/billy/code/clusterer/Diagrams/produced/"
+  package_ref 128160 // Main
+
+  componentview 128032 "Componentes"
+    //component diagram settings
+    package_name_in_tab default show_context default auto_label_position default draw_all_relations default shadow default
+    draw_component_as_icon default show_component_req_prov default show_component_rea default show_stereotype_properties default
+    component 128032 "MainApp"
+      simplerelation 128032
+	-_->
+	  on component_ref 129312 // Structures
+      end
+
+      simplerelation 128160
+	-_->
+	  on component_ref 129440 // Jobs
+      end
+
+      simplerelation 128288
+	-_->
+	  on component_ref 129568 // Clients
+      end
+    end
+
+    componentdiagram 129184 "ComponentDiagram"
+      package_name_in_tab default show_context default auto_label_position default draw_all_relations default shadow default
+      draw_component_as_icon default show_component_req_prov default show_component_rea default show_stereotype_properties default
+      size A4
+    end
+
+    component 129312 "Structures"
+    end
+
+    component 129440 "Jobs"
+    end
+
+    component 129568 "Clients"
+    end
+  end
+
+  classview 128032 "Clases"
+    //class diagram settings
+    draw_all_relations default hide_attributes default hide_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_multiplicity default show_members_initialization default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_infonote default shadow default show_stereotype_properties default
+    //collaboration diagram settings
+    show_full_operations_definition default show_hierarchical_rank default write_horizontally default drawing_language default package_name_in_tab default show_context default draw_all_relations default shadow default show_stereotype_properties default
+    //object diagram settings
+     write_horizontally default package_name_in_tab default show_context default auto_label_position default draw_all_relations default shadow default show_stereotype_properties default
+    //sequence diagram settings
+    show_full_operations_definition default write_horizontally default class_drawing_mode default drawing_language default draw_all_relations default shadow default show_stereotype_properties default
+    //state diagram settings
+    package_name_in_tab default show_context default auto_label_position default write_trans_label_horizontally default show_trans_definition default draw_all_relations default shadow default
+    show_activities default region_horizontally default drawing_language default show_stereotype_properties default
+    //class settings
+    //activity diagram settings
+    package_name_in_tab default show_context default show_opaque_action_definition default auto_label_position default write_flow_label_horizontally default draw_all_relations default shadow default
+    show_infonote default drawing_language default show_stereotype_properties default
+    classdiagram 128032 "DiagramaDeClases"
+      draw_all_relations no hide_attributes default hide_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_multiplicity default show_members_initialization default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_infonote default shadow default show_stereotype_properties default
+      size A4
+    end
+
+    class 128032 "Structure"
+      abstract visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+    end
+
+    class 128160 "StructureSet"
+      abstract visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 128032 // <directional aggregation>
+	relation 128032 o-->
+	  a role_name "" protected
+	    classrelation_ref 128032 // <directional aggregation>
+	  b parent class_ref 128032 // Structure
+      end
+
+      classrelation 128160 // <association>
+	relation 128160 ----
+	  a role_name "" protected
+	    classrelation_ref 128160 // <association>
+	  b role_name "" protected
+	    classrelation_ref 128288 // <association>
+      end
+
+      classrelation 136736 // <realization>
+	relation 136352 -_-|>
+	  a public
+	    constraint "Set<Structure>"
+	    classrelation_ref 136736 // <realization>
+	  b parent class_ref 129312 // Set<T>
+      end
+    end
+
+    class 129312 "Set<T>"
+      visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 128288 // <association>
+	relation_ref 128160 // <association>
+      end
+    end
+
+    class 129440 "MainApp"
+      visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 128416 // <dependency>
+	relation 128288 -_->
+	  a default
+	    classrelation_ref 128416 // <dependency>
+	  b parent class_ref 129568 // StructuresDB
+      end
+
+      classrelation 129312 // <dependency>
+	relation 129184 -_->
+	  a default
+	    classrelation_ref 129312 // <dependency>
+	  b parent class_ref 130080 // DistributableJob
+      end
+
+      classrelation 132256 // <dependency>
+	relation 132128 -_->
+	  a default
+	    classrelation_ref 132256 // <dependency>
+	  b parent class_ref 130208 // RepresentativesJob
+      end
+
+      classrelation 132384 // <dependency>
+	relation 132256 -_->
+	  a default
+	    classrelation_ref 132384 // <dependency>
+	  b parent class_ref 130336 // ClusterizeJob
+      end
+
+      classrelation 132512 // <dependency>
+	relation 132384 -_->
+	  a default
+	    classrelation_ref 132512 // <dependency>
+	  b parent class_ref 130464 // CentersJob
+      end
+    end
+
+    class 129568 "StructuresDB"
+      visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 128928 // <dependency>
+	relation 128800 -_->
+	  a default
+	    classrelation_ref 128928 // <dependency>
+	  b parent class_ref 129824 // MarkedStructuresDB
+      end
+
+      classrelation 129056 // <dependency>
+	relation 128928 -_->
+	  a default
+	    classrelation_ref 129056 // <dependency>
+	  b parent class_ref 129696 // ClustersDB
+      end
+
+      classrelation 130592 // <dependency>
+	relation 130464 -_->
+	  a default
+	    classrelation_ref 130592 // <dependency>
+	  b parent class_ref 129824 // MarkedStructuresDB
+      end
+    end
+
+    class 129696 "ClustersDB"
+      visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 129184 // <dependency>
+	relation 129056 -_->
+	  a default
+	    classrelation_ref 129184 // <dependency>
+	  b parent class_ref 129952 // Cluster
+      end
+    end
+
+    class 129824 "MarkedStructuresDB"
+      visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 128544 // <realization>
+	relation 128416 -_-|>
+	  a public
+	    classrelation_ref 128544 // <realization>
+	  b parent class_ref 128160 // StructureSet
+      end
+    end
+
+    class 129952 "Cluster"
+      visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 128672 // <realization>
+	relation 128544 -_-|>
+	  a public
+	    classrelation_ref 128672 // <realization>
+	  b parent class_ref 128160 // StructureSet
+      end
+
+      classrelation 128800 // <dependency>
+	relation 128672 -_->
+	  a default
+	    classrelation_ref 128800 // <dependency>
+	  b parent class_ref 128032 // Structure
+      end
+    end
+
+    class 130080 "DistributableJob"
+      abstract visibility public 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      ncouples 1
+      key "get_next_job()" value ""
+      classrelation 129824 // <dependency>
+	relation 129696 -_->
+	  a default
+	    classrelation_ref 129824 // <dependency>
+	  b parent class_ref 129568 // StructuresDB
+      end
+
+      classrelation 129952 // <generalisation>
+	relation 129824 ---|>
+	  a public
+	    classrelation_ref 129952 // <generalisation>
+	  b parent class_ref 130592 // Job
+      end
+
+      classrelation 130720 // <dependency>
+	relation 130592 -_->
+	  a default
+	    classrelation_ref 130720 // <dependency>
+	  b parent class_ref 129568 // StructuresDB
+      end
+
+      classrelation 132640 // <dependency>
+	relation 132512 -_->
+	  a default
+	    classrelation_ref 132640 // <dependency>
+	  b parent class_ref 131872 // JobDistributer
+      end
+
+      classrelation 138144 // <dependency>
+	relation 137760 -_->
+	  stereotype "instantiate"
+	  a package
+	    classrelation_ref 138144 // <dependency>
+	  b parent class_ref 130720 // JobUnit
+      end
+
+      classrelation 141472 // <realization>
+	relation 141088 -_-|>
+	  a public
+	    classrelation_ref 141472 // <realization>
+	  b parent class_ref 137760 // StatsClient
+      end
+
+      classrelation 141728 // <dependency>
+	relation 141344 -_->
+	  a default
+	    classrelation_ref 141728 // <dependency>
+	  b parent class_ref 136480 // StatsManager
+      end
+
+      classrelation 142112 // <dependency>
+	relation 141728 -_->
+	  a default
+	    classrelation_ref 142112 // <dependency>
+	  b parent class_ref 131872 // JobDistributer
+      end
+    end
+
+    class 130208 "RepresentativesJob"
+      visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 129440 // <realization>
+	relation 129312 -_-|>
+	  a public
+	    classrelation_ref 129440 // <realization>
+	  b parent class_ref 130080 // DistributableJob
+      end
+
+      classrelation 132000 // <dependency>
+	relation 131872 -_->
+	  a default
+	    classrelation_ref 132000 // <dependency>
+	  b parent class_ref 129568 // StructuresDB
+      end
+    end
+
+    class 130336 "ClusterizeJob"
+      visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 129568 // <realization>
+	relation 129440 -_-|>
+	  a public
+	    classrelation_ref 129568 // <realization>
+	  b parent class_ref 130080 // DistributableJob
+      end
+
+      classrelation 132128 // <dependency>
+	relation 132000 -_->
+	  a default
+	    classrelation_ref 132128 // <dependency>
+	  b parent class_ref 129568 // StructuresDB
+      end
+    end
+
+    class 130464 "CentersJob"
+      visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 129696 // <realization>
+	relation 129568 -_-|>
+	  a public
+	    classrelation_ref 129696 // <realization>
+	  b parent class_ref 130080 // DistributableJob
+      end
+
+      classrelation 131872 // <dependency>
+	relation 131744 -_->
+	  a default
+	    classrelation_ref 131872 // <dependency>
+	  b parent class_ref 129568 // StructuresDB
+      end
+    end
+
+    class 130592 "Job"
+      abstract visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+    end
+
+    class 130720 "JobUnit"
+      visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 136608 // <realization>
+	relation 136224 -_-|>
+	  a public
+	    classrelation_ref 136608 // <realization>
+	  b parent class_ref 130592 // Job
+      end
+
+      classrelation 141600 // <realization>
+	relation 141216 -_-|>
+	  a public
+	    classrelation_ref 141600 // <realization>
+	  b parent class_ref 137760 // StatsClient
+      end
+
+      classrelation 141856 // <dependency>
+	relation 141472 -_->
+	  a default
+	    classrelation_ref 141856 // <dependency>
+	  b parent class_ref 136480 // StatsManager
+      end
+    end
+
+    class 131872 "JobDistributer"
+      visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 132768 // <dependency>
+	relation 132640 -_->
+	  a default
+	    classrelation_ref 132768 // <dependency>
+	  b parent class_ref 132000 // BoincManager
+      end
+
+      classrelation 135200 // <dependency>
+	relation 134816 -_->
+	  a default
+	    classrelation_ref 135200 // <dependency>
+	  b parent class_ref 133664 // JobSequence
+      end
+
+      classrelation 135328 // <dependency>
+	relation 134944 -_->
+	  a default
+	    classrelation_ref 135328 // <dependency>
+	  b parent class_ref 130080 // DistributableJob
+      end
+
+      classrelation 135456 // <dependency>
+	relation 135072 -_->
+	  a default
+	    classrelation_ref 135456 // <dependency>
+	  b parent class_ref 130720 // JobUnit
+      end
+
+      classrelation 139808 // <dependency>
+	relation 139424 -_->
+	  a default
+	    classrelation_ref 139808 // <dependency>
+	  b parent class_ref 136480 // StatsManager
+      end
+    end
+
+    class 132000 "BoincManager"
+      visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 132896 // <realization>
+	relation 132768 -_-|>
+	  a public
+	    classrelation_ref 132896 // <realization>
+	  b parent class_ref 132128 // ClientPool
+      end
+
+      classrelation 141984 // <dependency>
+	relation 141600 -_->
+	  a default
+	    classrelation_ref 141984 // <dependency>
+	  b parent class_ref 136608 // BoincClient
+      end
+    end
+
+    class 132128 "ClientPool"
+      abstract visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 134176 // <dependency>
+	relation 134048 -_->
+	  a default
+	    classrelation_ref 134176 // <dependency>
+	  b parent class_ref 132384 // Client
+      end
+
+      classrelation 140320 // <directional aggregation>
+	relation 139936 o-->
+	  a role_name "" protected
+	    classrelation_ref 140320 // <directional aggregation>
+	  b parent class_ref 132384 // Client
+      end
+    end
+
+    class 132384 "Client"
+      abstract visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+    end
+
+    class 133536 "List<T>"
+      visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+    end
+
+    class 133664 "JobSequence"
+      visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 134304 // <association>
+	relation 134176 ----
+	  a role_name "" protected
+	    classrelation_ref 134304 // <association>
+	  b role_name "" protected
+	    classrelation_ref 134432 // <association>
+      end
+
+      classrelation 134816 // <directional aggregation>
+	relation 134432 o-->
+	  a role_name "" protected
+	    classrelation_ref 134816 // <directional aggregation>
+	  b parent class_ref 130720 // JobUnit
+      end
+
+      classrelation 136864 // <realization>
+	relation 136480 -_-|>
+	  a public
+	    classrelation_ref 136864 // <realization>
+	  b parent class_ref 133792 // Queue<T>
+      end
+
+      classrelation 139936 // <dependency>
+	relation 139552 -_->
+	  a default
+	    classrelation_ref 139936 // <dependency>
+	  b parent class_ref 133536 // List<T>
+      end
+
+      classrelation 140064 // <dependency>
+	relation 139680 -_->
+	  a default
+	    classrelation_ref 140064 // <dependency>
+	  b parent class_ref 133536 // List<T>
+      end
+    end
+
+    class 133792 "Queue<T>"
+      visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 134432 // <association>
+	relation_ref 134176 // <association>
+      end
+    end
+
+    class 136480 "StatsManager"
+      visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+    end
+
+    class 136608 "BoincClient"
+      visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 140192 // <realization>
+	relation 139808 -_-|>
+	  a public
+	    classrelation_ref 140192 // <realization>
+	  b parent class_ref 132384 // Client
+      end
+    end
+
+    class 137760 "StatsClient"
+      abstract visibility package 
+      cpp_decl ""
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+    end
+
+    sequencediagram 130464 "MainAppSequence"
+      show_full_operations_definition default write_horizontally default class_drawing_mode default drawing_language default draw_all_relations default shadow default show_stereotype_properties default
+      overlapping_bars size E-Landscape
+    end
+
+    classinstance 128032 ""
+      type class_ref 129440 // MainApp
+      attributes
+        end
+      relations
+        end
+    end
+
+    classinstance 128160 "structsDB"
+      type class_ref 129568 // StructuresDB
+      attributes
+        end
+      relations
+        end
+    end
+
+    classinstance 128288 "markedStructs"
+      type class_ref 129824 // MarkedStructuresDB
+      attributes
+        end
+      relations
+        end
+    end
+
+    classinstance 128416 "clustersDB"
+      type class_ref 129696 // ClustersDB
+      attributes
+        end
+      relations
+        end
+    end
+
+    classinstance 128544 "markedSet"
+      type class_ref 128160 // StructureSet
+      attributes
+        end
+      relations
+        end
+    end
+
+    classinstance 128672 "unMarkedSet"
+      type class_ref 128160 // StructureSet
+      attributes
+        end
+      relations
+        end
+    end
+
+    classinstance 128800 "repJob"
+      type class_ref 130208 // RepresentativesJob
+      attributes
+        end
+      relations
+        end
+    end
+
+    classinstance 129952 "clustersJob"
+      type class_ref 130336 // ClusterizeJob
+      attributes
+        end
+      relations
+        end
+    end
+
+    classinstance 130080 "centersJob"
+      type class_ref 130464 // CentersJob
+      attributes
+        end
+      relations
+        end
+    end
+
+    classinstance 130208 ""
+      type class_ref 131872 // JobDistributer
+      attributes
+        end
+      relations
+        end
+    end
+
+    classinstance 130336 "distributer"
+      type class_ref 131872 // JobDistributer
+      attributes
+        end
+      relations
+        end
+    end
+
+    sequencediagram 131616 "ThreadsSequence"
+      show_full_operations_definition default write_horizontally default class_drawing_mode default drawing_language default draw_all_relations default shadow default show_stereotype_properties default
+      overlapping_bars size A0-Landscape
+    end
+
+    collaborationdiagram 131744 "MainAppCommunication"
+      show_full_operations_definition default show_hierarchical_rank default write_horizontally default drawing_language default package_name_in_tab default show_context default draw_all_relations default shadow default show_stereotype_properties default
+      size A0-Landscape
+    end
+  end
+
+  package_ref 128032 // Structures
+
+  package_ref 128288 // LibraryContainers
+
+  package_ref 129440 // Jobs
+
+  package_ref 130592 // AppJobs
+
+  package_ref 131744 // Boinc
+
+  package_ref 131872 // Stats
+end
