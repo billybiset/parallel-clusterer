@@ -149,9 +149,9 @@ Coord3D Structure::center(const std::vector<Coord>& weights) const
 }
 
 /** Rotate and align to match a differente Backbone. */
-Structure& Structure::rotalign_to(const Structure& ref)
+Structure& Structure::rotalign_to(const Structure& other)
 {
-    rotalign(*this, ref);
+    rotalign(*this, other);
     return *this;
 }
 

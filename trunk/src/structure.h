@@ -28,7 +28,7 @@
 typedef float RMSD; 
 
 /**
- * Class Structure a Protein Backbone. Stores a list of coordenates corresponding to atoms in a Protein Backbone.
+ * Class Structure : a Protein Backbone. Stores a list of coordenates corresponding to atoms in a Protein Backbone.
  */
 class Structure 
 {
