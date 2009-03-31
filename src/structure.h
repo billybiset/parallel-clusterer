@@ -94,10 +94,9 @@ class Structure
         /* To remove the center, just do 'struc += -struc.center()' */
 
     protected:
-        /* 
         Structure() {} 
+        /** Standard assignment between Structures. */
         void assign(const Structure& other);
-        */
 
         /** Coordinates of atoms in the Backbone. */
         std::vector<Coord3D> _coords;
