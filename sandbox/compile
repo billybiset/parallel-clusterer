@@ -1,0 +1,9 @@
+#!/bin/bash
+
+rm *.o -f
+
+g++ -c distributer.cpp
+g++ -c distributable_job.cpp
+g++ -c counter.cpp
+
+g++ main.cpp distributer.o distributable_job.o counter.o -o counter
