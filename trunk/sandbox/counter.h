@@ -1,28 +1,36 @@
 #ifndef COUNTER_H
 #define COUNTER_H
 
+#include <cstring>
+
 #include "distributable_job.h"
 #include "job_unit.h"
 
 class Counter : public DistributableJob
 {
     public:
-        Counter(int amount);
-        bool finished();
-        JobUnit* get_next_job_unit(int size);
+        Counter(unsigned int amount);
+
+        virtual bool finished() const;
+//         virtual JobUnit* get_next_job_unit(size_t size);
+         virtual JobUnit* get_next_job_unit(unsigned int size);
 
     private:
-        int _max_count;
-        int _amount;
+        unsigned int _max_count;
+        unsigned int _amount;
 
-        class CounterJobUnit : JobUnit
+        unsigned int _job_units_generated;
+        unsigned int _job_units_completed;
+
+        class CounterJobUnit : public JobUnit
         {
             public:
-                CounterJobUnit(int start, int amount);
-                void print_info();
+                CounterJobUnit(unsigned int start,unsigned int amount);
+                virtual void print_info() const;
+                virtual const char * method_name_required() const { return "count";}
             private:
-                int _count_start;
-                int _count_amount;
+                unsigned int _count_start;
+                unsigned int _count_amount;
         };
 };
 

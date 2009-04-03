@@ -1,10 +1,12 @@
 #ifndef JOB_UNIT_H
 #define JOB_UNIT_H
 
-class JobUnit
+#include <cstring>
+
+struct JobUnit
 {
-    public:
-        virtual void print_info() = 0;
+    virtual void print_info() const = 0;
+    virtual const char * method_name_required() const = 0;
 };
 
 #endif
