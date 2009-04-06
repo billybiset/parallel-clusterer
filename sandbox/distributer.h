@@ -18,6 +18,8 @@ class Distributer
         void   start_scheduler();
         void   stop_scheduler();
 
+        void   inform_completion(JobUnitID job_unit_id);
+
     protected:
 
         static const unsigned int MAX_DISTJOBS_QUEUE_SIZE   = 1; /*yes, will be bigger, maybe limitless :P */
@@ -25,15 +27,17 @@ class Distributer
         static const unsigned int MAX_JOBUNITS_PENDING_SIZE = 11;
 
         Distributer();
-        Distributer(const Distributer&);
-        Distributer& operator= (const Distributer&);
 
     private:
         /*methods*/
 
+        void              run_scheduler();
+
         DistributableJob* jobs_available();
         bool              job_queue_full()  const;
         bool              job_queue_empty() const;
+
+        void create_another_job_unit();
 
         unsigned int      next(unsigned int index) const;
         unsigned int      prev(unsigned int index) const;

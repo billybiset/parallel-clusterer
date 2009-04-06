@@ -12,7 +12,11 @@ class DistributableJob
         void  run()              const;
         void  wait_completion()  const;
 
+        virtual void  inform_completion(JobUnitID job_unit_id) = 0;
+
         virtual bool  finished() const = 0;
+
+        virtual bool  finished_generating() const = 0;
 
     protected:
         DistributableJob();

@@ -6,30 +6,22 @@
 
 #include "waiting.h"
 
+#include <boost/thread.hpp>
+
+void client_creator()
+{
+    ProcessClient pc; /*just create one client for testing, for now, nothing else will work*/
+}
+
 int main()
 {
+    boost::thread process_thread(client_creator);
 
-    int a = 0;
-
-    if ( ! fork() )
-    {
-        while ( a == 0)
-            ;
-    }
-    a = 1;
-
-    ProcessClient pc;
-
-    wait(1000);
-
-    Counter c(128);
+    Counter c(158);
     c.run();
 
-    wait(1000);
-    ProcessClient pc1;
-
-    wait(1000);
-
     c.wait_completion();
-
 }
+    
+//     std::cout << "waiting join" << std::endl;
+//     process_thread.join();

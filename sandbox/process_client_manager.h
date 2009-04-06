@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "client_manager.h"
+#include "job_unit.h"
 
 class ProcessClientManager : ClientManager
 {
@@ -14,6 +15,8 @@ class ProcessClientManager : ClientManager
         virtual void deregister_client(Client* const client);
 
         virtual bool assign_job_unit(JobUnit* const job_unit);
+
+        virtual void inform_completion(JobUnitID job_unit_id);
 
     protected:
 
