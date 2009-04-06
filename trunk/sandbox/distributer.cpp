@@ -78,7 +78,7 @@ void Distributer::create_another_job_unit()
     if (job = jobs_available())
     {
         JobUnit* job_unit;
-        if ( job_unit = job->get_next_job_unit(10) )
+        if ( job_unit = job->get_next_job_unit(JOB_UNIT_SIZE) )
         {
             //just enqueue
             job_unit->print_info();
