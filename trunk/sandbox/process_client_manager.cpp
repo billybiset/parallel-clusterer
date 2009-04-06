@@ -1,8 +1,12 @@
 #include "process_client_manager.h"
 #include "process_client.h"
 #include "client.h"
+#include "distributer.h"
 
 #include <iostream>
+
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
 
 ProcessClientManager* ProcessClientManager::_instance = 0;
 
@@ -38,20 +42,30 @@ void ProcessClientManager::deregister_client(Client* const client)
 {
 }
 
+void execute(Client* client,JobUnit* job_unit,void* return_data)
+{
+    client->process(job_unit,return_data);
+}
+
 bool ProcessClientManager::assign_job_unit(JobUnit* const job_unit)
 {
     Client* client;
 
     if (client = has_client_available_supporting(job_unit->method_name_required()))
     {
+        /*create a thread to simulate processing*/
         void* return_data;
-        client->process(job_unit,return_data);
+        boost::thread thr1( boost::bind(execute,client,job_unit,return_data) ); 
         return true;
     }
     else
         return false;
 }
 
+void ProcessClientManager::inform_completion(JobUnitID job_unit_id)
+{
+    Distributer::get_instance()->inform_completion(job_unit_id);
+}
 
 Client* ProcessClientManager::has_client_available_supporting(const char* const method_name) const 
 {
