@@ -1,10 +1,10 @@
 #include "process_client.h"
-#include "process_client_manager.h"
+#include "process_clients_manager.h"
 #include "counter.h"
 
 #include <iostream> //ridiculous
 
-#include <cstring>
+#include <string>
 
 #include "waiting.h"
 
@@ -12,7 +12,7 @@
 
 ProcessClient::ProcessClient()
 {
-    ProcessClientManager::get_instance()->register_client(this);
+    ProcessClientsManager::get_instance()->register_client(this);
 //     boost::mutex::scoped_lock unlock(_status_mutex);
     _status = kIdle;
 }
@@ -32,9 +32,9 @@ void ProcessClient::count(unsigned int start, unsigned int amount)
     std::cout << "counting from " << start << " to " << start + amount << std::endl;
 }
 
-bool ProcessClient::supports_method(const char * const method_name) const
+bool ProcessClient::supports_method(const MethodDescriptor& method_name) const
 {
-    return ! strncmp(method_name,"count",5);
+    return ! method_name.compare("count"); //strncmp(method_name,"count",5);
 }
 
 void ProcessClient::set_status(const enum ClientStatus new_status)
@@ -60,7 +60,7 @@ bool ProcessClient::process(const JobUnit* const job_unit, const void * return_d
     wait(2000);
     set_status(kIdle);
     std::cout << "finishing " << job_unit->get_id() << std::endl;
-    ProcessClientManager::get_instance()->inform_completion(job_unit->get_id());
+    ProcessClientsManager::get_instance()->inform_completion(job_unit->get_id());
 
     return_data = 0;
 

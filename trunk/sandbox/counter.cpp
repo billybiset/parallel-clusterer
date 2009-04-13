@@ -2,6 +2,9 @@
 
 #include "counter.h"
 #include "job_unit.h"
+#include "common.h"
+
+using namespace parallel_clusterer;
 
 Counter::Counter(unsigned int amount)
     : DistributableJob()
@@ -38,7 +41,7 @@ void Counter::CounterJobUnit::print_info() const
 }
 
 // JobUnit* Counter::get_next_job_unit(size_t size)
-JobUnit* Counter::get_next_job_unit(unsigned int size)
+JobUnit* Counter::get_next_job_unit(JobUnitSize size)
 {
     if ( ! finished_generating() )
     {

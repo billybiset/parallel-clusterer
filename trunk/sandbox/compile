@@ -6,8 +6,8 @@ g++ -c distributer.cpp
 g++ -c distributable_job.cpp
 g++ -c counter.cpp
 g++ -c job_unit.cpp
-g++ -c process_client_manager.cpp
+g++ -c process_clients_manager.cpp
 g++ -c process_client.cpp
 g++ -c waiting.cpp
 
-g++ main.cpp -lboost_thread distributer.o job_unit.o distributable_job.o counter.o process_client.o process_client_manager.o waiting.o -o counter 
+g++ main.cpp -lboost_thread distributer.o job_unit.o distributable_job.o counter.o process_client.o process_clients_manager.o waiting.o -o counter 

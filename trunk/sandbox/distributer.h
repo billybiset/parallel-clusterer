@@ -5,10 +5,8 @@
 
 #include "distributable_job.h"
 #include "job_unit.h"
-#include "client_manager.h"
+#include "clients_manager.h"
 #include "client.h"
-
-enum SchedulerStatus {kStopped, kPaused, kRunning};
 
 class Distributer
 {
@@ -20,12 +18,15 @@ class Distributer
 
         void   inform_completion(JobUnitID job_unit_id);
 
+        enum Status {kStopped, kPaused, kRunning};
+
     protected:
 
         static const unsigned int MAX_DISTJOBS_QUEUE_SIZE   = 1; /*yes, will be bigger, maybe limitless :P */
         static const unsigned int MAX_JOBUNITS_QUEUE_SIZE   = 11;
         static const unsigned int MAX_JOBUNITS_PENDING_SIZE = 11;
         static const unsigned int JOB_UNIT_SIZE             = 10;
+
         Distributer();
 
     private:
@@ -49,7 +50,7 @@ class Distributer
         unsigned int                    _jobQueuesLast;  /*last non valid, initialized to 0*/
         unsigned int                    _jobQueuesFirst; /*first valid, initialized to 0*/
         std::vector<JobUnit *>          _pendingList;
-        enum SchedulerStatus            _status;
+        enum Status                     _status;
 };
 
 #endif
