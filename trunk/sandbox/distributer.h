@@ -22,7 +22,7 @@ class Distributer
 
     protected:
 
-        static const unsigned int MAX_DISTJOBS_QUEUE_SIZE   = 1; /*yes, will be bigger, maybe limitless :P */
+        static const unsigned int MAX_DISTJOBS_QUEUE_SIZE   = 10; /*yes, will be bigger, maybe limitless :P */
         static const unsigned int MAX_JOBUNITS_QUEUE_SIZE   = 11;
         static const unsigned int MAX_JOBUNITS_PENDING_SIZE = 11;
         static const unsigned int JOB_UNIT_SIZE             = 10;
