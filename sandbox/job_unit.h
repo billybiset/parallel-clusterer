@@ -1,19 +1,22 @@
 #ifndef JOB_UNIT_H
 #define JOB_UNIT_H
 
-typedef unsigned long JobUnitID;
+#include "common.h"
+
+using namespace parallel_clusterer;
 
 class JobUnit
 {
     public:
-        virtual       void   print_info()           const = 0;
-        virtual const char * method_name_required() const = 0;
+        virtual       void               print_info()           const = 0;
+        virtual const char*              method_name_required() const = 0;
 
-        unsigned      long   get_id()               const;
+        JobUnitID            get_id()               const;
     protected:
         JobUnit();
     private:
-        JobUnitID _id;
+        static JobUnitID _last_generated;
+        JobUnitID        _id;
 };
 
 #endif

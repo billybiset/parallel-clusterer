@@ -1,5 +1,5 @@
 #include "distributer.h"
-#include "process_client_manager.h"
+#include "process_clients_manager.h"
 #include "client.h" /*later change to process_client.h*/
 
 #include <iostream>
@@ -100,7 +100,7 @@ void Distributer::run_scheduler()
 //                 std::cout << "JobQueue not empty! [" << _jobQueuesFirst << ".." << _jobQueuesLast << "]" << std::endl;
 
             JobUnit* job_unit = _jobQueue[_jobQueuesFirst];                   /*process a job unit from queue*/
-            ProcessClientManager* cm = ProcessClientManager::get_instance();  /*Talk to the client mgr.*/
+            ProcessClientsManager* cm = ProcessClientsManager::get_instance();  /*Talk to the client mgr.*/
 
             if (cm->assign_job_unit(job_unit))
                 _jobQueuesFirst = next(_jobQueuesFirst);

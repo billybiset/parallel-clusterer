@@ -1,12 +1,14 @@
 #include "job_unit.h"
 
+JobUnitID JobUnit::_last_generated = 0;
+
 JobUnit::JobUnit()
 {
-    static unsigned long last_generated = 0;
-    _id = ++last_generated;
+//     private static JobUnitID _last_generated = 0;
+    _id = ++_last_generated;
 }
 
-unsigned long JobUnit::get_id() const
+JobUnitID JobUnit::get_id() const
 {
     return _id;
 }
