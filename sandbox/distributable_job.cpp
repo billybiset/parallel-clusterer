@@ -15,6 +15,6 @@ void DistributableJob::run() const
 void DistributableJob::wait_completion() const
 {
     while (! finished())
-        ;
+        ; //should be something like current_thread.pass()
     Distributer::get_instance()->stop_scheduler();
 }

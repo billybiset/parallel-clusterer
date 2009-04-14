@@ -1,14 +1,14 @@
-#include "process_client.h"
-#include "process_clients_manager.h"
-#include "counter.h"
-
 #include <iostream> //ridiculous
 
 #include <string>
 
-#include "waiting.h"
-
 #include <boost/thread/mutex.hpp>
+
+#include "process_client.h"
+#include "process_clients_manager.h"
+#include "counter.h"
+
+#include "waiting.h"
 
 ProcessClient::ProcessClient()
 {
@@ -37,14 +37,9 @@ bool ProcessClient::supports_method(const MethodDescriptor& method_name) const
     return ! method_name.compare("count"); //strncmp(method_name,"count",5);
 }
 
-void ProcessClient::set_status(const enum ClientStatus new_status)
+void ProcessClient::set_status(const enum Status new_status)
 {
     _status = new_status;
-}
-
-enum ClientStatus ProcessClient::get_status() const
-{
-    return _status;
 }
 
 bool ProcessClient::process(const JobUnit* const job_unit, const void * return_data)
@@ -61,7 +56,7 @@ bool ProcessClient::process(const JobUnit* const job_unit, const void * return_d
     std::cout << "finishing " << job_unit->get_id() << std::endl;
     ProcessClientsManager::get_instance()->inform_completion(job_unit->get_id());
 
-    return_data = 0;
+    return_data = NULL;
 
-    return        0;
+    return        false;
 }

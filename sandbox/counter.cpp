@@ -53,7 +53,7 @@ JobUnit* Counter::get_next_job_unit(JobUnitSize size)
         return res;
     }
     else
-        return 0;
+        return NULL;
 }
 
 void Counter::inform_completion(JobUnitID job_unit_id)

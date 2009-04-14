@@ -3,11 +3,9 @@
 
 #include <string>
 
-#include "client.h"
-
 #include <boost/thread/mutex.hpp>
 
-enum ClientStatus {kBusy, kIdle};
+#include "client.h"
 
 class ProcessClient : Client
 {
@@ -22,13 +20,13 @@ class ProcessClient : Client
 
     private:
 
-        void set_status(const enum ClientStatus new_status);
+        enum Status {kBusy, kIdle};
 
-        enum ClientStatus get_status() const;
+        void set_status(const enum Status new_status);
 
         void count(unsigned int start, unsigned int amount);
 
-        enum ClientStatus _status;
+        enum Status _status;
         boost::mutex      _status_mutex;
 };
 
