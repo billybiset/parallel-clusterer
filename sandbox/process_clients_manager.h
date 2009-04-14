@@ -20,17 +20,14 @@ class ProcessClientsManager : ClientsManager
 
     protected:
 
-        static const unsigned int INITIAL_MAX_CLIENTS = 10; /*in boinc, i will only use an interface to it*/
-
         ProcessClientsManager();
 
         virtual Client* has_client_available_supporting(const MethodDescriptor method_name) const;
 
     private:
-        static ProcessClientsManager* _instance;
 
-        std::list<Client *>                  _registered_clients;
-        std::list<Client *>::const_iterator  _registered_clients_last; /*last non valid, initialized to 0*/
+        static ProcessClientsManager* _instance;
+        std::list<Client *>           _registered_clients;
 };
 
 #endif

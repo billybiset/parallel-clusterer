@@ -33,10 +33,10 @@ class Counter : public DistributableJob
                 CounterJobUnit(unsigned int start,unsigned int amount);
                 virtual void print_info() const;
                 virtual const char* method_name_required() const { return "count";}
+
             private:
                 unsigned int      _count_start;
                 unsigned int      _count_amount;
-                DistributableJob* _parent;
         };
 };
 

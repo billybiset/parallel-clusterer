@@ -12,8 +12,8 @@
 
 ProcessClient::ProcessClient()
 {
-    ProcessClientsManager::get_instance()->register_client(this);
 //     boost::mutex::scoped_lock unlock(_status_mutex);
+    ProcessClientsManager::get_instance()->register_client(this);
     _status = kIdle;
 }
 
@@ -50,7 +50,6 @@ enum ClientStatus ProcessClient::get_status() const
 bool ProcessClient::process(const JobUnit* const job_unit, const void * return_data)
 {
     //assert job_unit->required_method_name == "count"
-//     count(job_unit->get_start(),job_unit->get_amount);
 
 //     boost::thread::lock();
     set_status(kBusy); /*this will have a mutex or something*/
