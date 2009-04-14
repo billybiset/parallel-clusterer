@@ -10,8 +10,8 @@
 
 void client_creator()
 {
-    ProcessClient pc; /*just create one client for testing, for now, nothing else will work*/
-    ProcessClient pc2;
+    ProcessClient *pc  = new ProcessClient();
+    ProcessClient *pc2 = new ProcessClient();
 }
 
 int main()
@@ -23,6 +23,3 @@ int main()
 
     c.wait_completion();
 }
-    
-//     std::cout << "waiting join" << std::endl;
-//     process_thread.join();

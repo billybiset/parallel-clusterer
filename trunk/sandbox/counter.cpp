@@ -31,7 +31,6 @@ Counter::CounterJobUnit::CounterJobUnit(unsigned int start,unsigned int amount)
 {
     _count_start  = start;
     _count_amount = amount;
-//     _parent       = this;
 }
 
 void Counter::CounterJobUnit::print_info() const
@@ -40,7 +39,6 @@ void Counter::CounterJobUnit::print_info() const
     cout << "+JobUnit " << get_id() << ". Start is " << _count_start << ", amount is " << _count_amount << "." << endl;
 }
 
-// JobUnit* Counter::get_next_job_unit(size_t size)
 JobUnit* Counter::get_next_job_unit(JobUnitSize size)
 {
     if ( ! finished_generating() )

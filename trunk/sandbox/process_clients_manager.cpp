@@ -21,25 +21,13 @@ ProcessClientsManager* ProcessClientsManager::get_instance ()
 
 ProcessClientsManager::ProcessClientsManager() 
 {
-//     _registered_clients      = std::vector<Client*>(INITIAL_MAX_CLIENTS);
-        _registered_clients = std::list<Client*>();
-//     _registered_clients_last = _registered_clients.begin();
-//     _registered_clients_last = 0;
+    _registered_clients = std::list<Client*>();
 }
 
 void ProcessClientsManager::register_client(Client* const client)
 {
-//     if (_registered_clients_last < INITIAL_MAX_CLIENTS)
-//     {
-//         _registered_clients[_registered_clients_last++] = client;
-//         _registered_clients[(_registered_clients_last++) - _registered_clients.begin()] = client;
-        _registered_clients.push_back(client);
-        std::cout << "registering a new client!" << std::endl;
-//     }
-//     else
-//     {
-        /*raise or something*/
-//     }
+    _registered_clients.push_back(client);
+    std::cout << "registering a new client!" << std::endl;
 }
 
 void ProcessClientsManager::deregister_client(Client* const client)
@@ -73,22 +61,17 @@ void ProcessClientsManager::inform_completion(JobUnitID job_unit_id)
 
 Client* ProcessClientsManager::has_client_available_supporting(const MethodDescriptor method_name) const 
 {
-//     if (_registered_clients_last != _registered_clients.begin())
-    if (_registered_clients.end() != _registered_clients.begin())
+    if (! _registered_clients.empty())
     {
         std::list<Client *>::const_iterator it;
 
         it = find_if (_registered_clients.begin(), _registered_clients.end(), 
                       boost::bind(&Client::is_idle_and_supports, _1, method_name) );
 
-        if (it == _registered_clients.end()) 
-            return 0;
-        else
+        if (it != _registered_clients.end()) 
             return *it;
-
-
-//         it = find_if (_registered_clients.begin(), _registered_clients_last, 
-//                       boost::bind(&Client::is_idle_and_supports, _1, method_name) );
+        else
+            return 0;
     }
     else
         return 0;
