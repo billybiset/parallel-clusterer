@@ -13,7 +13,6 @@ class Counter : public DistributableJob
         Counter(unsigned int amount);
 
         virtual bool finished() const;
-
         virtual bool finished_generating() const;
 
         virtual JobUnit* get_next_job_unit(JobUnitSize size);

@@ -1,18 +1,18 @@
-#include "process_clients_manager.h"
-#include "process_client.h"
-#include "client.h"
-#include "distributer.h"
-
 #include <iostream>
 
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 
-ProcessClientsManager* ProcessClientsManager::_instance = 0;
+#include "process_clients_manager.h"
+#include "process_client.h"
+#include "client.h"
+#include "distributer.h"
+
+ProcessClientsManager* ProcessClientsManager::_instance = NULL;
 
 ProcessClientsManager* ProcessClientsManager::get_instance () 
 {
-    if (_instance == 0)  // is it the first call?
+    if (_instance == NULL)  // is it the first call?
     {  
         _instance = new ProcessClientsManager; // create sole instance
     }
@@ -71,8 +71,8 @@ Client* ProcessClientsManager::has_client_available_supporting(const MethodDescr
         if (it != _registered_clients.end()) 
             return *it;
         else
-            return 0;
+            return NULL;
     }
     else
-        return 0;
+        return NULL;
 }

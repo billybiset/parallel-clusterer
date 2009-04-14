@@ -1,16 +1,16 @@
-#include "distributer.h"
-#include "process_clients_manager.h"
-#include "client.h" /*later change to process_client.h*/
-
 #include <iostream>
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 
-Distributer* Distributer::_instance = 0; // initialize pointer
+#include "distributer.h"
+#include "process_clients_manager.h"
+#include "client.h" /*later change to process_client.h*/
+
+Distributer* Distributer::_instance = NULL; // initialize pointer
 
 Distributer* Distributer::get_instance () 
 {
-    if (_instance == 0)  // is it the first call?
+    if (_instance == NULL)  // is it the first call?
     {  
         _instance = new Distributer; // create sole instance
     }
