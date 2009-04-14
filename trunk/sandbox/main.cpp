@@ -11,6 +11,7 @@
 void client_creator()
 {
     ProcessClient pc; /*just create one client for testing, for now, nothing else will work*/
+    ProcessClient pc2;
 }
 
 int main()

@@ -14,6 +14,7 @@ struct Client
     virtual bool supports_method(const MethodDescriptor& method_name)     const = 0;
     virtual bool process(const JobUnit* job_unit,const void* return_data)       = 0;
 
+    bool is_idle_and_supports(const MethodDescriptor method_name) { return (is_idle()) && (supports_method(method_name)); }
 //     virtual ~Client();
 };
 
