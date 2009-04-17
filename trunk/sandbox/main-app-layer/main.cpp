@@ -10,8 +10,8 @@
 
 void client_creator()
 {
-    ProcessClient *pc  = new ProcessClient();
-    ProcessClient *pc2 = new ProcessClient();
+    new ProcessClient();
+    new ProcessClient();
 }
 
 int main()

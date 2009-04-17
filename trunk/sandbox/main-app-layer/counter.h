@@ -19,9 +19,11 @@ class Counter : public DistributableJob
 
         virtual void  inform_completion(JobUnitID job_unit_id);
 
+        virtual ~Counter(){};
+
     private:
-        unsigned int _max_count;
         unsigned int _amount;
+        unsigned int _max_count;
 
         unsigned int _job_units_generated;
         unsigned int _job_units_completed;
@@ -33,6 +35,7 @@ class Counter : public DistributableJob
                 virtual void print_info() const;
                 virtual const char* method_name_required() const { return "count";}
 
+                virtual ~CounterJobUnit(){};
             private:
                 unsigned int      _count_start;
                 unsigned int      _count_amount;

@@ -18,6 +18,8 @@ class ProcessClientsManager : ClientsManager
 
         virtual void inform_completion(JobUnitID job_unit_id);
 
+        virtual ~ProcessClientsManager(){};
+
     protected:
 
         ProcessClientsManager();

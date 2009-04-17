@@ -1,13 +1,16 @@
 #!/bin/bash
 
-rm *.o -f
+rm */*.o -f
 
-g++ -c distributer.cpp
-g++ -c distributable_job.cpp
-g++ -c counter.cpp
-g++ -c job_unit.cpp
-g++ -c process_clients_manager.cpp
-g++ -c process_client.cpp
-g++ -c waiting.cpp
+g++  -Wall -Weffc++ -Idistributer-layer/ -Imain-app-layer/ -Imisc/ -Iclients-layer/ -c distributer-layer/distributer.cpp
+g++  -Wall -Weffc++ -Idistributer-layer/ -Imain-app-layer/ -Imisc/ -Iclients-layer/ -c distributer-layer/distributable_job.cpp
+g++  -Wall -Weffc++ -Idistributer-layer/ -Imain-app-layer/ -Imisc/ -Iclients-layer/ -c distributer-layer/job_unit.cpp
 
-g++ main.cpp -lboost_thread distributer.o job_unit.o distributable_job.o counter.o process_client.o process_clients_manager.o waiting.o -o counter 
+g++  -Wall -Weffc++ -Idistributer-layer/ -Imain-app-layer/ -Imisc/ -Iclients-layer/ -c main-app-layer/counter.cpp
+
+g++  -Wall -Weffc++ -Idistributer-layer/ -Imain-app-layer/ -Imisc/ -Iclients-layer/ -c clients-layer/process_clients_manager.cpp
+g++  -Wall -Weffc++ -Idistributer-layer/ -Imain-app-layer/ -Imisc/ -Iclients-layer/ -c clients-layer/process_client.cpp
+
+g++  -Wall -Weffc++ -Idistributer-layer/ -Imain-app-layer/ -Imisc/ -Iclients-layer/ -c misc/waiting.cpp
+
+g++  -Wall -Weffc++ -Idistributer-layer/ -Imain-app-layer/ -Imisc/ -Iclients-layer/ main-app-layer/main.cpp -lboost_thread distributer.o job_unit.o distributable_job.o counter.o process_client.o process_clients_manager.o waiting.o -o ./counter 
