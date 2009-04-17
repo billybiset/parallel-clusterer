@@ -12,6 +12,8 @@ class JobUnit
         virtual const char*              method_name_required() const = 0;
 
         JobUnitID            get_id()               const;
+        
+        virtual ~JobUnit(){};
     protected:
         JobUnit();
     private:

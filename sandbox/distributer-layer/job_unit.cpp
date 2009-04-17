@@ -2,9 +2,9 @@
 
 JobUnitID JobUnit::_last_generated = 0;
 
-JobUnit::JobUnit()
+JobUnit::JobUnit() :
+    _id(++_last_generated)
 {
-    _id = ++_last_generated;
 }
 
 JobUnitID JobUnit::get_id() const

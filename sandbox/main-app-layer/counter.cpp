@@ -6,14 +6,13 @@
 
 using namespace parallel_clusterer;
 
-Counter::Counter(unsigned int amount)
-    : DistributableJob()
+Counter::Counter(unsigned int amount) :
+    DistributableJob(),
+    _amount(amount),
+    _max_count(0),
+    _job_units_generated(0),
+    _job_units_completed(0)
 {
-    _amount              = amount;
-    _max_count           = 0;
-    _job_units_generated = 0;
-    _job_units_completed = 0;
-
 }
 
 bool Counter::finished() const
@@ -26,11 +25,11 @@ bool Counter::finished_generating() const
     return (_max_count >= _amount);
 }
 
-Counter::CounterJobUnit::CounterJobUnit(unsigned int start,unsigned int amount)
-    : JobUnit()
+Counter::CounterJobUnit::CounterJobUnit(unsigned int start,unsigned int amount) : 
+    JobUnit(),
+    _count_start(start),
+    _count_amount(amount)
 {
-    _count_start  = start;
-    _count_amount = amount;
 }
 
 void Counter::CounterJobUnit::print_info() const

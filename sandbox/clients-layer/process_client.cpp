@@ -10,11 +10,12 @@
 
 #include "waiting.h"
 
-ProcessClient::ProcessClient()
+ProcessClient::ProcessClient() :
+    _status(kIdle),
+    _status_mutex()
 {
 //     boost::mutex::scoped_lock unlock(_status_mutex);
-    ProcessClientsManager::get_instance()->register_client(this);
-    _status = kIdle;
+   ProcessClientsManager::get_instance()->register_client(this);
 }
 
 bool ProcessClient::is_idle() const

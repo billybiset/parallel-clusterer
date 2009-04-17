@@ -17,14 +17,14 @@ Distributer* Distributer::get_instance ()
     return _instance; // address of sole instance
 }
 
-Distributer::Distributer() 
+Distributer::Distributer() :
+    _distJobs(MAX_DISTJOBS_QUEUE_SIZE),
+    _jobQueue(MAX_JOBUNITS_QUEUE_SIZE),
+    _jobQueuesLast(0),
+    _jobQueuesFirst(0),
+    _pendingList(MAX_JOBUNITS_PENDING_SIZE),
+    _status(kStopped)
 {
-    _distJobs       = std::vector<DistributableJob*>(MAX_DISTJOBS_QUEUE_SIZE); /*bigger later*/
-    _jobQueue       = std::vector<JobUnit*>(MAX_JOBUNITS_QUEUE_SIZE);
-    _jobQueuesLast  = 0;
-    _jobQueuesFirst = 0;
-    _pendingList    = std::vector<JobUnit*>(MAX_JOBUNITS_PENDING_SIZE);
-    _status         = kStopped;
 }
 
 DistributableJob* Distributer::jobs_available()
@@ -75,10 +75,10 @@ void Distributer::inform_completion(JobUnitID job_unit_id)
 void Distributer::create_another_job_unit()
 {
     DistributableJob* job;
-    if (job = jobs_available())
+    if ( (job = jobs_available()) )
     {
         JobUnit* job_unit;
-        if ( job_unit = job->get_next_job_unit(JOB_UNIT_SIZE) )
+        if ( (job_unit = job->get_next_job_unit(JOB_UNIT_SIZE)) )
         {
             //just enqueue
             job_unit->print_info();

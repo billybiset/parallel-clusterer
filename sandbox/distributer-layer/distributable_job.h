@@ -19,6 +19,8 @@ class DistributableJob
         virtual bool  finished()            const = 0;
         virtual bool  finished_generating() const = 0;
 
+        virtual ~DistributableJob(){};
+
     protected:
         DistributableJob();
 };

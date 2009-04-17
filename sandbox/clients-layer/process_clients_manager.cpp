@@ -19,9 +19,9 @@ ProcessClientsManager* ProcessClientsManager::get_instance ()
     return _instance; // address of sole instance
 }
 
-ProcessClientsManager::ProcessClientsManager() 
+ProcessClientsManager::ProcessClientsManager() :
+    _registered_clients()
 {
-    _registered_clients = std::list<Client*>();
 }
 
 void ProcessClientsManager::register_client(Client* const client)
@@ -43,7 +43,7 @@ bool ProcessClientsManager::assign_job_unit(JobUnit* const job_unit)
 {
     Client* client;
 
-    if (client = has_client_available_supporting(job_unit->method_name_required()))
+    if ( (client = has_client_available_supporting(job_unit->method_name_required())) )
     {
         /*create a thread to simulate processing*/
         void* return_data;
