@@ -14,8 +14,3 @@ void Client::set_status(Status new_status)
     _status = new_status;
 }
 
-inline Client::Status Client::get_status() const
-{
-    return _status;
-}
-

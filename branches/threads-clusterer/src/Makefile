@@ -7,7 +7,7 @@ BOOST_INCLUDE_PATH=/usr/include/boost-1_38/
 #########Compilation Flags#######################################
 
 #includes
-CPPFLAGS+=-I$(GROMACS_INST_PATH)/include/gromacs -Wall
+CPPFLAGS+= -I$(GROMACS_INST_PATH)/include/gromacs -Wall
 CPPFLAGS+= -I$(BOOST_INCLUDE_PATH)
 CPPFLAGS+= -Idistributer-layer/ -Imain-app-layer/ -Imisc/ -Iclients-layer/
 
@@ -18,7 +18,7 @@ LDFLAGS+= -lboost_thread-gcc43-mt
 ifeq ($(DEBUG),on)
 	CPPFLAGS+=-g -ggdb
 else
-	CPPFLAGS+=-O3
+	CPPFLAGS+=-O3 -g -ggdb
 endif
 
 #########Sources#################################################
@@ -80,8 +80,8 @@ clusterer-threads: $(CLUSTERER_OBJECTS)
 .PHONY: clean help
 
 clean:
-	rm -rf *.o
-	rm -f clusterer-threds
+	rm -f *.o
+	rm -f clusterer-threads
 
 help:
 	@echo
