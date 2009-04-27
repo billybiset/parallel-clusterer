@@ -5,7 +5,7 @@ BOOST_INCLUDE_DIR="/usr/include/boost-1_38/"
 GROMACS_INCLUDE_DIR="/usr/local/gromacs/include/gromacs/"
 
 # LDFLAGS="-L/usr/local/gromacs/lib -lboost_thread-gcc43-mt -lgmx"
-LDFLAGS="-L/usr/local/gromacs/lib -lgmx -lboost_thread-gcc43-mt "
+LDFLAGS+="-L/usr/local/gromacs/lib -lgmx -lboost_thread-gcc43-mt "
 #LDFLAGS="boost_thread"
 
 # WARNINGS="-Wall -Weffc++ "
