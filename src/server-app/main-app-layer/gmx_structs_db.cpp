@@ -15,14 +15,14 @@ GmxStructsDB::GmxHandler::GmxHandler(const string& filename, AccessMode mode, si
 	: first_read(true), access_mode(mode), _natoms_to_fill(natoms_to_fill)
 {
 	char* const dup = strdup(filename.c_str());	// GMX non consts usage :(
-//  char* smode[3] = {"r", "w", "rw" };
-    string smode[3] = {"r", "w", "rw" };
+    char* smode[3] = {"r", "w", "rw" };
+//     string smode[3] = {"r", "w", "rw" };
 
-    char* mode_c_str;                        //I made some changes here, to remove g++ warnings 
-                                             //about c char* vs. c++ strings
-    strcpy(mode_c_str, smode[mode].c_str()); //be careful with strcpy!
+//     char mode_c_str[3];                        //I made some changes here, to remove g++ warnings 
+                                               //about c char* vs. c++ strings
+//     strcpy(mode_c_str, smode[mode]); //.c_str()); //be careful with strcpy!
 	
-	handle = open_xtc(dup, mode_c_str);
+	handle = open_xtc(dup, smode[mode]);
 	free(dup);
 //	if (handle == 0) throw std::runtime_error("GMX_DB: file not found");
 }

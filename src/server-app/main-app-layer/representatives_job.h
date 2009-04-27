@@ -1,5 +1,7 @@
-#ifndef COUNTER_H
-#define COUNTER_H
+#ifndef REPRESENTATIVES_JOB_H
+#define REPRESENTATIVES_JOB_H
+
+#include <list>
 
 #include "structures_db.h"
 #include "distributable_job.h"
@@ -24,14 +26,17 @@ namespace parallel_clusterer
             class RepresentativesJobUnit : public JobUnit
             {
                 public:
-                    RepresentativesJobUnit();
-                    virtual const char* method_name_required() const { return "count";}
+                    RepresentativesJobUnit(std::list<Structure *> marked_list, std::list<Structure *> unmarked_list);
+
+                    virtual const char* method_name_required() const { return "reps";}
 
                     virtual ~RepresentativesJobUnit(){};
                 private:
+                    std::list<Structure *> _marked_list;
+                    std::list<Structure *> _unmarked_list;
             };
 
-            Structures_DB* _structures_db;
+            Structures_DB* _db;
     };
 }
 

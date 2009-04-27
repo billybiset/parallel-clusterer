@@ -16,7 +16,8 @@ namespace parallel_clusterer
 
             enum Status {kBusy, kIdle};
 
-            inline Status get_status() const;
+            inline Status get_status() const
+                { return _status;}
 
             virtual ~Client(){}
 

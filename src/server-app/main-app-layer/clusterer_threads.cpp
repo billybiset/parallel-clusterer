@@ -4,7 +4,7 @@
 
 #include "representatives_job.h"
 
-#include "clusterer_threads_client.h" /*the client part*/
+#include "clusterer_threads_client.h" /*the client part, this won't go in the boinc-clusterer*/
 
 using namespace parallel_clusterer;
 

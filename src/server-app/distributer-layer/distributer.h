@@ -29,10 +29,10 @@ namespace parallel_clusterer
 
             enum Status {kStopped, kPaused, kRunning};
 
-            static const unsigned int MAX_DISTJOBS_QUEUE_SIZE   = 10; /*yes, will be bigger, maybe limitless :P */
-            static const unsigned int MAX_JOBUNITS_QUEUE_SIZE   = 11;
-            static const unsigned int MAX_JOBUNITS_PENDING_SIZE = 11;
-            static const unsigned int JOB_UNIT_SIZE             = 10;
+            static const size_t MAX_DISTJOBS_QUEUE_SIZE   = 10; /*yes, will be bigger, maybe limitless :P */
+            static const size_t MAX_JOBUNITS_QUEUE_SIZE   = 11;
+            static const size_t MAX_JOBUNITS_PENDING_SIZE = 11;
+            static const size_t JOB_UNIT_SIZE             = 50;
 
             Distributer();
 
@@ -42,7 +42,7 @@ namespace parallel_clusterer
             DistributableJob* jobs_available();
             bool              job_queue_full(); //const
 
-            void create_another_job_unit();
+            void              create_another_job_unit();
 
             /* Attr. */
             static Distributer*             _instance;
