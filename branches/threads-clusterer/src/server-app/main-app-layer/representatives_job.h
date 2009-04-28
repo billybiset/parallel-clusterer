@@ -26,7 +26,7 @@ namespace parallel_clusterer
             class RepresentativesJobUnit : public JobUnit
             {
                 public:
-                    RepresentativesJobUnit(std::list<Structure *> marked_list, std::list<Structure *> unmarked_list);
+                    RepresentativesJobUnit(std::list<Structure *> * marked_list, std::list<Structure *> * unmarked_list);
 
                     virtual const char* method_name_required() const { return "reps";}
 

@@ -4,7 +4,6 @@
 #include <boost/bind.hpp>
 
 #include "threads_clients_manager.h"
-#include "clusterer_threads_client.h"
 #include "client.h"
 #include "distributer.h"
 
