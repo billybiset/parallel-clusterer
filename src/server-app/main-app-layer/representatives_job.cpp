@@ -18,11 +18,11 @@ bool RepresentativesJob::finished_generating() const
     return _db->get_unmarked_size() == 0;//code
 }
 
-RepresentativesJob::RepresentativesJobUnit::RepresentativesJobUnit(std::list<Structure *> marked_list, std::list<Structure *> unmarked_list) : 
+RepresentativesJob::RepresentativesJobUnit::RepresentativesJobUnit(std::list<Structure *> * marked_list, std::list<Structure *> * unmarked_list) : 
     JobUnit()
 {
-    _marked_list   = marked_list;
-    _unmarked_list = _unmarked_list;
+    _marked_list   = *marked_list;
+    _unmarked_list = *unmarked_list;
 }
 
 JobUnit* RepresentativesJob::get_next_job_unit(JobUnitSize size)
@@ -38,7 +38,7 @@ JobUnit* RepresentativesJob::get_next_job_unit(JobUnitSize size)
 
         size_t size_diff(size - _db->get_marked_size());
 
-        std::list<Structure *> marked_list(_db->get_marked_list());
+        std::list<Structure *> * marked_list = new std::list<Structure *>(_db->get_marked_list());
 
 //         std::list<Structure *>::iterator unmarked_list_begin = _db->get_unmarked_list().begin();
 
@@ -46,23 +46,21 @@ JobUnit* RepresentativesJob::get_next_job_unit(JobUnitSize size)
 
 //         std::cout << "size diff is " << size_diff << " original size is " << size << " list size is " <<  _db->get_unmarked_list().size() << std::endl;
 
-        std::list<Structure *> unmarked_list();
+        std::list<Structure *> * unmarked_list = new std::list<Structure *>();
 
         size_t i;
         for (i = 0; i < size_diff; i++)
         {
-//             unmarked_list.push_front(_db->get_unmarked_list().front());
+            unmarked_list->push_front(_db->get_unmarked_list().front());
             _db->get_unmarked_list().pop_front();
-
-//             std::cout << "." << std::endl;
-//             ++unmarked_list_end;
         }
 
-        std::cout << "after iters " << std::endl;
+        std::cout << "created a job unit with " << marked_list->size() + unmarked_list->size() << " elements." << std::endl;
 
 //         std::list<Structure *> unmarked_list(unmarked_list_begin,unmarked_list_end);
 
-        RepresentativesJob::RepresentativesJobUnit* res = new RepresentativesJob::RepresentativesJobUnit(marked_list,unmarked_list);
+//         RepresentativesJob::RepresentativesJobUnit* res = new RepresentativesJob::RepresentativesJobUnit(marked_list,unmarked_list);
+        RepresentativesJobUnit* res = new RepresentativesJobUnit(marked_list, unmarked_list);
 
         inform_generation();
         return res;

@@ -21,7 +21,7 @@ Structures_DB::Structures_DB() :
 /*    _unmarked_list(_cache_structs_db.size() - 1),
     _marked_list(1)*/
 {
-    _gmxDB->open(string("data/5aa.xtc"), kReadOnly);
+    _gmxDB->open(string("data/1-2.xtc"), kReadOnly);
 
     EditableCoordsStructure s;
     StructuresDB_handler* hnd = _gmxDB->get_handler();

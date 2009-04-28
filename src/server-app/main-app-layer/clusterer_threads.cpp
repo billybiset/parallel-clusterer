@@ -4,19 +4,19 @@
 
 #include "representatives_job.h"
 
-#include "clusterer_threads_client.h" /*the client part, this won't go in the boinc-clusterer*/
+// #include "clusterer_threads_client.h" /*the client part, this won't go in the boinc-clusterer*/
 
 using namespace parallel_clusterer;
 
-void client_creator()
-{
-    new ClustererThreadsClient();
-    new ClustererThreadsClient();
-}
+// void client_creator()
+// {
+//     new ClustererThreadsClient();
+//     new ClustererThreadsClient();
+// }
 
 int main()
 {
-    boost::thread process_thread(client_creator);
+//     boost::thread process_thread(client_creator);
 
     Structures_DB* db;
     db = new Structures_DB();
@@ -27,8 +27,4 @@ int main()
 
     repjob->wait_completion();
 
-//     wait(1000); //DISCUSS THIS, if not present, main may finish before some thread and destroy my Counter
-//objects, by doing this some still executing thread can try to invoke methods on an object destroyed here!
-//for design reasons, i can't do a distributer::get_instance.cleanup() or something, can I do a
-//boost::join_all_threads() :P ?
 }
