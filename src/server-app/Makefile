@@ -18,13 +18,14 @@ LDFLAGS+= -lboost_thread-gcc43-mt
 ifeq ($(DEBUG),on)
 	CPPFLAGS+=-g -ggdb
 else
-	CPPFLAGS+=-O3 -g -ggdb
+	CPPFLAGS+=-O3
 endif
 
 #########Sources#################################################
 
 COMMON_CPP_SOURCES = \
-            ../common-include/structure.cpp 
+            ../common-include/structure.cpp \
+            ../common-include/client.cpp 
 
 MAIN_APP_CPP_SOURCES = \
             main-app-layer/coord3d.cpp \
@@ -45,9 +46,7 @@ DISTRIBUTER_CPP_SOURCES = \
 
 
 CLIENTS_CPP_SOURCERS = \
-            clients-layer/client.cpp \
             clients-layer/threads_clients_manager.cpp
-#             clients-layer/clusterer_threads_client.cpp \
 
 
 CLUSTERER_CPP_SOURCES = \
@@ -81,7 +80,9 @@ clusterer-threads: $(CLUSTERER_OBJECTS)
 .PHONY: clean help
 
 clean:
-	rm -f *.o
+	for d in "clients-layer" "distributer-layer" "main-app-layer" "misc" "../common-include"; do \
+		(cd $$d && rm -f *.o); \
+	done
 	rm -f clusterer-threads
 
 help:
