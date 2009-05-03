@@ -16,7 +16,7 @@ LDFLAGS+= -L$(GROMACS_INST_PATH)/lib/ -lgmx
 LDFLAGS+= -lboost_thread-gcc43-mt 
 
 ifeq ($(DEBUG),on)
-	CPPFLAGS+=-g -ggdb
+	CPPFLAGS+=-ggdb
 else
 	CPPFLAGS+=-O3
 endif
