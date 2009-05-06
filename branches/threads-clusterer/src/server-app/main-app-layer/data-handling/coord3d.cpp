@@ -17,6 +17,8 @@
 #include <cmath>
 #include "coord3d.h"
 
+using namespace parallel_clusterer;
+
 Coord3D& Coord3D::rotate2D(Angle alpha, Axis3D axis1, Axis3D axis2)
 {
     const Coord c = std::cos(alpha), s = std::sin(alpha);

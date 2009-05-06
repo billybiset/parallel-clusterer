@@ -4,8 +4,9 @@
     
     This file is part of the Parallel Clusterer Project.
 
-    File:           clusterer_threads.cpp
-    Contents:       Main application.
+    File:           cluser.cpp
+    Contents:       Implementation file for Parallel Cluster providing class
+                    Cluster. A collection of structures with a representative.
 
     System:         Parallel Clusterer
     Language:       C++
@@ -27,23 +28,4 @@
     along with Parallel Clusterer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/thread.hpp>
-
-#include "marked_structuresDB.h"
-
-#include "appjobs/representatives_job.h"
-
-using namespace parallel_clusterer;
-
-int main()
-{
-    MarkedStructuresDB* db;
-    db = new MarkedStructuresDB();
-
-    RepresentativesJob * repjob;
-    repjob = new RepresentativesJob(db);
-    repjob->run();
-
-    repjob->wait_completion();
-
-}
+#include "cluster.h"

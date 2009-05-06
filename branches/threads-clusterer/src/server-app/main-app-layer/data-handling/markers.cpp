@@ -1,11 +1,12 @@
 #include <iostream>
-using namespace std;
-
 #include <algorithm>
 #include <stdexcept>
 #include "markers.h"
 #include "marker_iterators.h"
 
+
+using namespace std;
+using namespace parallel_clusterer;
 
 const Marker::Color Marker::Touched;
 const Marker::Color Marker::Untouched;

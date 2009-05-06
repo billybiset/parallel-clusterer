@@ -11,6 +11,8 @@ extern "C" {
 }
 #undef bool
 
+using namespace parallel_clusterer;
+
 GmxStructsDB::GmxHandler::GmxHandler(const string& filename, AccessMode mode, size_t* natoms_to_fill)
 	: first_read(true), access_mode(mode), _natoms_to_fill(natoms_to_fill)
 {

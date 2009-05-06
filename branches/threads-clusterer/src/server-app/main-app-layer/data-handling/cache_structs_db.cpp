@@ -1,9 +1,10 @@
 #include <iostream>
-using namespace std;
-
 #include <stdexcept>
 #include "cache_structs_db.h"
 #include "structure.h"
+
+using namespace std;
+using namespace parallel_clusterer;
 
 inline bool CacheStructsDB::Cache::is_hot(size_t index, EditableCoordsStructure& struc)
 {

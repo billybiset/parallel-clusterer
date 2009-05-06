@@ -9,7 +9,8 @@ BOOST_INCLUDE_PATH=/usr/include/boost-1_38/
 #includes
 CPPFLAGS+= -I$(GROMACS_INST_PATH)/include/gromacs -Wall
 CPPFLAGS+= -I$(BOOST_INCLUDE_PATH)
-CPPFLAGS+= -Idistributer-layer/ -Imain-app-layer/ -Imisc/ -Iclients-layer/ -I../common-include/ 
+MAIN_APP_INCLUDES = -Imain-app-layer/appjobs/ -Imain-app-layer/data-definitions -Imain-app-layer/data-handling
+CPPFLAGS+= -Idistributer-layer/ $(MAIN_APP_INCLUDES) -Imisc/ -Iclients-layer/ -I../common-include/ 
 
 #linker
 LDFLAGS+= -L$(GROMACS_INST_PATH)/lib/ -lgmx
@@ -27,17 +28,27 @@ COMMON_CPP_SOURCES = \
             ../common-include/structure.cpp \
             ../common-include/client.cpp 
 
+APPJOBS_CPP_SOURCES = \
+            main-app-layer/appjobs/representatives_job.cpp 
+
+DATA_DEFINITION_CPP_SOURCES = \
+            main-app-layer/data-definitions/cluster.cpp
+
+DATA_HANDLING_CPP_SOURCES = \
+            main-app-layer/data-handling/coord3d.cpp \
+            main-app-layer/data-handling/cache_structs_db.cpp \
+            main-app-layer/data-handling/gmx_structs_db.cpp \
+            main-app-layer/data-handling/marker_iterators.cpp \
+            main-app-layer/data-handling/markers.cpp \
+            main-app-layer/data-handling/rmsd.cpp \
+            main-app-layer/data-handling/sequentialDB.cpp \
+            main-app-layer/data-handling/marked_structuresDB.cpp \
+            main-app-layer/data-handling/structuresDB.cpp
+
 MAIN_APP_CPP_SOURCES = \
-            main-app-layer/coord3d.cpp \
-            main-app-layer/cache_structs_db.cpp \
-            main-app-layer/gmx_structs_db.cpp \
-            main-app-layer/marker_iterators.cpp \
-            main-app-layer/markers.cpp \
-            main-app-layer/representatives_job.cpp \
-            main-app-layer/rmsd.cpp \
-            main-app-layer/sequentialDB.cpp \
-            main-app-layer/structures_db.cpp \
-            main-app-layer/structuresDB.cpp
+            $(DATA_DEFINITION_CPP_SOURCES) \
+            $(DATA_HANDLING_CPP_SOURCES) \
+            $(APPJOBS_CPP_SOURCES)
 
 DISTRIBUTER_CPP_SOURCES = \
             distributer-layer/distributable_job.cpp \
@@ -57,7 +68,6 @@ CLUSTERER_CPP_SOURCES = \
             $(CLIENTS_CPP_SOURCERS)
 
 CLUSTERER_OBJECTS=$(patsubst %.cpp,%.o,$(CLUSTERER_CPP_SOURCES)) 
-# COMMON_CPP_OBJECTS=$(patsubst %.cpp,%.o,$(COMMON_CPP_SOURCES)) 
 
 #Add to this variable any tool that will be linked with the COMMON_CPP_SOURCES objects seperated by SPACES
 #Note that for this option to work there must be a source file with the name of the tool. For example
@@ -79,10 +89,13 @@ clusterer-threads: $(CLUSTERER_OBJECTS)
 
 .PHONY: clean help
 
-clean:
-	for d in "clients-layer" "distributer-layer" "main-app-layer" "misc" "../common-include"; do \
-		(cd $$d && rm -f *.o); \
-	done
+clean: \
+    for d in "clients-layer" "distributer-layer" "main-app-layer" "misc" "../common-include"; do \
+        (cd $$d && rm -f *.o); \
+    done #\
+    #for d in "main-app-layer/appjobs" "main-app-layer/data-handling" "main-app-layer/data-definitions"; do \
+    #    (cd $$d && rm -f *.o); \
+    #done 
 	rm -f clusterer-threads
 
 help:
