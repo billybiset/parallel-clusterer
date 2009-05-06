@@ -2,6 +2,8 @@
 #include "marker_iterators.h"
 #include "structuresDB.h"
 
+using namespace parallel_clusterer;
+
 MarkerIterator::MarkerIterator(Marker& marker, StructuresDB& db) :
 	_database(db.get_handler()),
 	_marker(marker),

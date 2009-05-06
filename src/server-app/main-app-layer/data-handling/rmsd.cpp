@@ -26,8 +26,10 @@
 #include "rmsd.h"
 #include "coord3d.h"
 #include "structure.h"
+#include "common.h"
 
 using std::runtime_error;
+using namespace parallel_clusterer;
 
 /* First version: copy-paste each GMX function as-is. So it can be stand-alone for now. */
 
@@ -329,57 +331,60 @@ static rvec* structure2rvec_arr(const Structure& s)
     return ret;
 }
 
-void rotalign(Structure& target, const Structure& reference)
+namespace parallel_clusterer
 {
-    assert(target.get_natoms() == reference.get_natoms());
-    const size_t NCOORDS = target.get_natoms();    
-
-    rvec *const vt = structure2rvec_arr(target),
-             *const vr = structure2rvec_arr(reference);
-    real *const rls = new real[NCOORDS];
-    size_t i;
-    
-
-    for(i=0; i<NCOORDS; ++i)
-        rls[i] = 1.0;
-    
-    do_fit(NCOORDS, rls, vr, vt);
-
-    for(i=0; i<NCOORDS; ++i)
+    void rotalign(Structure& target, const Structure& reference)
     {
-        Coord3D c;
-        rvec2Coord3D(vt[i], c);
+        assert(target.get_natoms() == reference.get_natoms());
+        const size_t NCOORDS = target.get_natoms();    
+
+        rvec *const vt = structure2rvec_arr(target),
+                *const vr = structure2rvec_arr(reference);
+        real *const rls = new real[NCOORDS];
+        size_t i;
         
-        target.set_coord(i, c);
+
+        for(i=0; i<NCOORDS; ++i)
+            rls[i] = 1.0;
+        
+        do_fit(NCOORDS, rls, vr, vt);
+
+        for(i=0; i<NCOORDS; ++i)
+        {
+            Coord3D c;
+            rvec2Coord3D(vt[i], c);
+            
+            target.set_coord(i, c);
+        }
+
+        delete [] vt;
+        delete [] vr;
+        delete [] rls;
     }
 
-    delete [] vt;
-    delete [] vr;
-    delete [] rls;
-}
-
-RMSD RMSD_between(const Structure& a, const Structure& b)
-{
-    assert(a.get_natoms() == b.get_natoms());
-    
-    const size_t NCOORDS = a.get_natoms();    
-    RMSD  ret(0);
-    
-    for(size_t i=0; i<NCOORDS; ++i)
-    {        
-        ret += a.get_coord(i).distance2_to(b.get_coord(i));
+    RMSD RMSD_between(const Structure& a, const Structure& b)
+    {
+        assert(a.get_natoms() == b.get_natoms());
+        
+        const size_t NCOORDS = a.get_natoms();    
+        RMSD  ret(0);
+        
+        for(size_t i=0; i<NCOORDS; ++i)
+        {        
+            ret += a.get_coord(i).distance2_to(b.get_coord(i));
+        }
+        
+        return sqrt(ret/NCOORDS);
     }
-    
-    return sqrt(ret/NCOORDS);
-}
 
-void rotalign(Structure& target, const Structure& ref, const Masses& masses)
-{
-    throw runtime_error("rotalign(Masses) not implemented");
-}
+    void rotalign(Structure& target, const Structure& ref, const Masses& masses)
+    {
+        throw runtime_error("rotalign(Masses) not implemented");
+    }
 
-RMSD RMSD_between(const Structure& a, const Structure& b, const Masses& masses)
-{
-    throw runtime_error("RMSD_between(const Structure& a, const Structure& b, const std::vector<Mass>& weights) not implemented");
-    return 0.0;
+    RMSD RMSD_between(const Structure& a, const Structure& b, const Masses& masses)
+    {
+        throw runtime_error("RMSD_between(const Structure& a, const Structure& b, const std::vector<Mass>& weights) not implemented");
+        return 0.0;
+    }
 }

@@ -6,7 +6,7 @@
 
 using namespace parallel_clusterer;
 
-RepresentativesJob::RepresentativesJob(Structures_DB* sdb) :
+RepresentativesJob::RepresentativesJob(MarkedStructuresDB* sdb) :
     DistributableJob(),
     _db(sdb)
 {

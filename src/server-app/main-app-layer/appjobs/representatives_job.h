@@ -3,7 +3,7 @@
 
 #include <list>
 
-#include "structures_db.h"
+#include "marked_structuresDB.h"
 #include "distributable_job.h"
 #include "job_unit.h"
 #include "common.h"
@@ -14,7 +14,7 @@ namespace parallel_clusterer
     class RepresentativesJob : public DistributableJob
     {
         public:
-            RepresentativesJob(Structures_DB* sdb);
+            RepresentativesJob(MarkedStructuresDB* sdb);
 
             virtual ~RepresentativesJob(){};
 
@@ -36,7 +36,7 @@ namespace parallel_clusterer
                     std::list<Structure *> _unmarked_list;
             };
 
-            Structures_DB* _db;
+            MarkedStructuresDB* _db;
     };
 }
 

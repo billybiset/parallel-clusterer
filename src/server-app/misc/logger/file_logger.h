@@ -4,8 +4,9 @@
     
     This file is part of the Parallel Clusterer Project.
 
-    File:           clusterer_threads.cpp
-    Contents:       Main application.
+    File:           file_logger.h
+    Contents:       Header file for Parallel Cluster providing class FileLogger.
+                    An implementation of a simple file logger.
 
     System:         Parallel Clusterer
     Language:       C++
@@ -27,23 +28,16 @@
     along with Parallel Clusterer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/thread.hpp>
+#ifndef FILE_LOGGER_H
+#define FILE_LOGGER_H
 
-#include "marked_structuresDB.h"
-
-#include "appjobs/representatives_job.h"
-
-using namespace parallel_clusterer;
-
-int main()
+namespace parallel_clusterer
 {
-    MarkedStructuresDB* db;
-    db = new MarkedStructuresDB();
-
-    RepresentativesJob * repjob;
-    repjob = new RepresentativesJob(db);
-    repjob->run();
-
-    repjob->wait_completion();
-
+    class FileLogger : Logger
+    {
+        public:
+        protected:
+        private:
+    };
 }
+#endif

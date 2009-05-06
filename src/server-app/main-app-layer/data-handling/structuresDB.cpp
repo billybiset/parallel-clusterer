@@ -4,6 +4,7 @@
 #include "structure.h"
 
 using std::runtime_error;
+using namespace parallel_clusterer;
 
 size_t StructuresDB::size() const
 {

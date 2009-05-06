@@ -1,6 +1,8 @@
 #include <stdexcept>
 #include "sequentialDB.h"
 
+using namespace parallel_clusterer;
+
 void SequentialDB_handler::read_nth(size_t target, EditableCoordsStructure& struc)	/* index=0 is first */
 {
 	size_t i=0;
