@@ -45,7 +45,7 @@ namespace parallel_clusterer
             void get_representatives();
 
         private:
-            virtual void run();
+//             virtual void run();
     };
 }
 
