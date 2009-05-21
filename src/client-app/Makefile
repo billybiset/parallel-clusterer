@@ -9,79 +9,50 @@ BOOST_INCLUDE_PATH=/usr/include/boost-1_38/
 #includes
 CPPFLAGS+= -I$(GROMACS_INST_PATH)/include/gromacs -Wall
 CPPFLAGS+= -I$(BOOST_INCLUDE_PATH)
-CPPFLAGS+= -Idistributer-layer/ -Imain-app-layer/ -Imisc/ -Iclients-layer/
+CPPFLAGS+= -Iapp-clients/ -I../common-include/ -I. -std=gnu++0x
 
 #linker
 LDFLAGS+= -L$(GROMACS_INST_PATH)/lib/ -lgmx
 LDFLAGS+= -lboost_thread-gcc43-mt 
+LDFLAGS+= -lboost_system-gcc43-mt
 
 ifeq ($(DEBUG),on)
-	CPPFLAGS+=-g -ggdb
+	CPPFLAGS+=-ggdb
 else
-	CPPFLAGS+=-O3 -g -ggdb
+	CPPFLAGS+=-O3
 endif
 
 #########Sources#################################################
 
-MAIN_APP_CPP_SOURCES = \
-            main-app-layer/coord3d.cpp \
-            main-app-layer/cache_structs_db.cpp \
-            main-app-layer/gmx_structs_db.cpp \
-            main-app-layer/marker_iterators.cpp \
-            main-app-layer/markers.cpp \
-            main-app-layer/representatives_job.cpp \
-            main-app-layer/rmsd.cpp \
-            main-app-layer/sequentialDB.cpp \
-            main-app-layer/structure.cpp \
-            main-app-layer/structures_db.cpp \
-            main-app-layer/structuresDB.cpp
+APPCLIENTS_CPP_SOURCES = \
+            app-clients/clusterer_client.cpp
 
-DISTRIBUTER_CPP_SOURCES = \
-            distributer-layer/distributable_job.cpp \
-            distributer-layer/distributer.cpp \
-            distributer-layer/job_unit.cpp
+DISTRIBUTION_CPP_SOURCES = \
+            distribution-layer/async_io_distribution.cpp
 
+CLIENT_CPP_SOURCES = \
+            client.cpp \
+            main_clusterer_client.cpp \
+            $(APPCLIENTS_CPP_SOURCES) \
+            $(DISTRIBUTION_CPP_SOURCES)
 
-CLIENTS_CPP_SOURCERS = \
-            clients-layer/client.cpp \
-            clients-layer/clusterer_threads_client.cpp \
-            clients-layer/threads_clients_manager.cpp
+CLIENT_OBJECTS=$(patsubst %.cpp,%.o,$(CLIENT_CPP_SOURCES)) 
 
+all: client
 
-CLUSTERER_CPP_SOURCES = \
-            main-app-layer/clusterer_threads.cpp \
-            $(MAIN_APP_CPP_SOURCES) \
-            $(DISTRIBUTER_CPP_SOURCES) \
-            $(CLIENTS_CPP_SOURCERS)
-
-# MAIN_TEST_CPP_SOURCES=main_test.cpp $(COMMON_CPP_SOURCES)	
-
-CLUSTERER_OBJECTS=$(patsubst %.cpp,%.o,$(CLUSTERER_CPP_SOURCES)) 
-# COMMON_CPP_OBJECTS=$(patsubst %.cpp,%.o,$(COMMON_CPP_SOURCES)) 
-
-#Add to this variable any tool that will be linked with the COMMON_CPP_SOURCES objects seperated by SPACES
-#Note that for this option to work there must be a source file with the name of the tool. For example
-#if main_test is added to the list, there must be a main_test.cpp file to compile with the main function.
-#main_test center_xtc
-
-
-all: clusterer-threads
-
-#Adds the dependency of the file with the main function to the list of dependencies of each stand alone tool.
-$(foreach tool,$(STANDALONE_TOOLS),$(eval $(tool): $(tool).o))
-
-$(STANDALONE_TOOLS): $(COMMON_CPP_OBJECTS)
-	$(CXX) -o $@ $^ $(LDFLAGS)	
-
-
-clusterer-threads: $(CLUSTERER_OBJECTS)
+client: $(CLIENT_OBJECTS)
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-.PHONY: clean help
+.PHONY: cleanall cleanobj cleanbackup help
 
-clean:
-	rm -f *.o
-	rm -f clusterer-threads
+cleanall : cleanobj cleanbackup
+	rm -f client
+
+cleanobj :
+	rm -f *.o */*.o */*/*.o
+
+cleanbackup :
+	rm -f *~ */*~ */*/*~
 
 help:
 	@echo

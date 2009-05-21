@@ -15,6 +15,7 @@ CPPFLAGS+= -Idistributer-layer/ $(MAIN_APP_INCLUDES) -Imisc/ -Iclients-layer/ -I
 #linker
 LDFLAGS+= -L$(GROMACS_INST_PATH)/lib/ -lgmx
 LDFLAGS+= -lboost_thread-gcc43-mt 
+LDFLAGS+= -lboost_system-gcc43-mt
 
 ifeq ($(DEBUG),on)
 	CPPFLAGS+=-ggdb
@@ -25,8 +26,7 @@ endif
 #########Sources#################################################
 
 COMMON_CPP_SOURCES = \
-            ../common-include/structure.cpp \
-            ../common-include/client.cpp 
+            ../common-include/structure.cpp
 
 APPJOBS_CPP_SOURCES = \
             main-app-layer/appjobs/representatives_job.cpp 
@@ -57,7 +57,7 @@ DISTRIBUTER_CPP_SOURCES = \
 
 
 CLIENTS_CPP_SOURCERS = \
-            clients-layer/threads_clients_manager.cpp
+            clients-layer/async_io_clients_manager.cpp
 
 
 CLUSTERER_CPP_SOURCES = \
@@ -75,28 +75,21 @@ CLUSTERER_OBJECTS=$(patsubst %.cpp,%.o,$(CLUSTERER_CPP_SOURCES))
 #main_test center_xtc
 
 
-all: clusterer-threads
+all: clusterer
 
-#Adds the dependency of the file with the main function to the list of dependencies of each stand alone tool.
-$(foreach tool,$(STANDALONE_TOOLS),$(eval $(tool): $(tool).o))
-
-$(STANDALONE_TOOLS): $(COMMON_CPP_OBJECTS)
-	$(CXX) -o $@ $^ $(LDFLAGS)	
-
-
-clusterer-threads: $(CLUSTERER_OBJECTS)
+clusterer: $(CLUSTERER_OBJECTS)
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-.PHONY: clean help
+.PHONY: cleanall cleanobj cleanbackup help
 
-clean: \
-    for d in "clients-layer" "distributer-layer" "main-app-layer" "misc" "../common-include"; do \
-        (cd $$d && rm -f *.o); \
-    done #\
-    #for d in "main-app-layer/appjobs" "main-app-layer/data-handling" "main-app-layer/data-definitions"; do \
-    #    (cd $$d && rm -f *.o); \
-    #done 
-	rm -f clusterer-threads
+cleanall : cleanobj cleanbackup
+	rm clusterer
+
+cleanobj :
+	rm -f *.o */*.o */*/*.o
+
+cleanbackup :
+	rm -f *~ */*~ */*/*~
 
 help:
 	@echo

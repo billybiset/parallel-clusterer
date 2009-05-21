@@ -9,7 +9,6 @@
 #include "distributable_job.h"
 #include "job_unit.h"
 #include "clients_manager.h"
-#include "client.h"
 
 namespace parallel_clusterer
 {
@@ -46,6 +45,8 @@ namespace parallel_clusterer
 
             /* Attr. */
             static Distributer*             _instance;
+
+            ClientsManager*                 _clients_manager;
 
             std::list<DistributableJob *>   _distJobs;
             std::list<JobUnit *>            _jobQueue;
