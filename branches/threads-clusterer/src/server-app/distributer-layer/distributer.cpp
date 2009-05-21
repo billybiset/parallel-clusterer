@@ -5,8 +5,7 @@
 #include <boost/thread/mutex.hpp>
 
 #include "distributer.h"
-#include "threads_clients_manager.h"
-#include "client.h"
+#include "clients_manager.h"
 
 using namespace parallel_clusterer;
 
@@ -22,6 +21,7 @@ Distributer* Distributer::get_instance ()
 }
 
 Distributer::Distributer() :
+    _clients_manager(create_clients_manager()),
     _distJobs(),
     _jobQueue(),
     _pendingList(MAX_JOBUNITS_PENDING_SIZE),
@@ -102,9 +102,8 @@ void Distributer::run_scheduler()
         if(! _jobQueue.empty()) /*this policy will be changed*/
         {
             JobUnit* job_unit = _jobQueue.front();                   /*process a job unit from queue*/
-            ThreadsClientsManager* cm = ThreadsClientsManager::get_instance();  /*Talk to the client mgr.*/
 
-            if (cm->assign_job_unit(job_unit))
+            if (_clients_manager->assign_job_unit(job_unit))
                 _jobQueue.pop_front();
             else if ( ! job_queue_full() )
                 create_another_job_unit();
