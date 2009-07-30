@@ -1,19 +1,16 @@
 
 #########Installation Parameters#################################
 
-GROMACS_INST_PATH=/usr/local/gromacs
 BOOST_INCLUDE_PATH=/usr/include/boost-1_38/
 
 #########Compilation Flags#######################################
 
 #includes
-CPPFLAGS+= -I$(GROMACS_INST_PATH)/include/gromacs -Wall
 CPPFLAGS+= -I$(BOOST_INCLUDE_PATH)
-CPPFLAGS+= -Iapp-clients/ -I../common-include/ -I. -std=gnu++0x
+CPPFLAGS+= -Iapp-clients/ -Imanagement-layer/ -Idistribution-layer/ -I../common-include/ -I. #-std=gnu++0x
 
 #linker
-LDFLAGS+= -L$(GROMACS_INST_PATH)/lib/ -lgmx
-LDFLAGS+= -lboost_thread-gcc43-mt 
+LDFLAGS+= -lboost_thread-gcc43-mt
 LDFLAGS+= -lboost_system-gcc43-mt
 
 ifeq ($(DEBUG),on)
@@ -24,17 +21,27 @@ endif
 
 #########Sources#################################################
 
+COMMON_CPP_SOURCES = \
+            ../common-include/job_unit.cpp \
+            ../common-include/binstream.cpp \
+            ../common-include/string_message.cpp
+
 APPCLIENTS_CPP_SOURCES = \
-            app-clients/clusterer_client.cpp
+            app-clients/counter_processor.cpp
 
 DISTRIBUTION_CPP_SOURCES = \
             distribution-layer/async_io_distribution.cpp
 
+MANAGEMENTE_CPP_SOURCES = \
+            management-layer/client_processor.cpp \
+            management-layer/processors_manager.cpp
+
 CLIENT_CPP_SOURCES = \
-            client.cpp \
-            main_clusterer_client.cpp \
+            counter_client.cpp \
+            $(COMMON_CPP_SOURCES) \
             $(APPCLIENTS_CPP_SOURCES) \
-            $(DISTRIBUTION_CPP_SOURCES)
+            $(MANAGEMENTE_CPP_SOURCES) \
+            $(DISTRIBUTION_CPP_SOURCES) 
 
 CLIENT_OBJECTS=$(patsubst %.cpp,%.o,$(CLIENT_CPP_SOURCES)) 
 

@@ -29,16 +29,150 @@
     along with Parallel Clusterer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <boost/asio.hpp>
+#include <boost/array.hpp>
+#include <boost/regex.hpp>
+
+#include <iostream>
+
+#include <cstdlib>
+
+#include "binstream.h"
+#include "common.h"
 #include "async_io_distribution.h"
+#include "processors_manager.h"
+
+#include "distribution_client.h"
+
+using boost::asio::ip::tcp;
 
 using namespace parallel_clusterer;
 
-AsyncIODistribution::AsyncIODistribution()
+AsyncIODistribution::AsyncIODistribution() :
+    _socket(0),
+    DistributionClient()
 {
+}
+
+void AsyncIODistribution::wait_for_job_unit()
+{
+    try
+    {
+        JobUnitID   id(1);
+        JobUnitSize size(1);
+
+        while (id != 0 && size != 0)
+        {
+            std::cout << "About to read." << std::endl;
+            char header[HEADER_LENGTH];
+            size_t received;
+
+            boost::system::error_code ec;
+//             received = _socket->receive(boost::asio::buffer(header,HEADER_LENGTH),boost::asio::transfer_all(),ec);
+            received = boost::asio::read(*_socket,boost::asio::buffer(header,HEADER_LENGTH),boost::asio::transfer_all(),ec);
+            if (ec)
+                std::cout << "Error receiving" << std::endl;
+            else
+                std::cout << "Received: " << received << std::endl;
+
+            BIStream bis(std::string(header,HEADER_LENGTH));
+            bis >> id >> size;
+            std::cout << "Id: " << id << ". Size: " << size << std::endl;
+            if (id != 0 && size != 0)
+            {
+                char body[size];
+                _socket->receive(boost::asio::buffer(body,size));
+
+                ProcessorsManager::get_instance()->deliver_message(std::string(body,size));
+            }
+            else
+                std::cout << std::endl << "Finished reading." << std::endl;
+        }
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "An error ocurred :( -> " << e.what() << std::endl;
+    }
+}
+
+void AsyncIODistribution::inform_result(bool result)
+{
+    try
+    {
+        if (result)
+        {
+            std::cout << "Positive " << std::endl;
+            BOStream bos;
+            bos << JobUnitCompleted << ProcessorsManager::get_instance()->get_return_message();
+            boost::asio::write(*_socket, boost::asio::buffer(bos.str()));
+        }
+        else
+        {
+            std::cout << "Negarchative " << std::endl;
+            boost::asio::write(*_socket, boost::asio::buffer(Messages::BAD.serialize()));
+        }
+
+        std::cout << "Informing" << std::endl;
+//         wait_for_job_unit();
+    }
+    catch(std::exception& e)
+    {
+        std::cerr << "ERROR: " << e.what() << std::endl;
+    }
 }
 
 void AsyncIODistribution::run()
 {
+    std::cout << "Starting ASIO client." << std::endl;
+    try
+    {
+        boost::asio::io_service io_service;
+
+        tcp::resolver resolver(io_service);
+        tcp::resolver::query query("localhost", "31337"); //2nd param shouldn't be int :(
+        tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
+        tcp::resolver::iterator end = tcp::resolver::iterator();
+
+        _socket = new tcp::socket(io_service);
+//         tcp::socket socket(io_service);
+        boost::system::error_code error = boost::asio::error::host_not_found;
+        while (error && endpoint_iterator != end)
+        {
+            _socket->close();
+            _socket->connect(*endpoint_iterator++, error);
+        }
+        if (error)
+            throw boost::system::system_error(error);
+
+        std::cout << "Connected." << std::endl;
+        //state -> connected
+        //waiting reply
+        ResponseCode response;
+        try{
+            char res_buf[RESPONSE_HEADER_LENGTH];
+            size_t len = _socket->receive(boost::asio::buffer(res_buf,RESPONSE_HEADER_LENGTH));
+
+            if (error)
+                throw boost::system::system_error(error);
+
+            BIStream bis(std::string(res_buf,RESPONSE_HEADER_LENGTH));
+            bis >> response;
+        }
+        catch(std::exception& e)
+        {
+            std::cerr << "Failed to connect to server: " << e.what() << std::endl;
+        }
+
+        if (response == ConnectionSuccess)
+        {
+            std::cout << "Established." << std::endl;
+            wait_for_job_unit();
+        }
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "An error ocurred :(  -> " << e.what() << std::endl;
+    }
 }
 
 namespace parallel_clusterer

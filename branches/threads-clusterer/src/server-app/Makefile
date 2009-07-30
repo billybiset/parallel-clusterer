@@ -1,19 +1,16 @@
 
 #########Installation Parameters#################################
 
-GROMACS_INST_PATH=/usr/local/gromacs
 BOOST_INCLUDE_PATH=/usr/include/boost-1_38/
 
 #########Compilation Flags#######################################
 
 #includes
-CPPFLAGS+= -I$(GROMACS_INST_PATH)/include/gromacs -Wall
 CPPFLAGS+= -I$(BOOST_INCLUDE_PATH)
 MAIN_APP_INCLUDES = -Imain-app-layer/appjobs/ -Imain-app-layer/data-definitions -Imain-app-layer/data-handling
 CPPFLAGS+= -Idistributer-layer/ $(MAIN_APP_INCLUDES) -Imisc/ -Iclients-layer/ -I../common-include/ 
 
 #linker
-LDFLAGS+= -L$(GROMACS_INST_PATH)/lib/ -lgmx
 LDFLAGS+= -lboost_thread-gcc43-mt 
 LDFLAGS+= -lboost_system-gcc43-mt
 
@@ -26,42 +23,29 @@ endif
 #########Sources#################################################
 
 COMMON_CPP_SOURCES = \
-            ../common-include/structure.cpp
+            ../common-include/job_unit.cpp \
+            ../common-include/string_message.cpp \
+            ../common-include/binstream.cpp
 
 APPJOBS_CPP_SOURCES = \
-            main-app-layer/appjobs/representatives_job.cpp 
-
-DATA_DEFINITION_CPP_SOURCES = \
-            main-app-layer/data-definitions/cluster.cpp
-
-DATA_HANDLING_CPP_SOURCES = \
-            main-app-layer/data-handling/coord3d.cpp \
-            main-app-layer/data-handling/cache_structs_db.cpp \
-            main-app-layer/data-handling/gmx_structs_db.cpp \
-            main-app-layer/data-handling/marker_iterators.cpp \
-            main-app-layer/data-handling/markers.cpp \
-            main-app-layer/data-handling/rmsd.cpp \
-            main-app-layer/data-handling/sequentialDB.cpp \
-            main-app-layer/data-handling/marked_structuresDB.cpp \
-            main-app-layer/data-handling/structuresDB.cpp
+            main-app-layer/appjobs/counter.cpp
 
 MAIN_APP_CPP_SOURCES = \
-            $(DATA_DEFINITION_CPP_SOURCES) \
-            $(DATA_HANDLING_CPP_SOURCES) \
             $(APPJOBS_CPP_SOURCES)
 
 DISTRIBUTER_CPP_SOURCES = \
             distributer-layer/distributable_job.cpp \
-            distributer-layer/distributer.cpp \
-            distributer-layer/job_unit.cpp
+            distributer-layer/distributer.cpp
 
 
 CLIENTS_CPP_SOURCERS = \
-            clients-layer/async_io_clients_manager.cpp
+            clients-layer/clients_manager.cpp \
+            clients-layer/async_io_clients_manager.cpp \
+            clients-layer/client_proxy.cpp
 
 
 CLUSTERER_CPP_SOURCES = \
-            main-app-layer/clusterer_threads.cpp \
+            main-app-layer/counter_main.cpp \
             $(COMMON_CPP_SOURCES) \
             $(MAIN_APP_CPP_SOURCES) \
             $(DISTRIBUTER_CPP_SOURCES) \
@@ -75,9 +59,9 @@ CLUSTERER_OBJECTS=$(patsubst %.cpp,%.o,$(CLUSTERER_CPP_SOURCES))
 #main_test center_xtc
 
 
-all: clusterer
+all: counter
 
-clusterer: $(CLUSTERER_OBJECTS)
+counter: $(CLUSTERER_OBJECTS)
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 .PHONY: cleanall cleanobj cleanbackup help
