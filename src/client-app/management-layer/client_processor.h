@@ -4,13 +4,8 @@
     
     This file is part of the Parallel Clusterer Project.
 
-    File:           clusterer_client.cpp
-    Contents:       Implementation file for Parallel Cluster providing class 
-                    ClustererClient. This type of client is designed to solve
-                    job units from each of the three concrete distributable 
-                    jobs of the clusterer. There is also an implementation
-                    of the create_client method, which will later be linked at
-                    compile time.
+    File:           client_processor.h
+    Contents:       Header file for Parallel Cluster providing class ClientProcessor.
 
     System:         Parallel Clusterer
     Language:       C++
@@ -32,15 +27,32 @@
     along with Parallel Clusterer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "clusterer_client.h"
-#include "client.h"
+#ifndef CLIENT_PROCESSOR_H
+#define CLIENT_PROCESSOR_H
 
-using namespace parallel_clusterer;
+#include <string>
+#include <boost/thread.hpp>
 
-ClustererClient::ClustererClient() 
+#include "common.h"
+#include "job_unit.h"
+
+namespace parallel_clusterer
 {
-}
+    class ClientProcessor
+    {
+        public:
+            virtual bool process(const std::string& message) = 0;
 
-void ClustererClient::get_representatives()
-{
+            virtual ~ClientProcessor(){}
+
+            const std::string& get_return_message() const;
+
+        protected:
+            ClientProcessor();
+
+            inline void register_method(const MethodDescriptor& method_name, void* method());
+
+            std::string _return_message;
+    };
 }
+#endif

@@ -32,6 +32,9 @@
 #ifndef ASYNC_IO_DISTRIBUTION_H
 #define ASYNC_IO_DISTRIBUTION_H
 
+#include <boost/asio.hpp>
+using boost::asio::ip::tcp;
+
 #include "distribution_client.h"
 
 namespace parallel_clusterer
@@ -42,6 +45,13 @@ namespace parallel_clusterer
             AsyncIODistribution();
 
             virtual void run();
+        private:
+            virtual void inform_result(bool result);
+
+            void wait_for_job_unit();
+
+            /*attr*/
+            tcp::socket* _socket;
     };
 }
 

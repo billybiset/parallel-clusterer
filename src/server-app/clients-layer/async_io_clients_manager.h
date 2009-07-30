@@ -33,8 +33,12 @@
 #ifndef ASYNC_IO_CLIENTS_MANAGER_H
 #define ASYNC_IO_CLIENTS_MANAGER_H
 
+#include <list>
+
+#include <boost/thread.hpp>
 #include <boost/asio.hpp>
 
+#include "common.h"
 #include "clients_manager.h"
 #include "client_proxy.h"
 #include "job_unit.h"
@@ -49,28 +53,35 @@ namespace parallel_clusterer
             AsyncIOClientsManager();
 
             ~AsyncIOClientsManager(){};
-
         private:
             virtual bool  assign_job_unit  (      JobUnit* job_unit);
-            virtual void  inform_completion(const JobUnit* job_unit);
-
-            virtual void  register_client  (ClientProxy* client);
-            virtual void  deregister_client(ClientProxy* client);
 
             class AsyncIOClientProxy : public ClientProxy
             {
                 public:
-                ~AsyncIOClientProxy() {};
-                protected:
+                    AsyncIOClientProxy(tcp::socket* socket);
+                    ~AsyncIOClientProxy() {};
                 private:
+                    virtual void process(JobUnit* job_unit);
+
+                    virtual bool busy() const;
+
+                    void handle_response(ResponseCode code,JobUnitID id);
+
+                    void destroy();
+
+                    tcp::socket* _socket;
+                    ClientState  _state;
+                    boost::mutex _proxy_mutex;
             };
 
-            virtual ClientProxy* create_client_proxy();
-
             void run_server();
+            void run_listener();
 
             /* attr.*/
-            boost::asio::io_service _io;
+            boost::asio::io_service   _io;
+            std::list<tcp::socket*>   _sockets;
+            boost::mutex              _sockets_mutex;
     };
 
     ClientsManager* create_clients_manager();

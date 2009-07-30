@@ -36,6 +36,10 @@
 #ifndef CLIENTS_MANAGER_H
 #define CLIENTS_MANAGER_H
 
+#include <vector>
+
+#include <boost/thread.hpp>
+
 #include "client_proxy.h"
 #include "job_unit.h"
 
@@ -44,15 +48,27 @@ namespace parallel_clusterer
     class ClientsManager
     {
         public:
-            virtual bool         assign_job_unit  (      JobUnit* job_unit) = 0;
-            virtual void         inform_completion(const JobUnit* job_unit) = 0;
+            virtual bool assign_job_unit  (JobUnit* job_unit) = 0;
 
-            virtual ClientProxy* create_client_proxy() = 0;
+            void         inform_completion(JobUnitID id,const std::string& message);
+
+            virtual void  deregister_client(ClientProxy* client);
+
+            inline static ClientsManager* get_instance() {return _instance;}
+
         protected:
+            ClientsManager();
             virtual ~ClientsManager(){};
 
-            virtual void  register_client  (ClientProxy* client) = 0;
-            virtual void  deregister_client(ClientProxy* client) = 0;
+            virtual ClientProxy* get_available_client();
+
+            virtual void  register_client  (ClientProxy* client); //implemented here
+
+        private:
+            std::list<ClientProxy*>  _client_proxies;
+            boost::mutex             _client_proxies_mutex;
+
+            static ClientsManager*   _instance;
     };
 
     /**

@@ -4,10 +4,9 @@
     
     This file is part of the Parallel Clusterer Project.
 
-    File:           clusterer_client.h
-    Contents:       Header file for Parallel Cluster providing class ClustererClient.
-                    This type of client is designed to solve job units from each of the
-                    three concrete distributable jobs of the clusterer.
+    File:           distribution_client.h
+    Contents:       Header file for Parallel Cluster providing class
+                    DistributionClient, an interface for layer 1.
 
     System:         Parallel Clusterer
     Language:       C++
@@ -29,24 +28,25 @@
     along with Parallel Clusterer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLUSTERER_CLIENT_H
-#define CLUSTERER_CLIENT_H
-
-#include "client.h"
+#ifndef DISTRIBUTION_CLIENT_H
+#define DISTRIBUTION_CLIENT_H
 
 namespace parallel_clusterer
 {
-    class ClustererClient : public Client<ClustererClient>
+    class DistributionClient
     {
         public:
-            ClustererClient();
+            virtual void                run()                      = 0;
+            virtual void                inform_result(bool result) = 0;
 
+            static DistributionClient*  get_instance() {return _instance; }
         protected:
-            void get_representatives();
+            DistributionClient() {_instance = this; }
 
-        private:
-//             virtual void run();
+            static DistributionClient*  _instance;
     };
+
+    DistributionClient* create_distribution_client();
 }
 
 #endif

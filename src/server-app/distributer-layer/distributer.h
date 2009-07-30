@@ -16,22 +16,20 @@ namespace parallel_clusterer
     {
         public:
             static Distributer* get_instance();
- 
+
             void   enqueue(DistributableJob* distjob);
 
             void   start_scheduler();
             void   stop_scheduler();
 
-            void   inform_completion(const JobUnit* job_unit);
+            void   inform_completion(JobUnitID id,const std::string& message);
 
         private:
 
             enum Status {kStopped, kPaused, kRunning};
 
-            static const size_t MAX_DISTJOBS_QUEUE_SIZE   = 10; /*yes, will be bigger, maybe limitless :P */
-            static const size_t MAX_JOBUNITS_QUEUE_SIZE   = 11;
+            /*take this out of here*/
             static const size_t MAX_JOBUNITS_PENDING_SIZE = 11;
-            static const size_t JOB_UNIT_SIZE             = 50;
 
             Distributer();
 
@@ -48,14 +46,17 @@ namespace parallel_clusterer
 
             ClientsManager*                 _clients_manager;
 
-            std::list<DistributableJob *>   _distJobs;
-            std::list<JobUnit *>            _jobQueue;
-            std::vector<JobUnit *>          _pendingList;
+            std::list<DistributableJob *>         _distJobs;
+            std::list<JobUnit *>                  _jobQueue;
+            std::list<JobUnit *>                  _pendingList;
+            std::map<JobUnitID,DistributableJob*> _ids_to_job_map;
 
             Status                          _status;
 
+            boost::mutex                    _status_mutex;
             boost::mutex                    _distJobs_mutex;
             boost::mutex                    _jobQueue_mutex;
+            boost::mutex                    _pendingList_mutex;
     };
 }
 #endif

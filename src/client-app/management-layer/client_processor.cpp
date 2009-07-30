@@ -30,14 +30,18 @@
 
 #include <boost/thread.hpp>
 
-#include "client.h"
+#include "client_processor.h"
+#include "processors_manager.h"
 #include "common.h"
 
 using namespace parallel_clusterer;
 
-template<typename T> void Client<T>::set_status(Status new_status)
+ClientProcessor::ClientProcessor()
 {
-    boost::mutex::scoped_lock glock(_status_mutex);
-    _status = new_status;
+    ProcessorsManager::get_instance()->register_processor(this); 
 }
 
+const std::string& ClientProcessor::get_return_message() const
+{
+    return _return_message;
+}
