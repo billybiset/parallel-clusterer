@@ -150,7 +150,7 @@ bool  AsyncIOClientsManager::assign_job_unit  (JobUnit* job_unit)
     ClientProxy* client(get_available_client());
     if (client != NULL)
     {
-        _io.run();
+//         _io.run();
 //         boost::asio::io_service::run();
         client->process(job_unit); //but on a different thread
 //         boost::thread do_job(boost::bind(&ClientProxy::process,client,job_unit));
