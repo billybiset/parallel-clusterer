@@ -14,11 +14,11 @@ CPPFLAGS+= -Idistributer-layer/ $(MAIN_APP_INCLUDES) -Imisc/ -Iclients-layer/ -I
 LDFLAGS+= -lboost_thread-gcc43-mt 
 LDFLAGS+= -lboost_system-gcc43-mt
 
-ifeq ($(DEBUG),on)
+# ifeq ($(DEBUG),on)
 	CPPFLAGS+=-ggdb
-else
-	CPPFLAGS+=-O3
-endif
+# else
+# 	CPPFLAGS+=-O3
+# endif
 
 #########Sources#################################################
 

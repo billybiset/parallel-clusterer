@@ -106,6 +106,7 @@ void Distributer::create_another_job_unit()
 void Distributer::run_scheduler()
 {
     syslog(LOG_NOTICE,"Starting scheduler.");
+    _clients_manager->initialize();
     while (_status != kStopped)
     {
         {

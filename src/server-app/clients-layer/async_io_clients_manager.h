@@ -54,7 +54,8 @@ namespace parallel_clusterer
 
             ~AsyncIOClientsManager(){};
         private:
-            virtual bool  assign_job_unit  (      JobUnit* job_unit);
+            virtual bool  assign_job_unit (JobUnit* job_unit);
+            virtual void  initialize();
 
             class AsyncIOClientProxy : public ClientProxy
             {
@@ -67,12 +68,16 @@ namespace parallel_clusterer
                     virtual bool busy() const;
 
                     void handle_response(ResponseCode code,JobUnitID id);
+                    void handle_response_buf();
 
                     void destroy();
 
                     tcp::socket* _socket;
                     ClientState  _state;
                     boost::mutex _proxy_mutex;
+                    
+                    char _code_buf[RESPONSE_HEADER_LENGTH];
+                    JobUnitID _current_id;
             };
 
             void run_server();
