@@ -49,6 +49,7 @@ namespace parallel_clusterer
     {
         public:
             virtual void  initialize() = 0;
+            virtual void  do_tasks() = 0;
             virtual bool assign_job_unit  (JobUnit* job_unit) = 0;
 
             void         inform_completion(JobUnitID id,const std::string& message);
