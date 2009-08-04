@@ -56,6 +56,7 @@ namespace parallel_clusterer
         private:
             virtual bool  assign_job_unit (JobUnit* job_unit);
             virtual void  initialize();
+            virtual void  do_tasks();
 
             class AsyncIOClientProxy : public ClientProxy
             {

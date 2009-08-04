@@ -153,6 +153,7 @@ bool  AsyncIOClientsManager::assign_job_unit  (JobUnit* job_unit)
 //         _io.run();
 //         boost::asio::io_service::run();
         client->process(job_unit); //but on a different thread
+        _io.run_one();
 //         boost::thread do_job(boost::bind(&ClientProxy::process,client,job_unit));
         return true;
     }
@@ -160,9 +161,26 @@ bool  AsyncIOClientsManager::assign_job_unit  (JobUnit* job_unit)
         return false;
 }
 
+void  AsyncIOClientsManager::do_tasks()
+{
+    boost::system::error_code ec;
+    size_t st;
+    st = _io.run(ec);
+    if (ec)
+        syslog(LOG_NOTICE,"run error %u",st);
+//     else
+//         syslog(LOG_NOTICE,"NO run error %u",st);
+}
+
 void  AsyncIOClientsManager::initialize()
 {
-    _io.run();
+//     boost::system::error_code ec;
+//     size_t st;
+//     st = _io.run(ec);
+//     if (ec)
+//         syslog(LOG_NOTICE,"run error %u",st);
+//     else
+//         syslog(LOG_NOTICE,"NO run error %u",st);
 }
 
 void AsyncIOClientsManager::AsyncIOClientProxy::process(JobUnit* job_unit)
