@@ -48,6 +48,7 @@ namespace parallel_clusterer
     class ClientsManager
     {
         public:
+            virtual void  initialize() = 0;
             virtual bool assign_job_unit  (JobUnit* job_unit) = 0;
 
             void         inform_completion(JobUnitID id,const std::string& message);

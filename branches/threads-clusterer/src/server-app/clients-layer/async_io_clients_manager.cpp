@@ -160,7 +160,10 @@ bool  AsyncIOClientsManager::assign_job_unit  (JobUnit* job_unit)
         return false;
 }
 
-
+void  AsyncIOClientsManager::initialize()
+{
+    _io.run();
+}
 
 void AsyncIOClientsManager::AsyncIOClientProxy::process(JobUnit* job_unit)
 {
