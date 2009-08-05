@@ -69,6 +69,8 @@ namespace parallel_clusterer
                     virtual bool busy() const;
 
                     void handle_response(ResponseCode code,JobUnitID id);
+                    void handle_send(const boost::system::error_code& ec);
+                    void handle_receive(const boost::system::error_code& ec);
                     void handle_response_buf();
 
                     void destroy();
@@ -76,7 +78,7 @@ namespace parallel_clusterer
                     tcp::socket* _socket;
                     ClientState  _state;
                     boost::mutex _proxy_mutex;
-                    
+
                     char _code_buf[RESPONSE_HEADER_LENGTH];
                     JobUnitID _current_id;
             };
