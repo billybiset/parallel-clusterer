@@ -153,7 +153,7 @@ bool  AsyncIOClientsManager::assign_job_unit  (JobUnit* job_unit)
 //         _io.run();
 //         boost::asio::io_service::run();
         client->process(job_unit); //but on a different thread
-        _io.run_one();
+//         _io.run_one();
 //         boost::thread do_job(boost::bind(&ClientProxy::process,client,job_unit));
         return true;
     }
@@ -165,7 +165,10 @@ void  AsyncIOClientsManager::do_tasks()
 {
     boost::system::error_code ec;
     size_t st;
-    st = _io.run(ec);
+//     st = _io.run(ec);
+    st = _io.poll(ec);
+    if (st > 0)
+        syslog(LOG_NOTICE,"Executed %u handlers",st);
     if (ec)
         syslog(LOG_NOTICE,"run error %u",st);
 //     else
@@ -183,46 +186,56 @@ void  AsyncIOClientsManager::initialize()
 //         syslog(LOG_NOTICE,"NO run error %u",st);
 }
 
+void AsyncIOClientsManager::AsyncIOClientProxy::handle_receive(const boost::system::error_code& ec)
+{
+    if (!ec)
+    {
+        syslog(LOG_NOTICE,"Client %u received response",get_id());
+        boost::mutex::scoped_lock glock(_proxy_mutex);
+        BIStream bis(std::string(_code_buf,RESPONSE_HEADER_LENGTH));
+
+        ResponseCode code;
+        bis >> code;
+        syslog(LOG_NOTICE,"Client %u received response with code %u about Job Unit %u.",get_id(),code,_current_id);
+
+        handle_response(code,_current_id);
+        _state = kIdle;
+    }
+    else
+    {
+        syslog(LOG_NOTICE,"Error receiving results in client %u.",get_id());
+        destroy();
+    }
+}
+
+void AsyncIOClientsManager::AsyncIOClientProxy::handle_send(const boost::system::error_code& ec)
+{
+    if (!ec)
+    {
+        syslog(LOG_NOTICE,"Sending Job Unit %u to Client %u",_current_id,get_id());
+        boost::asio::async_read(*_socket,boost::asio::buffer(_code_buf,RESPONSE_HEADER_LENGTH),
+                                boost::bind(&AsyncIOClientsManager::AsyncIOClientProxy::handle_receive,this,
+                                boost::asio::placeholders::error));
+    }
+    else
+        syslog(LOG_NOTICE,"Error sending JobUnit %u to Client %u",_current_id,get_id());
+}
+
 void AsyncIOClientsManager::AsyncIOClientProxy::process(JobUnit* job_unit)
 {
     try{
         boost::mutex::scoped_lock glock(_proxy_mutex);
         _current_id = job_unit->get_id();
         _state = kBusy;
-        // send job_unit through the socket
-        size_t sent;
-        sent = boost::asio::write(*_socket, boost::asio::buffer(job_unit->serialize()));
-
-        syslog(LOG_NOTICE,"Sending Job Unit %u to Client %u",job_unit->get_id(),get_id());
+        boost::asio::async_write(*_socket, boost::asio::buffer(job_unit->serialize()),
+                                boost::bind(&AsyncIOClientsManager::AsyncIOClientProxy::handle_send,this,
+                                boost::asio::placeholders::error));
     }
     catch(std::exception& e)
     {
         syslog(LOG_NOTICE,"Error(process/write): %s.",e.what());
         destroy();
     }
-//     char code_buf[RESPONSE_HEADER_LENGTH];
-    try
-    {
-        boost::mutex::scoped_lock glock(_proxy_mutex);
-//         _socket->receive(boost::asio::buffer(code_buf,RESPONSE_HEADER_LENGTH));
-        _socket->async_receive(
-            boost::asio::buffer(_code_buf,RESPONSE_HEADER_LENGTH),
-            boost::bind(&AsyncIOClientProxy::handle_response_buf,this));
-//         BIStream bis(std::string(code_buf,RESPONSE_HEADER_LENGTH));
-
-//         ResponseCode code;
-//         bis >> code;
-//         syslog(LOG_NOTICE,"Client %u received response with code %u about Job Unit %u.",get_id(),code,job_unit->get_id());
-
-//         handle_response(code,job_unit->get_id());
-//         _state = kIdle;
-    }
-    catch(std::exception& e)
-    {
-        syslog(LOG_NOTICE,"Error(process/read): %s.",e.what());
-        destroy();
-    }
-
 }
 
 void AsyncIOClientsManager::AsyncIOClientProxy::destroy()
