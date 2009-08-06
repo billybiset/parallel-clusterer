@@ -78,10 +78,12 @@ void AsyncIOClientsManager::handle_accept(const boost::system::error_code& ec,As
 }
 
 AsyncIOClientsManager::AsyncIOClientProxy::AsyncIOClientProxy(boost::asio::io_service& io_service) :
+    ClientProxy(),
     _socket(io_service),
     _state(kIdle),
     _proxy_mutex(),
-    ClientProxy()
+    _code_buf(),
+    _current_id(0)
 {
 }
 

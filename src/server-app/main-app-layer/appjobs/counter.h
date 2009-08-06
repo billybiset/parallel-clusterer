@@ -14,7 +14,7 @@ namespace parallel_clusterer
     class Counter : public DistributableJob
     {
         public:
-            Counter(char* file_name);
+            Counter(const char* file_name);
 
             virtual void        output_results()      const;
 

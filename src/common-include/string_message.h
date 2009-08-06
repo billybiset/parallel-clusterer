@@ -39,13 +39,15 @@
 
 namespace parallel_clusterer
 {
-    class StringMessage : public virtual SerializableObject
+    class StringMessage : public SerializableObject
     {
         public:
             virtual const std::string serialize() const;
 
             StringMessage(const char* str);
             StringMessage(const std::string& str);
+
+            virtual ~StringMessage(){};
         private:
             /* Constructors. */
             StringMessage();

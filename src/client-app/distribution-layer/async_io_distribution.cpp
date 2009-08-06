@@ -49,8 +49,8 @@ using boost::asio::ip::tcp;
 using namespace parallel_clusterer;
 
 AsyncIODistribution::AsyncIODistribution() :
-    _socket(0),
-    DistributionClient()
+    DistributionClient(),
+    _socket(0)
 {
 }
 

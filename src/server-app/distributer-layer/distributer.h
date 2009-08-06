@@ -25,6 +25,9 @@ namespace parallel_clusterer
             void   inform_completion(const JobUnitID& id,const std::string& message);
 
         private:
+            /* Override these, as per -Weffc++ warnings */
+            Distributer(const Distributer&);
+            Distributer& operator=(const Distributer&);
 
             enum Status {kStopped, kPaused, kRunning};
 

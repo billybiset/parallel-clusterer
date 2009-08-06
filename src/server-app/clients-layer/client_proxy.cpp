@@ -9,3 +9,7 @@ ClientProxy::ClientProxy() :
     _id(++_last_id)
 {
 }
+
+ClientProxy::~ClientProxy()
+{
+}
