@@ -2,6 +2,6 @@
 
 using namespace parallel_clusterer;
 
-SerializableObject::~SerializableObject()
-{
-}
+// SerializableObject::~SerializableObject()
+// {
+// }
