@@ -68,7 +68,6 @@ void AsyncIODistribution::wait_for_job_unit()
             size_t received;
 
             boost::system::error_code ec;
-//             received = _socket->receive(boost::asio::buffer(header,HEADER_LENGTH),boost::asio::transfer_all(),ec);
             received = boost::asio::read(*_socket,boost::asio::buffer(header,HEADER_LENGTH),boost::asio::transfer_all(),ec);
             if (ec)
                 std::cout << "Error receiving" << std::endl;
