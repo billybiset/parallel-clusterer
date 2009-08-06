@@ -50,48 +50,48 @@ namespace parallel_clusterer
     class AsyncIOClientsManager : public ClientsManager
     {
         public:
-            AsyncIOClientsManager();
+            AsyncIOClientsManager(const size_t& port);
 
             ~AsyncIOClientsManager(){};
         private:
-            virtual bool  assign_job_unit (JobUnit* job_unit);
+            virtual bool  assign_job_unit (const JobUnit& job_unit);
             virtual void  initialize();
             virtual void  do_tasks();
 
             class AsyncIOClientProxy : public ClientProxy
             {
                 public:
-                    AsyncIOClientProxy(tcp::socket* socket);
+                    AsyncIOClientProxy(boost::asio::io_service& io_service);
                     ~AsyncIOClientProxy() {};
-                private:
-                    virtual void process(JobUnit* job_unit);
 
+                    tcp::socket& socket();
+                private:
+                    virtual void process(const JobUnit& job_unit);
                     virtual bool busy() const;
 
                     void handle_response(ResponseCode code,JobUnitID id);
-                    void handle_send(const boost::system::error_code& ec);
+
+                    /* Asynchronous handlers*/
+                    void handle_send   (const boost::system::error_code& ec);
                     void handle_receive(const boost::system::error_code& ec);
-                    void handle_response_buf();
 
                     void destroy();
 
-                    tcp::socket* _socket;
+                    tcp::socket  _socket;
                     ClientState  _state;
                     boost::mutex _proxy_mutex;
 
-                    char _code_buf[RESPONSE_HEADER_LENGTH];
+                    char      _code_buf[RESPONSE_HEADER_LENGTH];
                     JobUnitID _current_id;
             };
 
+            void handle_accept (const boost::system::error_code& ec,AsyncIOClientProxy* client);
             void run_server();
-            void run_listener();
 
             /* attr.*/
-            boost::asio::io_service   _io;
-            std::list<tcp::socket*>   _sockets;
-            boost::mutex              _sockets_mutex;
+            boost::asio::io_service _io_service;
+            tcp::acceptor           _acceptor;
     };
 
-    ClientsManager* create_clients_manager();
 }
 #endif

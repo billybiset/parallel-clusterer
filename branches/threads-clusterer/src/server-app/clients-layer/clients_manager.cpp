@@ -35,7 +35,7 @@ void ClientsManager::deregister_client(ClientProxy* client)
     _client_proxies.remove(client);
 }
 
-void ClientsManager::inform_completion(JobUnitID id,const std::string& message)
+void ClientsManager::inform_completion(const JobUnitID& id,const std::string& message)
 {
     Distributer::get_instance()->inform_completion(id,message);
 }

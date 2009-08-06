@@ -66,7 +66,7 @@ void Distributer::stop_scheduler()
     _status = kStopped;
 }
 
-void Distributer::inform_completion(JobUnitID id, const std::string& message)
+void Distributer::inform_completion(const JobUnitID& id, const std::string& message)
 {
     boost::mutex::scoped_lock(_pendingList_mutex);
     _ids_to_job_map[id]->process_results(id, message);
@@ -123,7 +123,7 @@ void Distributer::run_scheduler()
 
                     // lock pending list before assigning, to prevent processing results before modifying it
                     boost::mutex::scoped_lock glock2(_pendingList_mutex);
-                    if (_clients_manager->assign_job_unit(job_unit))
+                    if (_clients_manager->assign_job_unit(*job_unit))
                     {
                         _pendingList.push_back(job_unit);
                         _jobQueue.pop_front();
@@ -134,7 +134,7 @@ void Distributer::run_scheduler()
                     boost::mutex::scoped_lock glock2(_pendingList_mutex);
                     if (! _pendingList.empty())
                     {
-                        if (_clients_manager->assign_job_unit(_pendingList.front()))
+                        if (_clients_manager->assign_job_unit(*_pendingList.front()))
                         {
                             _pendingList.push_back(_pendingList.front());
                             _pendingList.pop_front();
