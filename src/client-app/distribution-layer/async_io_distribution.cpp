@@ -127,51 +127,20 @@ void AsyncIODistribution::run()
     try
     {
         boost::asio::io_service io_service;
-
-        tcp::resolver resolver(io_service);
-        tcp::resolver::query query("localhost", "31337"); //2nd param shouldn't be int :(
-        tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
-        tcp::resolver::iterator end = tcp::resolver::iterator();
-
+        tcp::endpoint endpoint(boost::asio::ip::address::from_string("127.0.0.1"),31337);
         _socket = new tcp::socket(io_service);
-//         tcp::socket socket(io_service);
         boost::system::error_code error = boost::asio::error::host_not_found;
-        while (error && endpoint_iterator != end)
-        {
-            _socket->close();
-            _socket->connect(*endpoint_iterator++, error);
-        }
+        _socket->connect(endpoint,error);
         if (error)
             throw boost::system::system_error(error);
 
         std::cout << "Connected." << std::endl;
         //state -> connected
-        //waiting reply
-        ResponseCode response;
-        try{
-            char res_buf[RESPONSE_HEADER_LENGTH];
-            size_t len = _socket->receive(boost::asio::buffer(res_buf,RESPONSE_HEADER_LENGTH));
-
-            if (error)
-                throw boost::system::system_error(error);
-
-            BIStream bis(std::string(res_buf,RESPONSE_HEADER_LENGTH));
-            bis >> response;
-        }
-        catch(std::exception& e)
-        {
-            std::cerr << "Failed to connect to server: " << e.what() << std::endl;
-        }
-
-        if (response == ConnectionSuccess)
-        {
-            std::cout << "Established." << std::endl;
-            wait_for_job_unit();
-        }
+        wait_for_job_unit();
     }
-    catch (std::exception& e)
+    catch (const std::exception& e)
     {
-        std::cerr << "An error ocurred :(  -> " << e.what() << std::endl;
+        std::cerr << "An error ocurred: " << e.what() << std::endl;
     }
 }
 

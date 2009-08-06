@@ -42,7 +42,7 @@ namespace parallel_clusterer
     class ClientProxy
     {
         public:
-            virtual void process(JobUnit* job_unit) = 0;
+            virtual void process(const JobUnit& job_unit) = 0;
 
             virtual bool busy() const = 0;
 

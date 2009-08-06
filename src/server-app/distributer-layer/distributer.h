@@ -22,7 +22,7 @@ namespace parallel_clusterer
             void   start_scheduler();
             void   stop_scheduler();
 
-            void   inform_completion(JobUnitID id,const std::string& message);
+            void   inform_completion(const JobUnitID& id,const std::string& message);
 
         private:
 

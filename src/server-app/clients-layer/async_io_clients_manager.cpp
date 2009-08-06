@@ -53,52 +53,31 @@ using boost::asio::ip::tcp;
 
 void AsyncIOClientsManager::run_server()
 {
-   try
-    {
-        tcp::acceptor acceptor(_io, tcp::endpoint(tcp::v4(), 31337));
-
-        for (;;)
-        {
-            boost::mutex::scoped_lock glock(_sockets_mutex);
-
-            tcp::socket* sock = new tcp::socket(_io);
-
-            _sockets.push_back(sock);
-            acceptor.accept(*sock);
-
-            BOStream bos;
-            bos << ConnectionSuccess;
-
-            boost::system::error_code ec;
-
-            boost::asio::write(*sock, boost::asio::buffer(bos.str()) ,
-                boost::asio::transfer_all(), ec);
-
-//             boost::thread sign(&AsyncIOClientsManager::register_client,this, new AsyncIOClientProxy(_sockets.back()));
-            if (! ec)
-                register_client(new AsyncIOClientProxy(sock));
-            else
-                syslog(LOG_NOTICE,"Error accepting client connection.");
-        }
-    }
-    catch (std::exception& e)
-    {
-        syslog(LOG_NOTICE,"Error(run_server): %s",e.what());
-        std::cerr << e.what() << std::endl;
-    }
+    AsyncIOClientProxy* client = new AsyncIOClientProxy(_io_service);
+    _acceptor.async_accept(client->socket(),
+            boost::bind(&AsyncIOClientsManager::handle_accept,this,boost::asio::placeholders::error,client));
+    _io_service.run();
 }
 
+void AsyncIOClientsManager::handle_accept(const boost::system::error_code& ec,AsyncIOClientProxy* client)
+{
+    if (! ec)
+        register_client(client);
+    else {
+        syslog(LOG_NOTICE,"Error accepting client connection.");
+        delete client;
+    }
+    client = new AsyncIOClientProxy(_io_service);
+    _acceptor.async_accept(client->socket(),
+            boost::bind(&AsyncIOClientsManager::handle_accept,this,boost::asio::placeholders::error,client));
+}
 
-AsyncIOClientsManager::AsyncIOClientsManager() :
-    _io(),
-    _sockets(),
-    _sockets_mutex()
+AsyncIOClientsManager::AsyncIOClientsManager(const size_t& port) :
+    _io_service(),
+    _acceptor(_io_service, tcp::endpoint(tcp::v4(), port))
 {
     // To connect clients
-    boost::thread dispatcher( boost::bind( &AsyncIOClientsManager::run_server, this));
-
-    //To hear results
-//     boost::thread listener( boost::bind( &AsyncIOClientsManager::run_listener, this));
+    boost::thread acceptor( boost::bind( &AsyncIOClientsManager::run_server, this));
 }
 
 void AsyncIOClientsManager::AsyncIOClientProxy::handle_response(ResponseCode code, JobUnitID id)
@@ -107,7 +86,7 @@ void AsyncIOClientsManager::AsyncIOClientProxy::handle_response(ResponseCode cod
     if (code == JobUnitCompleted) // get result
     {
         char size_buf[RESPONSE_HEADER_LENGTH];
-        _socket->receive(boost::asio::buffer(size_buf,RESPONSE_HEADER_LENGTH));
+        _socket.receive(boost::asio::buffer(size_buf,RESPONSE_HEADER_LENGTH));
 
         BIStream bis2(std::string(size_buf,RESPONSE_HEADER_LENGTH));
         JobUnitSize size;
@@ -115,43 +94,31 @@ void AsyncIOClientsManager::AsyncIOClientProxy::handle_response(ResponseCode cod
         if (size > 0)
         {
             char msg[size];
-            _socket->receive(boost::asio::buffer(msg,size));
+            _socket.receive(boost::asio::buffer(msg,size));
             ClientsManager::get_instance()->inform_completion(id,std::string(msg,size));
         }
     }
 }
 
-void AsyncIOClientsManager::AsyncIOClientProxy::handle_response_buf()
-{
-    syslog(LOG_NOTICE,"Client %u received response",get_id());
-    boost::mutex::scoped_lock glock(_proxy_mutex);
-    BIStream bis(std::string(_code_buf,RESPONSE_HEADER_LENGTH));
-
-    ResponseCode code;
-    bis >> code;
-    syslog(LOG_NOTICE,"Client %u received response with code %u about Job Unit %u.",get_id(),code,_current_id);
-
-    handle_response(code,_current_id);
-
-    _state = kIdle;
-}
-
-
-AsyncIOClientsManager::AsyncIOClientProxy::AsyncIOClientProxy(tcp::socket* socket) :
-    _socket(socket),
+AsyncIOClientsManager::AsyncIOClientProxy::AsyncIOClientProxy(boost::asio::io_service& io_service) :
+    _socket(io_service),
     _state(kIdle),
     _proxy_mutex(),
     ClientProxy()
 {
 }
 
-bool  AsyncIOClientsManager::assign_job_unit  (JobUnit* job_unit)
+tcp::socket& AsyncIOClientsManager::AsyncIOClientProxy::socket()
+{
+    return _socket;
+}
+
+bool  AsyncIOClientsManager::assign_job_unit  (const JobUnit& job_unit)
 {
     ClientProxy* client(get_available_client());
     if (client != NULL)
     {
         client->process(job_unit); //but on a different thread
-//         _io.run_one();
         return true;
     }
     else
@@ -160,16 +127,15 @@ bool  AsyncIOClientsManager::assign_job_unit  (JobUnit* job_unit)
 
 void  AsyncIOClientsManager::do_tasks()
 {
-    boost::system::error_code ec;
-    size_t st;
+//     boost::system::error_code ec;
+//     size_t st;
 
-    st = _io.run(ec);
+//     st = _io_service.run(ec);
 
-    if (st > 0)
-        syslog(LOG_NOTICE,"Executed %u handlers",st);
+//     if (ec)
+//         syslog(LOG_NOTICE,"run error %u",st);
 
-    if (ec)
-        syslog(LOG_NOTICE,"run error %u",st);
+//     _io_service.reset();
 }
 
 void  AsyncIOClientsManager::initialize()
@@ -203,7 +169,7 @@ void AsyncIOClientsManager::AsyncIOClientProxy::handle_send(const boost::system:
     if (!ec)
     {
         syslog(LOG_NOTICE,"Sending Job Unit %u to Client %u",_current_id,get_id());
-        boost::asio::async_read(*_socket,boost::asio::buffer(_code_buf,RESPONSE_HEADER_LENGTH),
+        boost::asio::async_read(_socket,boost::asio::buffer(_code_buf,RESPONSE_HEADER_LENGTH),
                                 boost::bind(&AsyncIOClientsManager::AsyncIOClientProxy::handle_receive,this,
                                 boost::asio::placeholders::error));
     }
@@ -214,13 +180,13 @@ void AsyncIOClientsManager::AsyncIOClientProxy::handle_send(const boost::system:
     }
 }
 
-void AsyncIOClientsManager::AsyncIOClientProxy::process(JobUnit* job_unit)
+void AsyncIOClientsManager::AsyncIOClientProxy::process(const JobUnit& job_unit)
 {
     try{
         boost::mutex::scoped_lock glock(_proxy_mutex);
-        _current_id = job_unit->get_id();
+        _current_id = job_unit.get_id();
         _state = kBusy;
-        boost::asio::async_write(*_socket, boost::asio::buffer(job_unit->serialize()),
+        boost::asio::async_write(_socket, boost::asio::buffer(job_unit.serialize()),
                                 boost::bind(&AsyncIOClientsManager::AsyncIOClientProxy::handle_send,this,
                                 boost::asio::placeholders::error));
     }
@@ -247,6 +213,6 @@ namespace parallel_clusterer
 {
     ClientsManager* create_clients_manager()
     {
-        return new AsyncIOClientsManager();
+        return new AsyncIOClientsManager(31337);
     }
 }
