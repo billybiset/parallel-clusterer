@@ -47,7 +47,7 @@ namespace parallel_clusterer
             StringMessage(const char* str);
             StringMessage(const std::string& str);
 
-            virtual ~StringMessage(){};
+            virtual ~StringMessage(){}
         private:
             /* Constructors. */
             StringMessage();
