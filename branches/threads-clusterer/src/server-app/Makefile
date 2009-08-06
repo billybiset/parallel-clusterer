@@ -17,13 +17,18 @@ LDFLAGS+= -lboost_system-gcc43-mt
 ifeq ($(DEBUG),on)
 	CPPFLAGS+=-ggdb
 else
-	CPPFLAGS+=-O3
+	CPPFLAGS+=-O3 -Wall
+endif
+
+ifeq ($(EFFECTIVE),on)
+    CPPFLAGS+=-Weffc++
 endif
 
 #########Sources#################################################
 
 COMMON_CPP_SOURCES = \
             ../common-include/job_unit.cpp \
+            ../common-include/serializable_object.cpp \
             ../common-include/string_message.cpp \
             ../common-include/binstream.cpp
 

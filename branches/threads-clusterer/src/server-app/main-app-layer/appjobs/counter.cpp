@@ -7,7 +7,7 @@
 
 using namespace parallel_clusterer;
 
-Counter::Counter(char* file_name) :
+Counter::Counter(const char* file_name) :
     DistributableJob(),
     _total_count(0),
     _file()

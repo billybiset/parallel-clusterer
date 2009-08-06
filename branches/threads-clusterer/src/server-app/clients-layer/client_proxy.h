@@ -47,6 +47,8 @@ namespace parallel_clusterer
             virtual bool busy() const = 0;
 
             inline ClientID get_id() const {return _id;}
+
+            virtual ~ClientProxy();
         protected:
             ClientProxy();
         private:

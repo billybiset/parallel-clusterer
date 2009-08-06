@@ -62,7 +62,7 @@ namespace parallel_clusterer
             {
                 public:
                     AsyncIOClientProxy(boost::asio::io_service& io_service);
-                    ~AsyncIOClientProxy() {};
+                    virtual ~AsyncIOClientProxy() {};
 
                     tcp::socket& socket();
                 private:

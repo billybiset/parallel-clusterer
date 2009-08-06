@@ -18,11 +18,10 @@ namespace parallel_clusterer
             /*interface for main*/
             void  run()              const;
             void  wait_completion();
+            void  inform_generation ();
 
             bool  finished();
-
-            void inform_generation ();
-            bool completion_accepted(const JobUnitID& id);
+            bool  completion_accepted(const JobUnitID& id);
 
             virtual void      process_results (JobUnitID id, const std::string& message) = 0;
 
