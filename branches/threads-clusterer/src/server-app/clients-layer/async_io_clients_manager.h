@@ -89,9 +89,11 @@ namespace parallel_clusterer
             void handle_accept (const boost::system::error_code& ec,AsyncIOClientProxy* client);
 
             /* To register clients */
-            static void run_server(AsyncIOClientsManager* obj);
+            static void run_acceptor_thread(AsyncIOClientsManager* obj);
 
-            void _async_accept(AsyncIOClientProxy* client);
+            void run_and_die();
+
+            void _async_accept();
 
             /* attr.*/
             boost::asio::io_service _io_service;
