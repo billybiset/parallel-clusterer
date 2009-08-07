@@ -34,7 +34,8 @@ void ProcessorsManager::deliver_message(const std::string& message)
 //     return wrapper;
 }
 
-ProcessorsManager::ProcessorsManager()
+ProcessorsManager::ProcessorsManager() :
+    _processor()
 {
 }
 

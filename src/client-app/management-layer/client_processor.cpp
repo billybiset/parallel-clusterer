@@ -36,7 +36,8 @@
 
 using namespace parallel_clusterer;
 
-ClientProcessor::ClientProcessor()
+ClientProcessor::ClientProcessor() :
+    _return_message()
 {
     ProcessorsManager::get_instance()->register_processor(this); 
 }
@@ -44,4 +45,9 @@ ClientProcessor::ClientProcessor()
 const std::string& ClientProcessor::get_return_message() const
 {
     return _return_message;
+}
+
+void ClientProcessor::set_return_message(const std::string& msg)
+{
+    _return_message = msg;
 }

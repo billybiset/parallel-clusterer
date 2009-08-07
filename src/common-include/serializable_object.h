@@ -40,7 +40,7 @@ namespace parallel_clusterer
     struct SerializableObject
     {
         virtual const std::string serialize() const = 0;
-        virtual ~SerializableObject(){}
+        virtual ~SerializableObject();
     };
 }
 

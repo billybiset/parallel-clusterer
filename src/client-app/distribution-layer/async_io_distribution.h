@@ -46,6 +46,9 @@ namespace parallel_clusterer
 
             virtual void run();
         private:
+            AsyncIODistribution(const AsyncIODistribution& other);
+            AsyncIODistribution& operator= (const AsyncIODistribution& other);
+
             virtual void inform_result(bool result);
 
             void wait_for_job_unit();

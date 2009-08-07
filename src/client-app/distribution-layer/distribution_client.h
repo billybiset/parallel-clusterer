@@ -39,10 +39,12 @@ namespace parallel_clusterer
             virtual void                run()                      = 0;
             virtual void                inform_result(bool result) = 0;
 
+            virtual ~DistributionClient(){}
+
             static DistributionClient*  get_instance() {return _instance; }
         protected:
             DistributionClient() {_instance = this; }
-
+        private:
             static DistributionClient*  _instance;
     };
 

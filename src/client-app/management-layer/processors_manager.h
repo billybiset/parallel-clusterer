@@ -13,21 +13,21 @@ namespace parallel_clusterer
         public:
             static ProcessorsManager* get_instance();
 
-//             bool   deliver_message(const std::string& message);
             void   deliver_message(const std::string& message);
 
             void   register_processor(ClientProcessor* client_processor);
 
             void   wrap_process(const std::string& message);
 
-            const std::string& get_return_message() const;
+            const  std::string& get_return_message() const;
 
             virtual ~ProcessorsManager() {}
-        protected:
-            
         private:
             /*methods*/
             ProcessorsManager();
+            ProcessorsManager(const ProcessorsManager& other);
+            ProcessorsManager& operator=(const ProcessorsManager& other);
+
             /*attributes*/
             static ProcessorsManager* _instance;
             ClientProcessor*          _processor;

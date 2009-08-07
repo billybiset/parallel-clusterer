@@ -52,12 +52,10 @@ CounterProcessor::CounterProcessor() :
 
 bool CounterProcessor::process(const std::string& message)
 {
-//     std::cout << message;
     BOStream bos;
     bos << message.size();
-    _return_message = bos.str(); //completed, return this
+    set_return_message(bos.str());  //completed, return this
 
 //     sleep(1);
-
     return true;
 }
