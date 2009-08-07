@@ -46,12 +46,14 @@ namespace parallel_clusterer
             virtual ~ClientProcessor(){}
 
             const std::string& get_return_message() const;
+            void set_return_message(const std::string& msg);
 
         protected:
             ClientProcessor();
 
             inline void register_method(const MethodDescriptor& method_name, void* method());
 
+        private:
             std::string _return_message;
     };
 }

@@ -6,6 +6,8 @@
 class BOStream
 {
     public:
+        BOStream();
+
         template <class T>
         BOStream& operator << (T x);
 

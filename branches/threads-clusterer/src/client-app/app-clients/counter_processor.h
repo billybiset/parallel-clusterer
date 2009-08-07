@@ -29,8 +29,8 @@
     along with Parallel Clusterer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef REPRESENTATIVES_PROCESSOR_H
-#define REPRESENTATIVES_PROCESSOR_H
+#ifndef COUNTER_PROCESSOR_H
+#define COUNTER_PROCESSOR_H
 
 #include <string>
 

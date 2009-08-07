@@ -4,6 +4,11 @@
 template BOStream& BOStream::operator << <int>(int x);
 template BOStream& BOStream::operator << <unsigned int>(unsigned int x);
 
+BOStream::BOStream() :
+    _s()
+{
+}
+
 template <class T>
 BOStream& BOStream::operator<< (T x)
 {
