@@ -49,14 +49,10 @@ bool DistributableJob::completion_accepted(const JobUnitID& id)
     it = _completed.find(id);
 
     if(it != _completed.end())
-    {
         return false;
-    }
     else
     {
         _completed.insert(id);
-//         ++_job_units_completed; //USE _completed.size()
-//         std::cout << "Gen: " << _job_units_generated << ". Compl: " << _job_units_completed <<std::endl;
         return true;
     }
 }

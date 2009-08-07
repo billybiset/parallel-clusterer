@@ -116,7 +116,7 @@ namespace parallel_clusterer
     /** Max size of a single Job Unit. */
     static const size_t JOB_UNIT_SIZE    = 50;
 
-    /** Message constants. */
+    /** Message constants. Deprecated, not in use.*/
     namespace Messages {
         static const StringMessage END(std::string("\0\0\0\0\0\0\0\0",8));
         static const StringMessage OK("OK ");

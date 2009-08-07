@@ -85,8 +85,13 @@ namespace parallel_clusterer
                     JobUnitID _current_id;
             };
 
+            /* Asynchronous handler, calls itself recursively */
             void handle_accept (const boost::system::error_code& ec,AsyncIOClientProxy* client);
-            void run_server();
+
+            /* To register clients */
+            static void run_server(AsyncIOClientsManager* obj);
+
+            void _async_accept(AsyncIOClientProxy* client);
 
             /* attr.*/
             boost::asio::io_service _io_service;

@@ -33,8 +33,6 @@
 #include <boost/array.hpp>
 #include <boost/regex.hpp>
 
-#include <iostream>
-
 #include <cstdlib>
 
 #include "binstream.h"
@@ -63,34 +61,22 @@ void AsyncIODistribution::wait_for_job_unit()
 
         while (id != 0 && size != 0)
         {
-            std::cout << "About to read." << std::endl;
             char header[HEADER_LENGTH];
-            size_t received;
-
-            boost::system::error_code ec;
-            received = boost::asio::read(*_socket,boost::asio::buffer(header,HEADER_LENGTH),boost::asio::transfer_all(),ec);
-            if (ec)
-                std::cout << "Error receiving" << std::endl;
-            else
-                std::cout << "Received: " << received << std::endl;
+            boost::asio::read(*_socket,boost::asio::buffer(header,HEADER_LENGTH));
 
             BIStream bis(std::string(header,HEADER_LENGTH));
             bis >> id >> size;
-            std::cout << "Id: " << id << ". Size: " << size << std::endl;
-            if (id != 0 && size != 0)
-            {
-                char body[size];
-                _socket->receive(boost::asio::buffer(body,size));
+            assert (id != 0 && size != 0);
 
-                ProcessorsManager::get_instance()->deliver_message(std::string(body,size));
-            }
-            else
-                std::cout << std::endl << "Finished reading." << std::endl;
+            char body[size];
+            boost::asio::read(*_socket,boost::asio::buffer(body,size));
+
+            ProcessorsManager::get_instance()->deliver_message(std::string(body,size));
         }
     }
     catch (std::exception& e)
     {
-        std::cerr << "An error ocurred :( -> " << e.what() << std::endl;
+        std::cerr << "An error ocurred: " << e.what() << std::endl;
     }
 }
 
@@ -100,19 +86,12 @@ void AsyncIODistribution::inform_result(bool result)
     {
         if (result)
         {
-            std::cout << "Positive " << std::endl;
             BOStream bos;
             bos << JobUnitCompleted << ProcessorsManager::get_instance()->get_return_message();
             boost::asio::write(*_socket, boost::asio::buffer(bos.str()));
         }
-        else
-        {
-            std::cout << "Negarchative " << std::endl;
+        else // will be done differently
             boost::asio::write(*_socket, boost::asio::buffer(Messages::BAD.serialize()));
-        }
-
-        std::cout << "Informing" << std::endl;
-//         wait_for_job_unit();
     }
     catch(std::exception& e)
     {
@@ -122,10 +101,9 @@ void AsyncIODistribution::inform_result(bool result)
 
 void AsyncIODistribution::run()
 {
-    std::cout << "Starting ASIO client." << std::endl;
     try
     {
-        boost::asio::io_service io_service;
+        boost::asio::io_service io_service;                      //will be parameterized
         tcp::endpoint endpoint(boost::asio::ip::address::from_string("127.0.0.1"),31337);
         _socket = new tcp::socket(io_service);
         boost::system::error_code error = boost::asio::error::host_not_found;
@@ -133,8 +111,7 @@ void AsyncIODistribution::run()
         if (error)
             throw boost::system::system_error(error);
 
-        std::cout << "Connected." << std::endl;
-        //state -> connected
+        //state: connected
         wait_for_job_unit();
     }
     catch (const std::exception& e)

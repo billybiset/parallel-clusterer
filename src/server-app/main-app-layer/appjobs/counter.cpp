@@ -46,7 +46,6 @@ void Counter::process_results (JobUnitID id, const std::string& message)
         bis >> count;
         _total_count += count;
     }
-//     std::cout << "Total: " << _total_count << std::endl;
 }
 
 void Counter::output_results() const
@@ -60,9 +59,6 @@ JobUnit* Counter::get_next_job_unit(JobUnitSize size)
     {
         char message[size];
         _file.read (message, size);
-//         if (_file.gcount() != JOB_UNIT_SIZE)
-//             std::cout << "READ " << _file.gcount() << " bytes." << std::endl;
-//         message[_file.gcount()] = '\0';
         JobUnit* res = new CounterJobUnit(message,_file.gcount());
 
         inform_generation();

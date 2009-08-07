@@ -16,7 +16,7 @@ namespace parallel_clusterer
     {
         public:
             /*interface for main*/
-            void  run()              const;
+            void  run()                 const;
             void  wait_completion();
             void  inform_generation ();
 
@@ -38,9 +38,8 @@ namespace parallel_clusterer
         protected:
             DistributableJob();
         private:
-            std::set<JobUnitID> _completed;
-
-            size_t _job_units_generated;
+            std::set<JobUnitID> _completed;           /*when _completed.size() = _j_u_gen then */
+            size_t              _job_units_generated; /*the job is completed.                  */
 
             boost::mutex _completed_mutex;
             boost::mutex _job_units_generated_mutex;

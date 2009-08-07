@@ -55,12 +55,18 @@ AsyncIOClientsManager::AsyncIOClientsManager(const size_t& port) :
     boost::thread acceptor( boost::bind( &AsyncIOClientsManager::run_server, this));
 }
 
-void AsyncIOClientsManager::run_server()
+void AsyncIOClientsManager::run_server(AsyncIOClientsManager* obj)
 {
-    AsyncIOClientProxy* client = new AsyncIOClientProxy(_io_service);
+    AsyncIOClientProxy* client = new AsyncIOClientProxy(obj->_io_service);
+    obj->_async_accept(client);
+    obj->_io_service.run();
+    //Each connection springs recursively another async_accept, so this won't finish.
+}
+
+void AsyncIOClientsManager::_async_accept(AsyncIOClientProxy* client)
+{
     _acceptor.async_accept(client->socket(),
             boost::bind(&AsyncIOClientsManager::handle_accept,this,boost::asio::placeholders::error,client));
-    _io_service.run();
 }
 
 void AsyncIOClientsManager::handle_accept(const boost::system::error_code& ec,AsyncIOClientProxy* client)
@@ -92,20 +98,17 @@ void AsyncIOClientsManager::AsyncIOClientProxy::handle_response(ResponseCode cod
 //     boost::mutex::scoped_lock glock(_proxy_mutex);
     if (code == JobUnitCompleted) // get result
     {
-//         _socket.receive(boost::asio::buffer(size_buf,RESPONSE_HEADER_LENGTH));
-
         char size_buf[RESPONSE_HEADER_LENGTH];
         boost::asio::read(_socket,boost::asio::buffer(size_buf,RESPONSE_HEADER_LENGTH));
 
         JobUnitSize size;
 
         BIStream bis2(std::string(size_buf,RESPONSE_HEADER_LENGTH));
-
         bis2 >> size;
+
         if (size > 0)
         {
             char msg[size];
-//             _socket.receive(boost::asio::buffer(msg,size));
             boost::asio::read(_socket,boost::asio::buffer(msg,size));
             ClientsManager::get_instance()->inform_completion(id,std::string(msg,size));
         }
@@ -122,7 +125,7 @@ bool  AsyncIOClientsManager::assign_job_unit  (const JobUnit& job_unit)
     ClientProxy* client(get_available_client());
     if (client != NULL)
     {
-        client->process(job_unit); //but on a different thread
+        client->process(job_unit); //on the same thread, works asynchronously
         return true;
     }
     else
@@ -209,7 +212,7 @@ void AsyncIOClientsManager::AsyncIOClientProxy::destroy()
 
 bool AsyncIOClientsManager::AsyncIOClientProxy::busy() const
 {
-    // Don't lock _proxy_mutex here!!! or it'll use only one client at a time.
+    // I could lock proxy_mutex here, at the expense of removing the const above
     return _state == kBusy;
 }
 

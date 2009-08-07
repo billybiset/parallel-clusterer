@@ -46,6 +46,7 @@ namespace parallel_clusterer
 
             virtual void run();
         private:
+            /* Override, as per -Weffc++ */
             AsyncIODistribution(const AsyncIODistribution& other);
             AsyncIODistribution& operator= (const AsyncIODistribution& other);
 
