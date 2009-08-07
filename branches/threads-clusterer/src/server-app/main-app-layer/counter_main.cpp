@@ -42,11 +42,9 @@ int main()
     openlog ("FuDP",NULL, LOG_LOCAL1);
     syslog(LOG_NOTICE,"Start.");
 
+    Counter * counter_job1 = new Counter("data/file2.txt");
     Counter * counter_job2 = new Counter("data/short.txt");
     Counter * counter_job3 = new Counter("data/file1.txt");
-//     Counter * counter_job3 = new Counter("data/file1.txt");
-//     Counter * counter_job4 = new Counter("data/file1.txt");
-    Counter * counter_job1 = new Counter("data/file2.txt");
     Counter * counter_job4 = new Counter("data/file2.txt");
 
     counter_job1->run();

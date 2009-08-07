@@ -30,8 +30,6 @@ void ProcessorsManager::deliver_message(const std::string& message)
 {
 //     boost::thread wrapper(boost::bind(&ProcessorsManager::wrap_process,this,message));
     wrap_process(message);
-//     return true;
-//     return wrapper;
 }
 
 ProcessorsManager::ProcessorsManager() :
