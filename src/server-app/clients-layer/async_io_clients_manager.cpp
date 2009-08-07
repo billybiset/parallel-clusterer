@@ -52,19 +52,24 @@ AsyncIOClientsManager::AsyncIOClientsManager(const size_t& port) :
     _acceptor(_io_service, tcp::endpoint(tcp::v4(), port))
 {
     // To connect clients
-    boost::thread acceptor( boost::bind( &AsyncIOClientsManager::run_server, this));
+    boost::thread acceptor( boost::bind( &AsyncIOClientsManager::run_acceptor_thread, this));
 }
 
-void AsyncIOClientsManager::run_server(AsyncIOClientsManager* obj)
+void AsyncIOClientsManager::run_acceptor_thread(AsyncIOClientsManager* obj)
 {
-    AsyncIOClientProxy* client = new AsyncIOClientProxy(obj->_io_service);
-    obj->_async_accept(client);
-    obj->_io_service.run();
+    obj->_async_accept();
+    obj->run_and_die();
     //Each connection springs recursively another async_accept, so this won't finish.
 }
 
-void AsyncIOClientsManager::_async_accept(AsyncIOClientProxy* client)
+void AsyncIOClientsManager::run_and_die()
 {
+    _io_service.run();
+}
+
+void AsyncIOClientsManager::_async_accept()
+{
+    AsyncIOClientProxy* client = new AsyncIOClientProxy(_io_service);
     _acceptor.async_accept(client->socket(),
             boost::bind(&AsyncIOClientsManager::handle_accept,this,boost::asio::placeholders::error,client));
 }
@@ -78,9 +83,7 @@ void AsyncIOClientsManager::handle_accept(const boost::system::error_code& ec,As
         syslog(LOG_NOTICE,"Error accepting client connection.");
         delete client;
     }
-    client = new AsyncIOClientProxy(_io_service);
-    _acceptor.async_accept(client->socket(),
-            boost::bind(&AsyncIOClientsManager::handle_accept,this,boost::asio::placeholders::error,client));
+    _async_accept();
 }
 
 AsyncIOClientsManager::AsyncIOClientProxy::AsyncIOClientProxy(boost::asio::io_service& io_service) :
