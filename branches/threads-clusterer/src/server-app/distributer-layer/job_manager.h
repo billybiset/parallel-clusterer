@@ -1,5 +1,5 @@
-#ifndef DISTRIBUTER_H
-#define DISTRIBUTER_H
+#ifndef JOB_MANAGER_H
+#define JOB_MANAGER_H
 
 #include <vector>
 #include <list>
@@ -12,10 +12,10 @@
 
 namespace parallel_clusterer
 {
-    class Distributer
+    class JobManager : private ClientsManager::ClientsListener
     {
         public:
-            static Distributer* get_instance();
+            static JobManager* get_instance();
 
             void   enqueue(DistributableJob* distjob);
 
@@ -23,18 +23,19 @@ namespace parallel_clusterer
             void   stop_scheduler();
 
             void   inform_completion(const JobUnitID& id,const std::string& message);
+            void   client_is_free();
 
         private:
             /* Override these, as per -Weffc++ warnings */
-            Distributer(const Distributer&);
-            Distributer& operator=(const Distributer&);
+            JobManager(const JobManager&);
+            JobManager& operator=(const JobManager&);
 
             enum Status {kStopped, kPaused, kRunning};
 
             /*take this out of here*/
             static const size_t MAX_JOBUNITS_PENDING_SIZE = 11;
 
-            Distributer();
+            JobManager();
 
             /*methods*/
             void              run_scheduler();
@@ -45,7 +46,7 @@ namespace parallel_clusterer
             void              create_another_job_unit();
 
             /* Attr. */
-            static Distributer*             _instance;
+            static JobManager*             _instance;
 
             ClientsManager*                 _clients_manager;
 

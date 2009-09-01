@@ -48,12 +48,18 @@ namespace parallel_clusterer
     class ClientsManager
     {
         public:
+            struct ClientsListener
+            {
+                virtual void inform_completion(const JobUnitID& id,const std::string& message) = 0;
+                virtual void client_is_free() = 0;
+            };
+            void inform_completion(const JobUnitID& id,const std::string& message);
+            void set_listener(ClientsListener* const listener);
+
             virtual void  initialize() = 0;
             virtual void  do_tasks()   = 0;
             virtual bool  assign_job_unit  (const JobUnit& job_unit) = 0;
             virtual void  deregister_client(ClientProxy* client);
-
-            void          inform_completion(const JobUnitID& id,const std::string& message);
 
             inline static ClientsManager* get_instance() {return _instance;}
 
@@ -70,6 +76,8 @@ namespace parallel_clusterer
             boost::mutex             _client_proxies_mutex;
 
             static ClientsManager*   _instance;
+
+            ClientsListener*         _listener;
     };
 
     /**
