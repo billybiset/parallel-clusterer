@@ -3,7 +3,7 @@
 #include <boost/thread.hpp>
 
 #include "distributable_job.h"
-#include "distributer.h"
+#include "job_manager.h"
 #include "job_unit.h"
 
 using namespace parallel_clusterer;
@@ -14,12 +14,12 @@ DistributableJob::DistributableJob() :
     _completed_mutex(),
     _job_units_generated_mutex()
 {
-    Distributer::get_instance()->enqueue(this); 
+    JobManager::get_instance()->enqueue(this);
 }
 
 void DistributableJob::run() const
 {
-    Distributer::get_instance()->start_scheduler();
+    JobManager::get_instance()->start_scheduler();
 }
 
 void DistributableJob::wait_completion()

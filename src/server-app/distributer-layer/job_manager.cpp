@@ -6,24 +6,24 @@
 
 #include <boost/thread/mutex.hpp>
 
-#include "distributer.h"
+#include "job_manager.h"
 #include "clients_manager.h"
 #include "distributable_job.h"
 
 using namespace parallel_clusterer;
 
-Distributer* Distributer::_instance = NULL; // initialize pointer
+JobManager* JobManager::_instance = NULL; // initialize pointer
 
-Distributer* Distributer::get_instance () 
+JobManager* JobManager::get_instance ()
 {
     if (_instance == NULL)  // is it the first call?
     {
-        _instance = new Distributer; // create sole instance
+        _instance = new JobManager; // create sole instance
     }
     return _instance; // address of sole instance
 }
 
-Distributer::Distributer() :
+JobManager::JobManager() :
     _clients_manager(create_clients_manager()),
     _distJobs(),
     _jobQueue(),
@@ -35,9 +35,10 @@ Distributer::Distributer() :
     _jobQueue_mutex(),
     _pendingList_mutex()
 {
+    _clients_manager->set_listener(this);
 }
 
-DistributableJob* Distributer::jobs_available() //will eventually change policy
+DistributableJob* JobManager::jobs_available() //will eventually change policy
 {
 //     boost::mutex::scoped_lock glock(_distJobs_mutex);
     if (_distJobs.empty())
@@ -56,17 +57,17 @@ DistributableJob* Distributer::jobs_available() //will eventually change policy
     }
 }
 
-bool Distributer::job_queue_full() //const
+bool JobManager::job_queue_full() //const
 {
     return _jobQueue.size() >= MAX_JOBUNITS_QUEUE_SIZE;
 }
 
-void Distributer::stop_scheduler()
+void JobManager::stop_scheduler()
 {
     _status = kStopped;
 }
 
-void Distributer::inform_completion(const JobUnitID& id, const std::string& message)
+void JobManager::inform_completion(const JobUnitID& id, const std::string& message)
 {
     boost::mutex::scoped_lock(_pendingList_mutex);
     _ids_to_job_map[id]->process_results(id, message);
@@ -82,7 +83,7 @@ void Distributer::inform_completion(const JobUnitID& id, const std::string& mess
         syslog(LOG_NOTICE,"Finished JobUnit %u was not in pending list.",id);
 }
 
-void Distributer::create_another_job_unit()
+void JobManager::create_another_job_unit()
 {
     DistributableJob* job;
     boost::mutex::scoped_lock glock(_distJobs_mutex);
@@ -103,7 +104,7 @@ void Distributer::create_another_job_unit()
     }
 }
 
-void Distributer::run_scheduler()
+void JobManager::run_scheduler()
 {
     syslog(LOG_NOTICE,"Starting scheduler.");
     _clients_manager->initialize();
@@ -162,17 +163,17 @@ void Distributer::run_scheduler()
     }
 }
 
-void Distributer::start_scheduler() /*start the scheduler thread, return*/
+void JobManager::start_scheduler() /*start the scheduler thread, return*/
 {
     boost::mutex::scoped_lock(_status_mutex);
     if (_status == kStopped)
     {
         _status = kRunning;
-        boost::thread thr1( boost::bind( &Distributer::run_scheduler, this ) );
+        boost::thread thr1( boost::bind( &JobManager::run_scheduler, this ) );
     }
 }
 
-void Distributer::enqueue(DistributableJob* const distjob)
+void JobManager::enqueue(DistributableJob* const distjob)
 {
     boost::mutex::scoped_lock glock(_distJobs_mutex);
     _distJobs.push_back(distjob);

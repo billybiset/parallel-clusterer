@@ -40,7 +40,7 @@ MAIN_APP_CPP_SOURCES = \
 
 DISTRIBUTER_CPP_SOURCES = \
             distributer-layer/distributable_job.cpp \
-            distributer-layer/distributer.cpp
+            distributer-layer/job_manager.cpp
 
 
 CLIENTS_CPP_SOURCERS = \

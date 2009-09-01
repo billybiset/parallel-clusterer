@@ -6,7 +6,6 @@
 #include <boost/functional.hpp>
 #include <boost/thread.hpp>
 
-#include "distributer.h"
 #include "clients_manager.h"
 #include "client_proxy.h"
 
@@ -16,7 +15,8 @@ ClientsManager* ClientsManager::_instance = NULL;
 
 ClientsManager::ClientsManager() :
     _client_proxies(),
-    _client_proxies_mutex()
+    _client_proxies_mutex(),
+    _listener(NULL)
 {
     _instance = this;
 }
@@ -37,7 +37,12 @@ void ClientsManager::deregister_client(ClientProxy* client)
 
 void ClientsManager::inform_completion(const JobUnitID& id,const std::string& message)
 {
-    Distributer::get_instance()->inform_completion(id,message);
+    _listener->inform_completion(id,message);
+}
+
+void ClientsManager::set_listener(ClientsListener* const listener)
+{
+    _listener = listener;
 }
 
 ClientProxy* ClientsManager::get_available_client()
