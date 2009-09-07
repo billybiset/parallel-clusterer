@@ -47,10 +47,10 @@ DistributableJob* JobManager::jobs_available() //will eventually change policy
     {
         std::list<DistributableJob *>::const_iterator it;
 
-        it = find_if (_distJobs.begin(), _distJobs.end(), 
+        it = find_if (_distJobs.begin(), _distJobs.end(),
                       !boost::bind(&DistributableJob::finished_generating, _1) );
 
-        if (it != _distJobs.end()) 
+        if (it != _distJobs.end())
             return *it;
         else
             return NULL;
@@ -178,5 +178,4 @@ void JobManager::enqueue(DistributableJob* const distjob)
     boost::mutex::scoped_lock glock(_distJobs_mutex);
     _distJobs.push_back(distjob);
 }
-
 
