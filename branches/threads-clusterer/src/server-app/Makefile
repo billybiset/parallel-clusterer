@@ -8,7 +8,7 @@ BOOST_INCLUDE_PATH=/usr/include/boost-1_38/
 #includes
 CPPFLAGS+= -I$(BOOST_INCLUDE_PATH)
 MAIN_APP_INCLUDES = -Imain-app-layer/appjobs/ -Imain-app-layer/data-definitions -Imain-app-layer/data-handling
-CPPFLAGS+= -Idistributer-layer/ $(MAIN_APP_INCLUDES) -Imisc/ -Iclients-layer/ -I../common-include/ 
+CPPFLAGS+= -Idistributer-layer/ $(MAIN_APP_INCLUDES) -Imisc/ -Iclients-layer/ -I../common-include/ -I../../mili/include
 
 #linker
 LDFLAGS+= -lboost_thread-gcc43-mt 

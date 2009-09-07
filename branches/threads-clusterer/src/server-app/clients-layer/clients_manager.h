@@ -1,24 +1,24 @@
 /*
   Parallel Clusterer: A distributed protein backbone clusterer.
     Copyright (C) 2009 Guillermo Biset, FuDePAN
-    
+
     This file is part of the Parallel Clusterer Project.
 
     File:           clients_manager.h
-    Contents:       Header file for Parallel Cluster providing abstract class 
-                    ClientsManager, which is an interface for handling 
+    Contents:       Header file for Parallel Cluster providing abstract class
+                    ClientsManager, which is an interface for handling
                     registration and communication with clients. Also, here
                     the method create_clients_manager is declared, which will
                     later be implemented in the implementation file in one of
                     ClientsManager descendants.
-                    
+
 
     System:         Parallel Clusterer
     Language:       C++
-  
+
     Author:         Guillermo Biset
     E-Mail:         billybiset AT gmail.com
-  
+
     Parallel Clusterer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -51,7 +51,7 @@ namespace parallel_clusterer
             struct ClientsListener
             {
                 virtual void inform_completion(const JobUnitID& id,const std::string& message) = 0;
-                virtual void client_is_free() = 0;
+//                 virtual void client_is_free() = 0;
             };
             void inform_completion(const JobUnitID& id,const std::string& message);
             void set_listener(ClientsListener* const listener);

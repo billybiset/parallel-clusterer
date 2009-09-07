@@ -23,7 +23,7 @@ namespace parallel_clusterer
             void   stop_scheduler();
 
             void   inform_completion(const JobUnitID& id,const std::string& message);
-            void   client_is_free();
+//             void   client_is_free();
 
         private:
             /* Override these, as per -Weffc++ warnings */
@@ -64,3 +64,4 @@ namespace parallel_clusterer
     };
 }
 #endif
+
