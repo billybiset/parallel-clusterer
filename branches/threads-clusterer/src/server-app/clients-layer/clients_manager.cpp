@@ -15,8 +15,7 @@ ClientsManager* ClientsManager::_instance = NULL;
 
 ClientsManager::ClientsManager() :
     _client_proxies(),
-    _client_proxies_mutex() //,
-//     _listener(NULL)
+    _client_proxies_mutex()
 {
     _instance = this;
 }
@@ -39,11 +38,6 @@ void ClientsManager::inform_completion(const JobUnitID& id,const std::string& me
 {
 //     _listener->inform_completion(id,message);
 }
-
-// void ClientsManager::set_listener(ClientsListener* const listener)
-// {
-//     _listener = listener;
-// }
 
 ClientProxy* ClientsManager::get_available_client()
 {
