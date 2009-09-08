@@ -1,8 +1,7 @@
-#include <boost/thread.hpp>
-#include "synchronized_containers.h"
+#ifndef SCHEDULER_EVENTS_H
+#define SCHEDULER_EVENTS_H
 
-#ifndef EVENTS_H
-#define EVENTS_H
+#include "synchronized_containers.h"
 
     template <class EventType>
     class Consumer
@@ -53,7 +52,7 @@
 
     struct SchedulerCaller
     {
-    virtual void call(SchedulerInterface* scheduler) = 0;
+        virtual void call(SchedulerInterface* scheduler) = 0;
     };
 
 
