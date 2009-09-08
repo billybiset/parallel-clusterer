@@ -42,19 +42,20 @@
 
 #include "client_proxy.h"
 #include "job_unit.h"
+#include "events.h"
 
 namespace parallel_clusterer
 {
     class ClientsManager
     {
         public:
-            struct ClientsListener
-            {
-                virtual void inform_completion(const JobUnitID& id,const std::string& message) = 0;
+//             struct ClientsListener
+//             {
+//                 virtual void inform_completion(const JobUnitID& id,const std::string& message) = 0;
 //                 virtual void client_is_free() = 0;
-            };
+//             };
             void inform_completion(const JobUnitID& id,const std::string& message);
-            void set_listener(ClientsListener* const listener);
+//             void set_listener(ClientsListener* const listener);
 
             virtual void  initialize() = 0;
             virtual void  do_tasks()   = 0;
@@ -77,7 +78,7 @@ namespace parallel_clusterer
 
             static ClientsManager*   _instance;
 
-            ClientsListener*         _listener;
+//             ClientsListener*         _listener;
     };
 
     /**
@@ -87,3 +88,4 @@ namespace parallel_clusterer
     ClientsManager* create_clients_manager();
 }
 #endif
+
