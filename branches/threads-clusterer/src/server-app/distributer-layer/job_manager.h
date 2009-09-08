@@ -9,10 +9,13 @@
 #include "distributable_job.h"
 #include "job_unit.h"
 #include "clients_manager.h"
+#include "events.h"
 
 namespace parallel_clusterer
 {
-    class JobManager : private ClientsManager::ClientsListener
+    class JobManager :
+           private SchedulerInterface,
+           public Consumer<SchedulerEvent>
     {
         public:
             static JobManager* get_instance();
@@ -23,7 +26,6 @@ namespace parallel_clusterer
             void   stop_scheduler();
 
             void   inform_completion(const JobUnitID& id,const std::string& message);
-//             void   client_is_free();
 
         private:
             /* Override these, as per -Weffc++ warnings */
@@ -44,6 +46,8 @@ namespace parallel_clusterer
             bool              job_queue_full(); //const
 
             void              create_another_job_unit();
+
+            void              free_client_event();
 
             /* Attr. */
             static JobManager*             _instance;

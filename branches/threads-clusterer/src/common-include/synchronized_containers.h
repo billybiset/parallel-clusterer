@@ -68,16 +68,16 @@
     {
         public:
             LockingQueue() :
-                _queue(),
                 _mutex(),
-                _condition()
+                _condition(),
+                _queue()
             {
             }
 
             LockingQueue(const LockingQueue<T>& other) :
-                _queue(other),
                 _mutex(),
-                _condition()
+                _condition(),
+                _queue(other)
             {
             }
 

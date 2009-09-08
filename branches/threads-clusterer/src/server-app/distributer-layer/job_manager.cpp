@@ -35,7 +35,7 @@ JobManager::JobManager() :
     _jobQueue_mutex(),
     _pendingList_mutex()
 {
-    _clients_manager->set_listener(this);
+//     _clients_manager->set_listener(this);
 }
 
 DistributableJob* JobManager::jobs_available() //will eventually change policy
@@ -102,6 +102,11 @@ void JobManager::create_another_job_unit()
             _jobQueue.push_back(job_unit); //just enqueue
         }
     }
+}
+
+void JobManager::free_client_event()
+{
+    std::cerr << "Free client " << std::endl;
 }
 
 void JobManager::run_scheduler()
