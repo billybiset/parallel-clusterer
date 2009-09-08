@@ -35,7 +35,8 @@ JobManager::JobManager() :
     _jobQueue_mutex(),
     _pendingList_mutex()
 {
-//     _clients_manager->set_listener(this);
+    SchedulerSender sender(*this);
+    _clients_manager->set_listener(this);
 }
 
 DistributableJob* JobManager::jobs_available() //will eventually change policy
@@ -115,50 +116,15 @@ void JobManager::run_scheduler()
     _clients_manager->initialize();
     try
     {
+        SchedulerEvent* event;
         while (_status != kStopped)
         {
+            event = wait_for_event();
+            if (event != NULL)
             {
-                boost::mutex::scoped_lock glock(_jobQueue_mutex);
-                /*assign job unit if not empty, generate otherwise*/
-                if(_jobQueue.size() < MAX_JOBUNITS_QUEUE_SIZE)
-                    create_another_job_unit();
-
-                if(! _jobQueue.empty()) /*this policy will be changed*/
-                {
-                    JobUnit* job_unit = _jobQueue.front();                   /*process a job unit from queue*/
-
-                    // lock pending list before assigning, to prevent processing results before modifying it
-                    boost::mutex::scoped_lock glock2(_pendingList_mutex);
-                    if (_clients_manager->assign_job_unit(*job_unit))
-                    {
-                        _pendingList.push_back(job_unit);
-                        _jobQueue.pop_front();
-                    }
-                }
-                else
-                {
-                    boost::mutex::scoped_lock glock2(_pendingList_mutex);
-                    if (! _pendingList.empty())
-                    {
-                        if (_clients_manager->assign_job_unit(*_pendingList.front()))
-                        {
-                            _pendingList.push_back(_pendingList.front());
-                            _pendingList.pop_front();
-                        }
-                    }
-                }
-            } // release lock from job queue
-            { // check to see if there is a finished job, to remove it
-                boost::mutex::scoped_lock glock(_distJobs_mutex);
-
-                std::list<DistributableJob*>::const_iterator it;
-                it = find_if (_distJobs.begin(), _distJobs.end(),
-                            boost::bind(&DistributableJob::finished_generating, _1) );
-
-                if (it != _distJobs.end()) // ok, it is finished generating
-                    _distJobs.remove(*it);
+                event->call(this);
+                delete event;
             }
-            _clients_manager->do_tasks();
         } /*while*/
     }
     catch(const std::exception& e)

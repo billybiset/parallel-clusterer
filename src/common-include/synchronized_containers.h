@@ -1,11 +1,11 @@
+#ifndef SYNCHRONIZED_CONTAINERS_H
+#define SYNCHRONIZED_CONTAINERS_H
+
 #include <queue>
 #include <boost/thread.hpp>
 #include <pthread.h>
 #include "mili.h"
 #include "prepos_mutex.h"
-
-#ifndef SYNCHRONIZED_CONTAINERS_H
-#define SYNCHRONIZED_CONTAINERS_H
 
     template <class T,class Container = std::queue<T> >
     class SynchronizedQueue

@@ -9,7 +9,7 @@
 #include "distributable_job.h"
 #include "job_unit.h"
 #include "clients_manager.h"
-#include "events.h"
+#include "scheduler_events.h"
 
 namespace parallel_clusterer
 {

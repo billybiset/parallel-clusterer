@@ -15,7 +15,8 @@ ClientsManager* ClientsManager::_instance = NULL;
 
 ClientsManager::ClientsManager() :
     _client_proxies(),
-    _client_proxies_mutex()
+    _client_proxies_mutex(),
+    _scheduler(NULL)
 {
     _instance = this;
 }
@@ -25,6 +26,7 @@ void ClientsManager::register_client(ClientProxy* client)
     boost::mutex::scoped_lock glock(_client_proxies_mutex);
     syslog(LOG_NOTICE,"Registering client %u.",client->get_id());
     _client_proxies.push_back(client);
+    _scheduler->free_client_event();
 }
 
 void ClientsManager::deregister_client(ClientProxy* client)
@@ -37,6 +39,11 @@ void ClientsManager::deregister_client(ClientProxy* client)
 void ClientsManager::inform_completion(const JobUnitID& id,const std::string& message)
 {
 //     _listener->inform_completion(id,message);
+}
+
+void ClientsManager::set_listener(SchedulerInterface* const sender)
+{
+    _scheduler = sender;
 }
 
 ClientProxy* ClientsManager::get_available_client()
