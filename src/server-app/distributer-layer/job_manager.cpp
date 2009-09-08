@@ -108,7 +108,6 @@ void JobManager::create_another_job_unit()
 void JobManager::free_client_event()
 {
     std::cerr << "Free client " << std::endl;
-    sleep(15);
 }
 
 void JobManager::run_scheduler()

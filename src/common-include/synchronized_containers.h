@@ -4,6 +4,7 @@
 #include <queue>
 #include <boost/thread.hpp>
 #include <pthread.h>
+
 #include "mili.h"
 #include "prepos_mutex.h"
 
@@ -11,12 +12,12 @@
     class SynchronizedQueue
     {
     public:
-        typedef PrePosCaller<Container* const, PreMutex, PosMutex> SynchQueuePPC;
+        typedef mili::PrePosCaller<Container* const, PreMutex, PosMutex> SynchQueuePPC;
     private:
         pthread_mutex_t mutex;
         Container       queue;
-        PreMutex        premutex;
-        PosMutex        posmutex;
+        PreMutex  premutex;
+        PosMutex  posmutex;
         SynchQueuePPC   synchQueuePPC;
     public:
         SynchronizedQueue() :
@@ -39,13 +40,13 @@
     class SynchronizedList
     {
     public:
-        typedef PrePosCaller<Container* const, PreMutex, PosMutex> SynchListPPC;
+        typedef mili::PrePosCaller<Container* const, PreMutex, PosMutex> SynchListPPC;
     private:
         pthread_mutex_t mutex;
         Container       cont;
-        PreMutex        premutex;
-        PosMutex        posmutex;
-        SynchListPPC   synchListPPC;
+        PreMutex  premutex;
+        PosMutex  posmutex;
+        SynchListPPC    synchListPPC;
     public:
         SynchronizedList() :
             cont(),

@@ -10,6 +10,8 @@ CPPFLAGS+= -I$(BOOST_INCLUDE_PATH)
 MAIN_APP_INCLUDES = -Imain-app-layer/appjobs/ -Imain-app-layer/data-definitions -Imain-app-layer/data-handling
 CPPFLAGS+= -Idistributer-layer/ $(MAIN_APP_INCLUDES) -Imisc/ -Iclients-layer/ -I../common-include/ -I../../mili/include
 
+CPPFLAGS+= -DMILI_NAMESPACE
+
 #linker
 LDFLAGS+= -lboost_thread-gcc43-mt 
 LDFLAGS+= -lboost_system-gcc43-mt
