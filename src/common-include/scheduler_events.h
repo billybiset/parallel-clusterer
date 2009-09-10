@@ -3,6 +3,12 @@
 
 #include "synchronized_containers.h"
 
+    struct Event
+    {
+        virtual void call() = 0;
+    };
+
+
     template <class EventType>
     class Consumer
     {
@@ -27,27 +33,34 @@
         }
     };
 
-    template <class EventType>
     class Producer
     {
-        Consumer<EventType>* const cons;
-    protected:
-        Producer(Consumer<EventType>* consumer) :
-            cons(consumer)
-        {
-        }
+        public:
+            void set_consumer(Consumer<Event>* consumer)
+            {
+                cons = consumer;
+            }
 
-        void send_event(EventType* event)
-        {
-            cons->push_event(event);
-        }
+        protected:
+            Producer() :
+                cons(NULL)
+            {
+            }
+
+            void send_event(Event* event)
+            {
+                cons->push_event(event);
+            }
+        private:
+            Consumer<Event>* cons;
     };
 
     struct ClientsManagerInterface
     {
-        virtual void free_client_event()        = 0;
+        virtual void free_client_event() = 0;
     };
 
+/*
     template<class Interface>
     struct Caller
     {
@@ -79,5 +92,5 @@
             {
             }
     };
-
+*/
 #endif

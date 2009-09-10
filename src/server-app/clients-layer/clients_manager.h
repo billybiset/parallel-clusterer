@@ -46,12 +46,21 @@
 
 namespace parallel_clusterer
 {
-    class ClientsManager
+    class FreeClientEvent : public Event
+    {
+        public:
+            FreeClientEvent(ClientsManagerInterface* const consumer);
+        private:
+            virtual void call();
+            ClientsManagerInterface* _interface;
+    };
+
+    class ClientsManager : public Producer, public ClientsManagerInterface
     {
         public:
             void inform_completion(const JobUnitID& id,const std::string& message);
 
-            void set_listener(ClientsManagerInterface* const sender);
+            void set_listener(ClientsManagerInterface* const interface);
 
             virtual void  initialize() = 0;
             virtual void  do_tasks()   = 0;
@@ -69,13 +78,15 @@ namespace parallel_clusterer
             virtual void  register_client  (ClientProxy* client); //implemented here
 
         private:
+            virtual void free_client_event();
+
+
             std::list<ClientProxy*>  _client_proxies;
             boost::mutex             _client_proxies_mutex;
 
             static ClientsManager*   _instance;
 
-            ClientsManagerInterface* _scheduler;
-//             ClientsManagerInterface* _scheduler;
+            ClientsManagerInterface* _interface;
     };
 
     /**

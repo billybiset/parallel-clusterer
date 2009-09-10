@@ -36,8 +36,8 @@ JobManager::JobManager() :
     _jobQueue_mutex(),
     _pendingList_mutex()
 {
-    ClientsManagerSender* sender = new ClientsManagerSender(*this);
-    _clients_manager->set_listener(sender);
+    _clients_manager->set_listener(this);
+    _clients_manager->set_consumer(this);
 }
 
 DistributableJob* JobManager::jobs_available() //will eventually change policy
@@ -121,14 +121,14 @@ void JobManager::run_scheduler()
     _clients_manager->initialize();
     try
     {
-        Caller<ClientsManagerInterface>* event;
+        Event* event;
         while (_status != kStopped)
         {
             check_local_events();
             event = wait_for_event();
             if (event != NULL)
             {
-                event->call(this);
+                event->call();
                 delete event;
             }
         } /*while*/
