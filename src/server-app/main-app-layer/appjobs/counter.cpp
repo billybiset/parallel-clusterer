@@ -53,6 +53,11 @@ void Counter::output_results() const
     std::cout << "Final count: " << _total_count << std::endl;
 }
 
+bool Counter::ready_to_produce() const
+{
+    return true;
+}
+
 JobUnit* Counter::get_next_job_unit(JobUnitSize size)
 {
     if ( ! finished_generating() )

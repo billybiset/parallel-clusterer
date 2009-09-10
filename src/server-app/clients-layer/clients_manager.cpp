@@ -41,7 +41,7 @@ void ClientsManager::inform_completion(const JobUnitID& id,const std::string& me
 //     _listener->inform_completion(id,message);
 }
 
-void ClientsManager::set_listener(SchedulerInterface* const sender)
+void ClientsManager::set_listener(ClientsManagerInterface* const sender)
 {
     _scheduler = sender;
 }

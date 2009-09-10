@@ -14,8 +14,8 @@
 namespace parallel_clusterer
 {
     class JobManager :
-           private SchedulerInterface,
-           public Consumer<SchedulerEvent>
+           private ClientsManagerInterface,
+           public Consumer<Caller<ClientsManagerInterface> >
     {
         public:
             static JobManager* get_instance();
@@ -47,17 +47,22 @@ namespace parallel_clusterer
 
             void              create_another_job_unit();
 
+            /* handling ClientsManager events */
             void              free_client_event();
+
+            void              check_local_events();
+            /* local events*/
 
             /* Attr. */
             static JobManager*             _instance;
 
             ClientsManager*                 _clients_manager;
 
-            std::list<DistributableJob *>         _distJobs;
-            std::list<JobUnit *>                  _jobQueue;
-            std::list<JobUnit *>                  _pendingList;
-            std::map<JobUnitID,DistributableJob*> _ids_to_job_map;
+            std::list<DistributableJob *>          _producingJobs;
+            std::list<DistributableJob *>          _waitingJobs;
+            std::list<JobUnit *>                   _jobQueue;
+            std::list<JobUnit *>                   _pendingList;
+            std::map<JobUnitID,DistributableJob* > _ids_to_job_map;
 
             Status                          _status;
 
