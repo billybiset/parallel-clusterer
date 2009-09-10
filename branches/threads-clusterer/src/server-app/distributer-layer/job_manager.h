@@ -14,8 +14,8 @@
 namespace parallel_clusterer
 {
     class JobManager :
-           private ClientsManagerInterface,
-           public Consumer<Caller<ClientsManagerInterface> >
+           public ClientsManagerInterface,
+           public Consumer<Event>
     {
         public:
             static JobManager* get_instance();

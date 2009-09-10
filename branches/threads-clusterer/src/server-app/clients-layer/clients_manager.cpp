@@ -13,10 +13,26 @@ using namespace parallel_clusterer;
 
 ClientsManager* ClientsManager::_instance = NULL;
 
+
+FreeClientEvent::FreeClientEvent(ClientsManagerInterface* const interface) :
+    _interface(interface)
+{
+}
+
+void FreeClientEvent::call()
+{
+    _interface->free_client_event();
+}
+
+void ClientsManager::free_client_event()
+{
+    send_event(new FreeClientEvent(_interface));
+}
+
 ClientsManager::ClientsManager() :
     _client_proxies(),
     _client_proxies_mutex(),
-    _scheduler(NULL)
+    _interface(NULL)
 {
     _instance = this;
 }
@@ -26,7 +42,7 @@ void ClientsManager::register_client(ClientProxy* client)
     boost::mutex::scoped_lock glock(_client_proxies_mutex);
     syslog(LOG_NOTICE,"Registering client %u.",client->get_id());
     _client_proxies.push_back(client);
-    _scheduler->free_client_event();
+    free_client_event();
 }
 
 void ClientsManager::deregister_client(ClientProxy* client)
@@ -41,9 +57,9 @@ void ClientsManager::inform_completion(const JobUnitID& id,const std::string& me
 //     _listener->inform_completion(id,message);
 }
 
-void ClientsManager::set_listener(ClientsManagerInterface* const sender)
+void ClientsManager::set_listener(ClientsManagerInterface* const interface)
 {
-    _scheduler = sender;
+    _interface = interface;
 }
 
 ClientProxy* ClientsManager::get_available_client()
