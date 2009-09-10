@@ -63,7 +63,6 @@
         }
     };
 
-
     template <typename T, class Container = std::queue<T> >
     class LockingQueue
     {

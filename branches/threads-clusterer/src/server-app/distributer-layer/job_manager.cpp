@@ -25,7 +25,8 @@ JobManager* JobManager::get_instance ()
 
 JobManager::JobManager() :
     _clients_manager(create_clients_manager()),
-    _distJobs(),
+    _producingJobs(),
+    _waitingJobs(),
     _jobQueue(),
     _pendingList(),
     _ids_to_job_map(),
@@ -35,24 +36,28 @@ JobManager::JobManager() :
     _jobQueue_mutex(),
     _pendingList_mutex()
 {
-    SchedulerSender* sender = new SchedulerSender(*this);
+    ClientsManagerSender* sender = new ClientsManagerSender(*this);
     _clients_manager->set_listener(sender);
 }
 
 DistributableJob* JobManager::jobs_available() //will eventually change policy
 {
 //     boost::mutex::scoped_lock glock(_distJobs_mutex);
-    if (_distJobs.empty())
+    if (_producingJobs.empty())
         return NULL;
     else
     {
         std::list<DistributableJob *>::const_iterator it;
 
-        it = find_if (_distJobs.begin(), _distJobs.end(),
+        it = find_if (_producingJobs.begin(), _producingJobs.end(),
                       !boost::bind(&DistributableJob::finished_generating, _1) );
 
-        if (it != _distJobs.end())
+        if (it != _producingJobs.end())
+        {
+            _producingJobs.remove(*it);
+            _producingJobs.push_back(*it);
             return *it;
+        }
         else
             return NULL;
     }
@@ -116,9 +121,10 @@ void JobManager::run_scheduler()
     _clients_manager->initialize();
     try
     {
-        SchedulerEvent* event;
+        Caller<ClientsManagerInterface>* event;
         while (_status != kStopped)
         {
+            check_local_events();
             event = wait_for_event();
             if (event != NULL)
             {
@@ -131,6 +137,20 @@ void JobManager::run_scheduler()
     {
         syslog(LOG_NOTICE,"Error in scheduler: %s",e.what());
         _status = kStopped;
+    }
+}
+
+void JobManager::check_local_events()
+{
+    std::list<DistributableJob*>::iterator it;
+    for (it = _waitingJobs.begin(); it != _waitingJobs.end(); it++)
+    {
+        if ((*it)->ready_to_produce())
+        {
+            std::cerr << "Pushing a job to the back" << std::endl;
+            _producingJobs.push_back(*it);
+            it = _waitingJobs.erase(it);
+        }
     }
 }
 
@@ -147,6 +167,6 @@ void JobManager::start_scheduler() /*start the scheduler thread, return*/
 void JobManager::enqueue(DistributableJob* const distjob)
 {
     boost::mutex::scoped_lock glock(_distJobs_mutex);
-    _distJobs.push_back(distjob);
+    _waitingJobs.push_back(distjob);
 }
 

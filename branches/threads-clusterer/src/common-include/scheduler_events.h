@@ -43,87 +43,41 @@
         }
     };
 
-
-    struct SchedulerInterface
+    struct ClientsManagerInterface
     {
         virtual void free_client_event()        = 0;
     };
 
-
-    struct SchedulerCaller
+    template<class Interface>
+    struct Caller
     {
-        virtual void call(SchedulerInterface* scheduler) = 0;
+        virtual void call(Interface* scheduler) = 0;
+        virtual ~Caller(){}
     };
 
-
-    typedef SchedulerCaller SchedulerEvent;
-
-    class SchedulerSender :
-        public SchedulerInterface,
-        public Producer<SchedulerEvent>
+    class ClientsManagerSender :
+        public ClientsManagerInterface,
+        public Producer<Caller<ClientsManagerInterface> >
     {
-        virtual void free_client_event()
-        {
-            struct Event :
-                public SchedulerCaller
+        public:
+            virtual void free_client_event()
             {
-                Event() {}
-
-                virtual void call(SchedulerInterface* scheduler)
+                struct Event : public Caller<ClientsManagerInterface>
                 {
-                    scheduler->free_client_event();
-                }
-            };
+                    Event() {}
 
-            send_event(new Event());
-        }
+                    virtual void call(ClientsManagerInterface* scheduler)
+                    {
+                        scheduler->free_client_event();
+                    }
+                };
+                send_event(new Event());
+            }
 
-    public:
-        SchedulerSender(Consumer<SchedulerEvent>& cons) :
-            Producer<SchedulerEvent>(&cons)
-        {
-        }
-    };
-
-    class Scheduler :
-            private SchedulerInterface,
-            public Consumer<SchedulerEvent>
-            /* ojo, de haber multiple consumicion, deja de ser herencia, y el metodo deja de ser virtual */
-    {
-    private:
-        virtual void free_client_event()
-        {
-        }
-
-    public:
-    void work()
-    {
-        SchedulerEvent* event;
-
-        while(true)
-        {
-                event = wait_for_event();
-                if (event != NULL)
-                {
-                    event->call(this);
-                    delete event;
-                }
-        }
-
-    }
-    };
-
-
-    class L1Algo
-    {
-    SchedulerInterface* const scheduler_interface;
-
-    public:
-        L1Algo (SchedulerInterface* interface) :
-            scheduler_interface(interface)
-        {
-        }
-
+            ClientsManagerSender(Consumer<Caller<ClientsManagerInterface> >& cons) :
+                Producer<Caller<ClientsManagerInterface> >(&cons)
+            {
+            }
     };
 
 #endif

@@ -51,7 +51,7 @@ namespace parallel_clusterer
         public:
             void inform_completion(const JobUnitID& id,const std::string& message);
 
-            void set_listener(SchedulerInterface* const sender);
+            void set_listener(ClientsManagerInterface* const sender);
 
             virtual void  initialize() = 0;
             virtual void  do_tasks()   = 0;
@@ -74,7 +74,8 @@ namespace parallel_clusterer
 
             static ClientsManager*   _instance;
 
-            SchedulerInterface*      _scheduler;
+            ClientsManagerInterface* _scheduler;
+//             ClientsManagerInterface* _scheduler;
     };
 
     /**

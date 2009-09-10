@@ -20,7 +20,6 @@ namespace parallel_clusterer
             void  wait_completion();
             void  inform_generation ();
 
-            bool  finished();
             bool  completion_accepted(const JobUnitID& id);
 
             virtual void      process_results (JobUnitID id, const std::string& message) = 0;
@@ -28,6 +27,8 @@ namespace parallel_clusterer
             virtual JobUnit*  get_next_job_unit (JobUnitSize  size)        = 0;
 
             virtual bool      finished_generating()                  const = 0;
+
+            virtual bool      ready_to_produce()                     const = 0;
 
             virtual const char* get_name()                           const = 0;
 
@@ -38,11 +39,14 @@ namespace parallel_clusterer
         protected:
             DistributableJob();
         private:
+            bool  finished();
+
             std::set<JobUnitID> _completed;           /*when _completed.size() = _j_u_gen then */
             size_t              _job_units_generated; /*the job is completed.                  */
 
-            boost::mutex _completed_mutex;
-            boost::mutex _job_units_generated_mutex;
+            boost::mutex              _completed_mutex;
+            boost::mutex              _job_units_generated_mutex;
+            boost::condition_variable _condition;
     };
 }
 #endif

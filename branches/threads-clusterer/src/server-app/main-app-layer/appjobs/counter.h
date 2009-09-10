@@ -23,6 +23,7 @@ namespace parallel_clusterer
             virtual void        process_results (JobUnitID id, const std::string& message);
 
             virtual bool        finished_generating() const;
+            virtual bool        ready_to_produce()    const;
             virtual const char* get_name()            const;
 
             virtual JobUnit*    get_next_job_unit(JobUnitSize size);

@@ -24,13 +24,13 @@ void DistributableJob::run() const
 
 void DistributableJob::wait_completion()
 {
-    while (! finished())
-        boost::this_thread::yield();
+    boost::unique_lock<boost::mutex> lock(_completed_mutex);
+    while(! finished())
+        _condition.wait(lock);
 }
 
 bool DistributableJob::finished()
 {
-    boost::mutex::scoped_lock glock(_completed_mutex);
     boost::mutex::scoped_lock glock2(_job_units_generated_mutex);
     return finished_generating() && _completed.size() == _job_units_generated;
 }
@@ -52,6 +52,8 @@ bool DistributableJob::completion_accepted(const JobUnitID& id)
         return false;
     else
     {
+        _condition.notify_all();
+
         _completed.insert(id);
         return true;
     }
