@@ -36,8 +36,7 @@
 #ifndef CLIENTS_MANAGER_H
 #define CLIENTS_MANAGER_H
 
-#include <vector>
-
+#include <set>
 #include <boost/thread.hpp>
 
 #include "client_proxy.h"
@@ -46,25 +45,47 @@
 
 namespace parallel_clusterer
 {
+    struct ClientsManagerEventProducer
+    {
+        virtual void free_client_event()        = 0;
+        virtual void job_unit_completed_event(const JobUnitID& id, const std::string& msg) = 0;
+    };
+
+    struct ClientsManagerEventConsumer
+    {
+        virtual void handle_free_client_event()         = 0;
+        virtual void handle_job_unit_completed_event(const JobUnitID& id, const std::string& msg)  = 0;
+    };
+
     class FreeClientEvent : public Event
     {
         public:
-            FreeClientEvent(ClientsManagerInterface* const consumer);
+            FreeClientEvent(ClientsManagerEventConsumer* const consumer);
         private:
             virtual void call();
-            ClientsManagerInterface* _interface;
+            ClientsManagerEventConsumer* _interface;
     };
 
-    class ClientsManager : public Producer, public ClientsManagerInterface
+    class JobUnitCompletedEvent : public Event
+    {
+        public:
+            JobUnitCompletedEvent(ClientsManagerEventConsumer* const consumer,
+                                    const JobUnitID& id, const std::string& msg);
+        private:
+            virtual void call();
+            ClientsManagerEventConsumer* _interface;
+            const JobUnitID&             _id;
+            const std::string&           _msg;
+    };
+
+    class ClientsManager : public Producer, public ClientsManagerEventProducer
     {
         public:
             void inform_completion(const JobUnitID& id,const std::string& message);
 
-            void set_listener(ClientsManagerInterface* const interface);
+            void set_listener(ClientsManagerEventConsumer* const interface);
 
-            virtual void  initialize() = 0;
-            virtual void  do_tasks()   = 0;
-            virtual bool  assign_job_unit  (const JobUnit& job_unit) = 0;
+            virtual bool  assign_job_unit  (const JobUnit& job_unit);
             virtual void  deregister_client(ClientProxy* client);
 
             inline static ClientsManager* get_instance() {return _instance;}
@@ -79,14 +100,18 @@ namespace parallel_clusterer
 
         private:
             virtual void free_client_event();
+            virtual void job_unit_completed_event(const JobUnitID& id, const std::string& msg);
 
+//             std::list<ClientProxy*>         _client_proxies;
+            std::list<ClientProxy*>         _busy_clients;
+            std::list<ClientProxy*>         _free_clients;
+            boost::mutex                    _client_proxies_mutex;
 
-            std::list<ClientProxy*>  _client_proxies;
-            boost::mutex             _client_proxies_mutex;
+            std::map<JobUnitID,std::set<ClientProxy*> > _ids_to_handlers;
 
-            static ClientsManager*   _instance;
+            static ClientsManager*          _instance;
 
-            ClientsManagerInterface* _interface;
+            ClientsManagerEventConsumer*    _interface;
     };
 
     /**

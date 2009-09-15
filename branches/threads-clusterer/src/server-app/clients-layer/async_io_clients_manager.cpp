@@ -113,7 +113,7 @@ void AsyncIOClientsManager::AsyncIOClientProxy::handle_response(ResponseCode cod
         {
             char msg[size];
             boost::asio::read(_socket,boost::asio::buffer(msg,size));
-            ClientsManager::get_instance()->inform_completion(id,std::string(msg,size));
+            ClientsManager::get_instance()->inform_completion(id,*(new std::string(msg,size))); //REALLY CHECK FOR MEMLEAK HEERE
         }
     }
 }
@@ -123,46 +123,15 @@ tcp::socket& AsyncIOClientsManager::AsyncIOClientProxy::socket()
     return _socket;
 }
 
-bool  AsyncIOClientsManager::assign_job_unit  (const JobUnit& job_unit)
-{
-    ClientProxy* client(get_available_client());
-    if (client != NULL)
-    {
-        client->process(job_unit); //on the same thread, works asynchronously
-        return true;
-    }
-    else
-        return false;
-}
-
-void  AsyncIOClientsManager::do_tasks()
-{
-//     boost::system::error_code ec;
-//     size_t st;
-
-//     st = _io_service.run(ec);
-
-//     if (ec)
-//         syslog(LOG_NOTICE,"run error %u",st);
-
-//     _io_service.reset();
-}
-
-void  AsyncIOClientsManager::initialize()
-{
-}
-
 void AsyncIOClientsManager::AsyncIOClientProxy::handle_receive(const boost::system::error_code& ec)
 {
     if (!ec)
     {
-        syslog(LOG_NOTICE,"Client %u received response",get_id());
         boost::mutex::scoped_lock glock(_proxy_mutex);
         BIStream bis(std::string(_code_buf,RESPONSE_HEADER_LENGTH));
 
         ResponseCode code;
         bis >> code;
-        syslog(LOG_NOTICE,"Client %u received response with code %u about Job Unit %u.",get_id(),code,_current_id);
 
         handle_response(code,_current_id);
         _state = kIdle;

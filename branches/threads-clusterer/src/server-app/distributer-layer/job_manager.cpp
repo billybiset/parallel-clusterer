@@ -36,18 +36,25 @@ JobManager::JobManager() :
     _jobQueue_mutex(),
     _pendingList_mutex()
 {
-    _clients_manager->set_listener(this);
+    _clients_manager->set_listener(this); //clarify this
     _clients_manager->set_consumer(this);
+    set_consumer(this); //I'm the consumer of my own events ;)
 }
 
 DistributableJob* JobManager::jobs_available() //will eventually change policy
 {
-//     boost::mutex::scoped_lock glock(_distJobs_mutex);
     if (_producingJobs.empty())
         return NULL;
     else
     {
-        std::list<DistributableJob *>::const_iterator it;
+        DistributableJob* ret = _producingJobs.front();
+        _producingJobs.pop_front();
+        _producingJobs.push_back(ret);
+        return ret;
+    }
+    /*
+    {
+        std::list<DistributableJob *>::iterator it;
 
         it = find_if (_producingJobs.begin(), _producingJobs.end(),
                       !boost::bind(&DistributableJob::finished_generating, _1) );
@@ -61,6 +68,7 @@ DistributableJob* JobManager::jobs_available() //will eventually change policy
         else
             return NULL;
     }
+    */
 }
 
 bool JobManager::job_queue_full() //const
@@ -75,6 +83,7 @@ void JobManager::stop_scheduler()
 
 void JobManager::inform_completion(const JobUnitID& id, const std::string& message)
 {
+    syslog(LOG_NOTICE,"JobUnit %u completed.",id);
     boost::mutex::scoped_lock(_pendingList_mutex);
     _ids_to_job_map[id]->process_results(id, message);
 
@@ -84,7 +93,7 @@ void JobManager::inform_completion(const JobUnitID& id, const std::string& messa
                 boost::bind(&JobUnit::get_id, _1) == id);
 
     if (it != _pendingList.end())
-        _pendingList.remove(*it);
+        _pendingList.erase(it);
     else
         syslog(LOG_NOTICE,"Finished JobUnit %u was not in pending list.",id);
 }
@@ -110,21 +119,53 @@ void JobManager::create_another_job_unit()
     }
 }
 
-void JobManager::free_client_event()
+void JobManager::handle_distributable_job_completed_event(DistributableJob* distjob)
+{
+    _producingJobs.remove(distjob);
+}
+
+void JobManager::handle_free_client_event()
 {
     std::cerr << "Free client " << std::endl;
+//     boost::mutex::scoped_lock gloc(_jobQueue_mutex);
+//     boost::mutex::scoped_lock gloc2(_pendingList_mutex);
+    bool     res(true);
+    JobUnit* ju(NULL);
+    do
+    {
+        if (_jobQueue.empty())
+        {
+            if (_pendingList.empty())
+                res = false; //nothing to assign
+            else
+                ju = _pendingList.front();
+            std::cerr << "JQ Empt " << std::endl;
+        }
+        else
+            ju = _jobQueue.front();
+        if (res)
+            if ( ( res = _clients_manager->assign_job_unit(*ju))  )
+            {
+                std::cerr << "Assign succ " << std::endl;
+                _jobQueue.pop_front();
+                _pendingList.push_back(ju);
+            }
+    } while(res);
+}
+
+void JobManager::handle_job_unit_completed_event(const JobUnitID& id, const std::string& msg)
+{
+    inform_completion(id,msg);
 }
 
 void JobManager::run_scheduler()
 {
     syslog(LOG_NOTICE,"Starting scheduler.");
-    _clients_manager->initialize();
     try
     {
         Event* event;
         while (_status != kStopped)
         {
-            check_local_events();
             event = wait_for_event();
             if (event != NULL)
             {
@@ -140,17 +181,48 @@ void JobManager::run_scheduler()
     }
 }
 
+
+JobQueueNotFullEvent::JobQueueNotFullEvent(JobManagerEventConsumer* const interface) :
+    _interface(interface)
+{
+}
+
+void JobQueueNotFullEvent::call()
+{
+    _interface->handle_job_queue_not_full_event();
+}
+
+void JobManager::job_queue_not_full_event()
+{
+    send_event(new JobQueueNotFullEvent(this));
+}
+
+void JobManager::handle_job_queue_not_full_event()
+{
+    while (! job_queue_full() && ! _producingJobs.empty())
+        create_another_job_unit();
+}
+
+
 void JobManager::check_local_events()
 {
-    std::list<DistributableJob*>::iterator it;
-    for (it = _waitingJobs.begin(); it != _waitingJobs.end(); it++)
+    while (true)
     {
-        if ((*it)->ready_to_produce())
+        if (! job_queue_full())
+            job_queue_not_full_event();
+
+        std::list<DistributableJob*>::iterator it;
+        for (it = _waitingJobs.begin(); it != _waitingJobs.end(); it++)
         {
-            std::cerr << "Pushing a job to the back" << std::endl;
-            _producingJobs.push_back(*it);
-            it = _waitingJobs.erase(it);
+            if ((*it)->ready_to_produce())
+            {
+                std::cerr << "Pushing a job to the back" << std::endl;
+                _producingJobs.push_back(*it);
+                it = _waitingJobs.erase(it); //still works with list.end()
+            }
         }
+
+        sleep(1);
     }
 }
 
@@ -161,12 +233,14 @@ void JobManager::start_scheduler() /*start the scheduler thread, return*/
     {
         _status = kRunning;
         boost::thread thr1( boost::bind( &JobManager::run_scheduler, this ) );
+        boost::thread thr2( boost::bind( &JobManager::check_local_events, this ) );
     }
 }
 
-void JobManager::enqueue(DistributableJob* const distjob)
+void JobManager::enqueue(DistributableJob* distjob)
 {
     boost::mutex::scoped_lock glock(_distJobs_mutex);
     _waitingJobs.push_back(distjob);
+    distjob->set_listener(this);
 }
 

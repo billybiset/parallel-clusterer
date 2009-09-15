@@ -8,7 +8,6 @@
         virtual void call() = 0;
     };
 
-
     template <class EventType>
     class Consumer
     {
@@ -53,11 +52,6 @@
             }
         private:
             Consumer<Event>* cons;
-    };
-
-    struct ClientsManagerInterface
-    {
-        virtual void free_client_event() = 0;
     };
 
 /*
