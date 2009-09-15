@@ -13,8 +13,45 @@
 
 namespace parallel_clusterer
 {
+
+    struct JobManagerEventProducer
+    {
+        virtual void job_queue_not_full_event()        = 0;
+//         virtual void job_unit_completed_event(const std::string& msg) = 0;
+    };
+
+    struct JobManagerEventConsumer
+    {
+        virtual void handle_job_queue_not_full_event()         = 0;
+//         virtual void handle_job_unit_completed_event(const std::string& msg)  = 0;
+    };
+
+    class JobQueueNotFullEvent : public Event
+    {
+        public:
+            JobQueueNotFullEvent(JobManagerEventConsumer* const consumer);
+        private:
+            virtual void call();
+            JobManagerEventConsumer* _interface;
+    };
+/*
+    class JobUnitCompletedEvent : public Event
+    {
+        public:
+            JobUnitCompletedEvent(ClientsManagerEventConsumer* const consumer, const std::string& msg);
+        private:
+            virtual void call();
+            ClientsManagerEventConsumer* _interface;
+            const std::string&       _msg;
+    };
+
+*/
     class JobManager :
-           public ClientsManagerInterface,
+           public ClientsManagerEventConsumer,
+           public JobManagerEventConsumer,
+           public JobManagerEventProducer,
+           public DistributableJobEventConsumer,
+           public Producer,
            public Consumer<Event>
     {
         public:
@@ -48,10 +85,17 @@ namespace parallel_clusterer
             void              create_another_job_unit();
 
             /* handling ClientsManager events */
-            void              free_client_event();
+            void              handle_free_client_event();
+            void              handle_job_unit_completed_event(const JobUnitID& id, const std::string& msg);
+
+            /* handling DistributableJob events */
+            void              handle_distributable_job_completed_event(DistributableJob* distjob);
 
             void              check_local_events();
+
             /* local events*/
+            void              job_queue_not_full_event();
+            void              handle_job_queue_not_full_event();
 
             /* Attr. */
             static JobManager*             _instance;
