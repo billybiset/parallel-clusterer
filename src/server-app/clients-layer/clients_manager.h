@@ -102,8 +102,9 @@ namespace parallel_clusterer
             virtual void free_client_event();
             virtual void job_unit_completed_event(const JobUnitID id, const std::string* msg);
 
-            std::set<ClientProxy*>          _busy_clients;
-            std::set<ClientProxy*>          _free_clients;
+            /*std::set<ClientProxy*>          _busy_clients;
+            std::set<ClientProxy*>          _free_clients; */
+            std::list<ClientProxy*>         _client_proxies;
             boost::mutex                    _client_proxies_mutex;
 
             std::map<JobUnitID,std::set<ClientProxy*> > _ids_to_handlers;
