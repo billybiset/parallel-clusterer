@@ -24,6 +24,7 @@ JobManager* JobManager::get_instance ()
 }
 
 JobManager::JobManager() :
+    _clients_available(false),
     _clients_manager(create_clients_manager()),
     _producingJobs(),
     _waitingJobs(),
@@ -81,11 +82,14 @@ void JobManager::stop_scheduler()
     _status = kStopped;
 }
 
-void JobManager::inform_completion(const JobUnitID& id, const std::string& message)
+void JobManager::inform_completion(const JobUnitID id, const std::string* message)
 {
     syslog(LOG_NOTICE,"JobUnit %u completed.",id);
     boost::mutex::scoped_lock(_pendingList_mutex);
+
     _ids_to_job_map[id]->process_results(id, message);
+
+    delete message; //release the mem
 
     //remove from pending list
     std::list<JobUnit*>::iterator it;
@@ -115,6 +119,13 @@ void JobManager::create_another_job_unit()
 
             _ids_to_job_map[job_unit->get_id()] = job;
             _jobQueue.push_back(job_unit); //just enqueue
+
+        }
+
+        if (job->finished_generating())
+        {
+            _producingJobs.remove(job);
+            _waitingJobs.push_back(job);
         }
     }
 }
@@ -126,34 +137,36 @@ void JobManager::handle_distributable_job_completed_event(DistributableJob* dist
 
 void JobManager::handle_free_client_event()
 {
-    std::cerr << "Free client " << std::endl;
-//     boost::mutex::scoped_lock gloc(_jobQueue_mutex);
-//     boost::mutex::scoped_lock gloc2(_pendingList_mutex);
+    std::cerr << "FC" << std::endl;
+    _clients_available = true;
+
     bool     res(true);
-    JobUnit* ju(NULL);
     do
     {
+        boost::mutex::scoped_lock gloc(_jobQueue_mutex);
+        boost::mutex::scoped_lock gloc2(_pendingList_mutex);
         if (_jobQueue.empty())
         {
             if (_pendingList.empty())
                 res = false; //nothing to assign
-            else
-                ju = _pendingList.front();
-            std::cerr << "JQ Empt " << std::endl;
+            else if ( ! ( res = _clients_manager->assign_job_unit(*_pendingList.front())) )
+                _clients_available = false;
         }
         else
-            ju = _jobQueue.front();
-        if (res)
-            if ( ( res = _clients_manager->assign_job_unit(*ju))  )
+        {
+            if ( ( res = _clients_manager->assign_job_unit(*_jobQueue.front()) ) )
             {
-                std::cerr << "Assign succ " << std::endl;
+                syslog(LOG_NOTICE,"Sending JobUnit %u to pending list.",(_jobQueue.front()->get_id()) );
+                _pendingList.push_back(_jobQueue.front());
                 _jobQueue.pop_front();
-                _pendingList.push_back(ju);
             }
+            else
+                _clients_available = false;
+        }
     } while(res);
 }
 
-void JobManager::handle_job_unit_completed_event(const JobUnitID& id, const std::string& msg)
+void JobManager::handle_job_unit_completed_event(const JobUnitID id, const std::string* msg)
 {
     inform_completion(id,msg);
 }
@@ -199,6 +212,8 @@ void JobManager::job_queue_not_full_event()
 
 void JobManager::handle_job_queue_not_full_event()
 {
+    static unsigned int calls(0);
+    std::cerr << "JQ nf" << calls++ << std::endl;
     while (! job_queue_full() && ! _producingJobs.empty())
         create_another_job_unit();
 }
@@ -211,18 +226,25 @@ void JobManager::check_local_events()
         if (! job_queue_full())
             job_queue_not_full_event();
 
-        std::list<DistributableJob*>::iterator it;
-        for (it = _waitingJobs.begin(); it != _waitingJobs.end(); it++)
+        if (_clients_available)
+            handle_free_client_event();
+
+        if (! _waitingJobs.empty())
         {
-            if ((*it)->ready_to_produce())
+            std::list<DistributableJob*>::iterator it;
+            for (it = _waitingJobs.begin(); it != _waitingJobs.end(); it++)
             {
-                std::cerr << "Pushing a job to the back" << std::endl;
-                _producingJobs.push_back(*it);
-                it = _waitingJobs.erase(it); //still works with list.end()
+                if ((*it)->ready_to_produce())
+                {
+                    _producingJobs.push_back(*it);
+                    it = _waitingJobs.erase(it); //still works with list.end()
+                }
             }
         }
 
-        sleep(1);
+        //in peace?
+        if ( ( job_queue_full() || _producingJobs.empty() ) && ( ! _clients_available) )
+            sleep(1);
     }
 }
 
@@ -240,7 +262,8 @@ void JobManager::start_scheduler() /*start the scheduler thread, return*/
 void JobManager::enqueue(DistributableJob* distjob)
 {
     boost::mutex::scoped_lock glock(_distJobs_mutex);
-    _waitingJobs.push_back(distjob);
     distjob->set_listener(this);
+    distjob->set_consumer(this);
+    _waitingJobs.push_back(distjob);
 }
 

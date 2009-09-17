@@ -62,7 +62,7 @@ namespace parallel_clusterer
             void   start_scheduler();
             void   stop_scheduler();
 
-            void   inform_completion(const JobUnitID& id,const std::string& message);
+            void   inform_completion(const JobUnitID id,const std::string* message);
 
         private:
             /* Override these, as per -Weffc++ warnings */
@@ -86,7 +86,7 @@ namespace parallel_clusterer
 
             /* handling ClientsManager events */
             void              handle_free_client_event();
-            void              handle_job_unit_completed_event(const JobUnitID& id, const std::string& msg);
+            void              handle_job_unit_completed_event(const JobUnitID id, const std::string* msg);
 
             /* handling DistributableJob events */
             void              handle_distributable_job_completed_event(DistributableJob* distjob);
@@ -98,7 +98,9 @@ namespace parallel_clusterer
             void              handle_job_queue_not_full_event();
 
             /* Attr. */
-            static JobManager*             _instance;
+            static JobManager*              _instance;
+
+            bool                            _clients_available;
 
             ClientsManager*                 _clients_manager;
 

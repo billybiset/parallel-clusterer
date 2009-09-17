@@ -48,13 +48,13 @@ namespace parallel_clusterer
     struct ClientsManagerEventProducer
     {
         virtual void free_client_event()        = 0;
-        virtual void job_unit_completed_event(const JobUnitID& id, const std::string& msg) = 0;
+        virtual void job_unit_completed_event(const JobUnitID id, const std::string* msg) = 0;
     };
 
     struct ClientsManagerEventConsumer
     {
         virtual void handle_free_client_event()         = 0;
-        virtual void handle_job_unit_completed_event(const JobUnitID& id, const std::string& msg)  = 0;
+        virtual void handle_job_unit_completed_event(const JobUnitID id, const std::string* msg)  = 0;
     };
 
     class FreeClientEvent : public Event
@@ -70,18 +70,18 @@ namespace parallel_clusterer
     {
         public:
             JobUnitCompletedEvent(ClientsManagerEventConsumer* const consumer,
-                                    const JobUnitID& id, const std::string& msg);
+                                    const JobUnitID id, const std::string* msg);
         private:
             virtual void call();
             ClientsManagerEventConsumer* _interface;
-            const JobUnitID&             _id;
-            const std::string&           _msg;
+            const JobUnitID              _id;
+            const std::string*           _msg;
     };
 
     class ClientsManager : public Producer, public ClientsManagerEventProducer
     {
         public:
-            void inform_completion(const JobUnitID& id,const std::string& message);
+            void inform_completion(const JobUnitID id,const std::string* message);
 
             void set_listener(ClientsManagerEventConsumer* const interface);
 
@@ -100,11 +100,10 @@ namespace parallel_clusterer
 
         private:
             virtual void free_client_event();
-            virtual void job_unit_completed_event(const JobUnitID& id, const std::string& msg);
+            virtual void job_unit_completed_event(const JobUnitID id, const std::string* msg);
 
-//             std::list<ClientProxy*>         _client_proxies;
-            std::list<ClientProxy*>         _busy_clients;
-            std::list<ClientProxy*>         _free_clients;
+            std::set<ClientProxy*>          _busy_clients;
+            std::set<ClientProxy*>          _free_clients;
             boost::mutex                    _client_proxies_mutex;
 
             std::map<JobUnitID,std::set<ClientProxy*> > _ids_to_handlers;
