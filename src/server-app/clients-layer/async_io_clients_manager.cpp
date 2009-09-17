@@ -99,22 +99,30 @@ AsyncIOClientsManager::AsyncIOClientProxy::AsyncIOClientProxy(boost::asio::io_se
 void AsyncIOClientsManager::AsyncIOClientProxy::handle_response(ResponseCode code, JobUnitID id)
 {
 //     boost::mutex::scoped_lock glock(_proxy_mutex);
-    if (code == JobUnitCompleted) // get result
+    try
     {
-        char size_buf[RESPONSE_HEADER_LENGTH];
-        boost::asio::read(_socket,boost::asio::buffer(size_buf,RESPONSE_HEADER_LENGTH));
-
-        JobUnitSize size;
-
-        BIStream bis2(std::string(size_buf,RESPONSE_HEADER_LENGTH));
-        bis2 >> size;
-
-        if (size > 0)
+        if (code == JobUnitCompleted) // get result
         {
-            char msg[size];
-            boost::asio::read(_socket,boost::asio::buffer(msg,size));
-            ClientsManager::get_instance()->inform_completion(id,*(new std::string(msg,size))); //REALLY CHECK FOR MEMLEAK HEERE
+            char size_buf[RESPONSE_HEADER_LENGTH];
+            boost::asio::read(_socket,boost::asio::buffer(size_buf,RESPONSE_HEADER_LENGTH));
+
+            JobUnitSize size;
+
+            BIStream bis2(std::string(size_buf,RESPONSE_HEADER_LENGTH));
+            bis2 >> size;
+
+            if (size > 0)
+            {
+                char msg[size];
+                boost::asio::read(_socket,boost::asio::buffer(msg,size));
+                ClientsManager::get_instance()->inform_completion(id,new std::string(msg,size));
+            }
         }
+    }
+    catch(std::exception& e)
+    {
+        syslog(LOG_NOTICE,"Error(handle_response): %s.",e.what());
+        destroy();
     }
 }
 

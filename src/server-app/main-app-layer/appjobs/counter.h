@@ -22,7 +22,7 @@ namespace parallel_clusterer
 
             virtual ~Counter(){};
         private:
-            virtual void        process_results (JobUnitID id, const std::string& message);
+            virtual void        process_results (const JobUnitID id, const std::string* message);
 
             virtual bool        finished_generating() const;
             virtual bool        ready_to_produce()    const;

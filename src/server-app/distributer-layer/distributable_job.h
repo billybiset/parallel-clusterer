@@ -17,11 +17,13 @@ namespace parallel_clusterer
     struct DistributableJobEventProducer
     {
         virtual void distributable_job_completed_event(DistributableJob* distob) = 0;
+//         virtual void distributable_job_done_generating_event(DistributableJob* distob) = 0;
     };
 
     struct DistributableJobEventConsumer
     {
         virtual void handle_distributable_job_completed_event(DistributableJob* distjob)  = 0;
+//         virtual void handle_distributable_job_done_generating_event(DistributableJob* distob) = 0;
     };
 
     class DistributableJobCompletedEvent : public Event
@@ -34,8 +36,19 @@ namespace parallel_clusterer
             DistributableJob*              _distjob;
     };
 
+/*
+    class DistributableJobDoneGeneratingEvent : public Event
+    {
+        public:
+            DistributableJobDoneGeneratingEvent(DistributableJobEventConsumer* interface,DistributableJob* distjob);
+        private:
+            virtual void call();
+            DistributableJobEventConsumer* _interface;
+            DistributableJob*              _distjob;
+    };
+*/
 
-    class DistributableJob : DistributableJobEventProducer, Producer
+    class DistributableJob : public DistributableJobEventProducer, public Producer
     {
         public:
             /*interface for main*/
@@ -46,7 +59,7 @@ namespace parallel_clusterer
             bool  completion_accepted(const JobUnitID& id);
             void set_listener(DistributableJobEventConsumer* const interface);
 
-            virtual void      process_results (JobUnitID id, const std::string& message) = 0;
+            virtual void      process_results (const JobUnitID id, const std::string* message) = 0;
 
             virtual JobUnit*  get_next_job_unit (JobUnitSize  size)        = 0;
 
@@ -64,6 +77,7 @@ namespace parallel_clusterer
             DistributableJob();
         private:
             void distributable_job_completed_event(DistributableJob* distob);
+            void handle_distributable_job_done_generating_event(DistributableJob* distob);
 
             bool  finished();
 

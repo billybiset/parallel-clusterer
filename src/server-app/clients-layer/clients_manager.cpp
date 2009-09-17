@@ -25,7 +25,7 @@ void FreeClientEvent::call()
 }
 
 JobUnitCompletedEvent::JobUnitCompletedEvent(ClientsManagerEventConsumer* const interface,
-                                            const JobUnitID& id, const std::string& msg) :
+                                            const JobUnitID id, const std::string* msg) :
     _interface(interface),
     _id(id),
     _msg(msg)
@@ -37,7 +37,7 @@ void JobUnitCompletedEvent::call()
     _interface->handle_job_unit_completed_event(_id,_msg);
 }
 
-void ClientsManager::job_unit_completed_event(const JobUnitID& id, const std::string& msg)
+void ClientsManager::job_unit_completed_event(const JobUnitID id, const std::string* msg)
 {
     send_event(new JobUnitCompletedEvent(_interface,id,msg));
 }
@@ -66,8 +66,10 @@ bool ClientsManager::assign_job_unit (const JobUnit& job_unit)
         client->process(job_unit); //on the same thread, works asynchronously
         if (client->busy())
         {
-            _free_clients.remove(client);
-            _busy_clients.push_back(client);
+            syslog(LOG_NOTICE,"Pushing client %u to busy list.",client->get_id());
+            boost::mutex::scoped_lock glock(_client_proxies_mutex);
+            _free_clients.erase(client);
+            _busy_clients.insert(client);
         }
         return true;
     }
@@ -79,7 +81,7 @@ void ClientsManager::register_client(ClientProxy* client)
 {
     boost::mutex::scoped_lock glock(_client_proxies_mutex);
     syslog(LOG_NOTICE,"Registering client %u.",client->get_id());
-    _free_clients.push_back(client);
+    _free_clients.insert(client);
     free_client_event();
 }
 
@@ -87,31 +89,21 @@ void ClientsManager::deregister_client(ClientProxy* client)
 {
     boost::mutex::scoped_lock glock(_client_proxies_mutex);
     syslog(LOG_NOTICE,"Deregistering client %u.",client->get_id());
-    _free_clients.remove(client); //it'll be somewhere
-    _busy_clients.remove(client);
+    _free_clients.erase(client); //it'll be somewhere
+    _busy_clients.erase(client);
 }
 
-void ClientsManager::inform_completion(const JobUnitID& id,const std::string& message)
+void ClientsManager::inform_completion(const JobUnitID id,const std::string* message)
 {
-/*
-    boost::mutex::scoped_lock gloc(_client_proxies_mutex);
-    std::list<ClientProxy*>::iterator it(_busy_clients.begin());
-
-    while ((it != _busy_clients.end()) && ((*it)->get_id() != id))
-        ++it;
-
-    if (it != _busy_clients.end())
-    {
-        _free_clients.push_back(*it);
-        _busy_clients.erase(it);
-    }
-*/
+    boost::mutex::scoped_lock glock(_client_proxies_mutex);
     std::set<ClientProxy*>::iterator it;
+
     for (it = _ids_to_handlers[id].begin(); it != _ids_to_handlers[id].end(); it++)
     {
-//         *it->stop_processing(id);
-        _free_clients.push_back(*it);
-        _busy_clients.remove(*it);
+//         *it->stop_processing(id); // Leave this... should eventually implement it
+        syslog(LOG_NOTICE,"Pushing client to free: %u.",(*it)->get_id());
+        _free_clients.insert(*it);
+        _busy_clients.erase(*it);
     }
     job_unit_completed_event(id, message);
     free_client_event(); //should follow this order
@@ -126,11 +118,19 @@ void ClientsManager::set_listener(ClientsManagerEventConsumer* const interface)
 ClientProxy* ClientsManager::get_available_client()
 {
     boost::mutex::scoped_lock glock(_client_proxies_mutex);
-    if (_free_clients.empty())
-        return NULL;
+
+    std::set<ClientProxy *>::iterator it;
+    for (it = _free_clients.begin(); it != _free_clients.end() && (*it)->busy() ; ++it)
+    {
+        //two logics for busyness :(
+        _busy_clients.insert(*it);
+        _free_clients.erase(it); //works?
+    }
+    if (it != _free_clients.end())
+        return *it;
     else
-        return _free_clients.front();
-    /*
+        return NULL;
+/*
     {
         std::list<ClientProxy *>::const_iterator it;
 
@@ -144,6 +144,7 @@ ClientProxy* ClientsManager::get_available_client()
         }
         else
             return NULL;
-    } */
+    }
+*/
 }
 
