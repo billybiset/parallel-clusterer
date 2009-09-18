@@ -24,7 +24,6 @@ JobManager* JobManager::get_instance ()
 }
 
 JobManager::JobManager() :
-    _clients_available(false),
     _clients_manager(create_clients_manager()),
     _producingJobs(),
     _waitingJobs(),
@@ -136,32 +135,30 @@ void JobManager::handle_distributable_job_completed_event(DistributableJob* dist
 
 void JobManager::handle_free_client_event()
 {
-//     std::cerr << "FC" << std::endl;
-//     do
-//     {
-//         boost::mutex::scoped_lock gloc(_jobUnits_mutex);
-    bool     res(true);
-    _clients_available = true;
+    handle_new_job_event(); //check for waiting jobs to see if they can produce
+    handle_job_queue_not_full_event();
+    boost::mutex::scoped_lock(_mutex);
 
-        if (_jobQueue.empty())
+    if (_jobQueue.empty())
+    {
+        if (! _pendingList.empty())
         {
-            if (_pendingList.empty())
-                res = false; //nothing to assign
-            else if ( ! ( res = _clients_manager->assign_job_unit(*_pendingList.front())) )
-                _clients_available = false;
+            _clients_manager->assign_job_unit(*_pendingList.front());
+            //send this one to the back
+            _pendingList.push_back(_pendingList.front());
+            _pendingList.pop_front();
         }
-        else
+    }
+    else
+    {
+        if ( _clients_manager->assign_job_unit(*_jobQueue.front()) )
         {
-            if ( ( res = _clients_manager->assign_job_unit(*_jobQueue.front()) ) )
-            {
-                syslog(LOG_NOTICE,"Sending JobUnit %u to pending list.",(_jobQueue.front()->get_id()) );
-                _pendingList.push_back(_jobQueue.front());
-                _jobQueue.pop_front();
-            }
-            else
-                _clients_available = false;
+            syslog(LOG_NOTICE,"Sending JobUnit %u to pending list.",(_jobQueue.front()->get_id()) );
+            _pendingList.push_back(_jobQueue.front());
+            _jobQueue.pop_front();
         }
-//     } while(res);
+    }
+    handle_job_queue_not_full_event();
 }
 
 void JobManager::handle_job_unit_completed_event(const JobUnitID id, const std::string* msg)
@@ -210,42 +207,9 @@ void JobManager::job_queue_not_full_event()
 
 void JobManager::handle_job_queue_not_full_event()
 {
-//     static unsigned int calls(0);
-//     std::cerr << "JQ nf" << calls++ << std::endl;
     boost::mutex::scoped_lock(_mutex);
     while (! job_queue_full() && ! _producingJobs.empty())
         create_another_job_unit();
-}
-
-
-void JobManager::check_local_events()
-{
-    while (true)
-    {
-        boost::mutex::scoped_lock(_mutex);
-        if (! job_queue_full())
-            job_queue_not_full_event();
-
-        if (_clients_available)
-            handle_free_client_event();
-
-        if (! _waitingJobs.empty())
-        {
-            std::list<DistributableJob*>::iterator it;
-            for (it = _waitingJobs.begin(); it != _waitingJobs.end(); it++)
-            {
-                if ((*it)->ready_to_produce())
-                {
-                    _producingJobs.push_back(*it);
-                    it = _waitingJobs.erase(it); //still works with list.end()
-                }
-            }
-        }
-
-        //in peace?
-//         if ( ( job_queue_full() || _producingJobs.empty() ) && ( ! _clients_available) )
-//             sleep(0.1);
-    }
 }
 
 void JobManager::start_scheduler() /*start the scheduler thread, return*/
@@ -255,7 +219,23 @@ void JobManager::start_scheduler() /*start the scheduler thread, return*/
     {
         _status = kRunning;
         boost::thread thr1( boost::bind( &JobManager::run_scheduler, this ) );
-        boost::thread thr2( boost::bind( &JobManager::check_local_events, this ) );
+    }
+}
+
+void JobManager::handle_new_job_event()
+{
+    boost::mutex::scoped_lock(_mutex);
+    if (! _waitingJobs.empty())
+    {
+        std::list<DistributableJob*>::iterator it;
+        for (it = _waitingJobs.begin(); it != _waitingJobs.end(); it++)
+        {
+            if ((*it)->ready_to_produce())
+            {
+                _producingJobs.push_back(*it);
+                it = _waitingJobs.erase(it); //still works with list.end()
+            }
+        }
     }
 }
 
