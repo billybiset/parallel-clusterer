@@ -114,8 +114,7 @@ namespace parallel_clusterer
 
             boost::mutex                    _status_mutex;
             boost::mutex                    _distJobs_mutex;
-            boost::mutex                    _jobQueue_mutex;
-            boost::mutex                    _pendingList_mutex;
+            boost::mutex                    _jobUnits_mutex;
     };
 }
 #endif

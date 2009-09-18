@@ -116,7 +116,7 @@ ClientProxy* ClientsManager::get_available_client()
 
         if (it != _client_proxies.end())
         {
-            syslog(LOG_NOTICE,"Using client %u.",(*it)->get_id());
+//             syslog(LOG_NOTICE,"Using client %u.",(*it)->get_id());
             return *it;
         }
         else
