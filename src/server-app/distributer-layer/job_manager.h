@@ -82,22 +82,20 @@ namespace parallel_clusterer
             void              create_another_job_unit();
 
             /* handling ClientsManager events */
-            void              handle_free_client_event();
-            void              handle_job_unit_completed_event(const JobUnitID id, const std::string* msg);
+            virtual void      handle_free_client_event();
+            virtual void      handle_job_unit_completed_event(const JobUnitID id, const std::string* msg);
 
             /* handling DistributableJob events */
-            void              handle_distributable_job_completed_event(DistributableJob* distjob);
+            virtual void      handle_distributable_job_completed_event(DistributableJob* distjob);
 
-            void              check_local_events();
+            void              handle_new_job_event();
 
             /* local events*/
             void              job_queue_not_full_event();
-            void              handle_job_queue_not_full_event();
+            virtual void      handle_job_queue_not_full_event();
 
             /* Attr. */
             static JobManager*              _instance;
-
-            bool                            _clients_available;
 
             ClientsManager*                 _clients_manager;
 
@@ -110,9 +108,6 @@ namespace parallel_clusterer
             Status                          _status;
 
             boost::mutex                    _mutex;
-//             boost::mutex                    _status_mutex;
-//             boost::mutex                    _distJobs_mutex;
-//             boost::mutex                    _jobUnits_mutex;
     };
 }
 #endif
