@@ -71,9 +71,6 @@ namespace parallel_clusterer
 
             enum Status {kStopped, kPaused, kRunning};
 
-            /*take this out of here*/
-            static const size_t MAX_JOBUNITS_PENDING_SIZE = 11;
-
             JobManager();
 
             /*methods*/
@@ -112,9 +109,10 @@ namespace parallel_clusterer
 
             Status                          _status;
 
-            boost::mutex                    _status_mutex;
-            boost::mutex                    _distJobs_mutex;
-            boost::mutex                    _jobUnits_mutex;
+            boost::mutex                    _mutex;
+//             boost::mutex                    _status_mutex;
+//             boost::mutex                    _distJobs_mutex;
+//             boost::mutex                    _jobUnits_mutex;
     };
 }
 #endif

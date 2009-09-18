@@ -32,9 +32,7 @@ JobManager::JobManager() :
     _pendingList(),
     _ids_to_job_map(),
     _status(kStopped),
-    _status_mutex(),
-    _distJobs_mutex(),
-    _jobUnits_mutex()
+    _mutex()
 {
     _clients_manager->set_listener(this); //clarify this
     _clients_manager->set_consumer(this);
@@ -73,8 +71,6 @@ DistributableJob* JobManager::jobs_available() //will eventually change policy
 
 bool JobManager::job_queue_full() //const
 {
-//     boost::mutex::scoped_lock glock(_jobUnits_mutex);
-    boost::mutex::scoped_lock(_distJobs_mutex);
     return _jobQueue.size() >= MAX_JOBUNITS_QUEUE_SIZE;
 }
 
@@ -85,9 +81,9 @@ void JobManager::stop_scheduler()
 
 void JobManager::inform_completion(const JobUnitID id, const std::string* message)
 {
-    syslog(LOG_NOTICE,"JobUnit %u completed.",id);
-    boost::mutex::scoped_lock(_distJobs_mutex); //always follow this order
+    boost::mutex::scoped_lock(_mutex); //always follow this order
 //     boost::mutex::scoped_lock(_jobUnits_mutex);
+    syslog(LOG_NOTICE,"JobUnit %u completed.",id);
 
     _ids_to_job_map[id]->process_results(id, message);
 
@@ -107,7 +103,6 @@ void JobManager::inform_completion(const JobUnitID id, const std::string* messag
 void JobManager::create_another_job_unit()
 {
     DistributableJob* job;
-    boost::mutex::scoped_lock glock(_distJobs_mutex);
 
     job = jobs_available();
     if ( job != NULL )
@@ -135,20 +130,19 @@ void JobManager::create_another_job_unit()
 
 void JobManager::handle_distributable_job_completed_event(DistributableJob* distjob)
 {
-    boost::mutex::scoped_lock(_distJobs_mutex);
+    boost::mutex::scoped_lock(_mutex);
     _producingJobs.remove(distjob);
 }
 
 void JobManager::handle_free_client_event()
 {
 //     std::cerr << "FC" << std::endl;
-    _clients_available = true;
-
-    bool     res(true);
 //     do
 //     {
 //         boost::mutex::scoped_lock gloc(_jobUnits_mutex);
-    boost::mutex::scoped_lock(_distJobs_mutex);
+    bool     res(true);
+    _clients_available = true;
+
         if (_jobQueue.empty())
         {
             if (_pendingList.empty())
@@ -218,6 +212,7 @@ void JobManager::handle_job_queue_not_full_event()
 {
 //     static unsigned int calls(0);
 //     std::cerr << "JQ nf" << calls++ << std::endl;
+    boost::mutex::scoped_lock(_mutex);
     while (! job_queue_full() && ! _producingJobs.empty())
         create_another_job_unit();
 }
@@ -227,6 +222,7 @@ void JobManager::check_local_events()
 {
     while (true)
     {
+        boost::mutex::scoped_lock(_mutex);
         if (! job_queue_full())
             job_queue_not_full_event();
 
@@ -254,7 +250,7 @@ void JobManager::check_local_events()
 
 void JobManager::start_scheduler() /*start the scheduler thread, return*/
 {
-    boost::mutex::scoped_lock(_status_mutex);
+    boost::mutex::scoped_lock(_mutex);
     if (_status == kStopped)
     {
         _status = kRunning;
@@ -265,7 +261,7 @@ void JobManager::start_scheduler() /*start the scheduler thread, return*/
 
 void JobManager::enqueue(DistributableJob* distjob)
 {
-    boost::mutex::scoped_lock glock(_distJobs_mutex);
+    boost::mutex::scoped_lock glock(_mutex);
     distjob->set_listener(this);
     distjob->set_consumer(this);
     _waitingJobs.push_back(distjob);
