@@ -17,45 +17,7 @@ DistributableJob::DistributableJob() :
     JobManager::get_instance()->enqueue(this);
 }
 
-DistributableJobCompletedEvent::DistributableJobCompletedEvent(DistributableJobEventConsumer* interface,
-                                                                DistributableJob* distjob) :
-    _interface(interface),
-    _distjob(distjob)
-{
-}
-
-void DistributableJobCompletedEvent::call()
-{
-    _interface->handle_distributable_job_completed_event(_distjob);
-}
-
-void DistributableJob::distributable_job_completed_event(DistributableJob* distjob)
-{
-    send_event(new DistributableJobCompletedEvent(_interface,this));
-}
-
-/*
-DistributableJobCompletedEvent::DistributableJobCompletedEvent(DistributableJobEventConsumer* interface,
-                                                                DistributableJob* distjob) :
-    _interface(interface),
-    _distjob(distjob)
-{
-}
-
-
-void DistributableJobDoneGeneratingEvent::call()
-{
-    _interface->handle_distributable_job_done_generating_event(_distjob);
-}
-
-void DistributableJob::distributable_job_done_generating_event(DistributableJob* distjob)
-{
-    send_event(new DistributableJobDoneGeneratingEvent(_interface,this));
-}
-
-*/
-
-void DistributableJob::set_listener(DistributableJobEventConsumer* const interface)
+void DistributableJob::set_listener(JobManagerEventInterface* const interface)
 {
     _interface = interface;
 }
@@ -99,7 +61,7 @@ bool DistributableJob::completion_accepted(const JobUnitID& id)
         if (finished())
         {
             _condition.notify_all();
-            distributable_job_completed_event(this);
+//             _interface->distributable_job_completed_event(this);
         }
 
         return true;

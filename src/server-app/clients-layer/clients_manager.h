@@ -45,47 +45,17 @@
 
 namespace parallel_clusterer
 {
-    struct ClientsManagerEventProducer
-    {
-        virtual void free_client_event()        = 0;
-        virtual void job_unit_completed_event(const JobUnitID id, const std::string* msg) = 0;
-    };
 
-    struct ClientsManagerEventConsumer
-    {
-        virtual void handle_free_client_event()         = 0;
-        virtual void handle_job_unit_completed_event(const JobUnitID id, const std::string* msg)  = 0;
-    };
-
-    class FreeClientEvent : public Event
+    class ClientsManager
     {
         public:
-            FreeClientEvent(ClientsManagerEventConsumer* const consumer);
-        private:
-            virtual void call();
-            ClientsManagerEventConsumer* _interface;
-    };
+            void inform_completion(JobUnitID id, std::string* message);
 
-    class JobUnitCompletedEvent : public Event
-    {
-        public:
-            JobUnitCompletedEvent(ClientsManagerEventConsumer* const consumer,
-                                    const JobUnitID id, const std::string* msg);
-        private:
-            virtual void call();
-            ClientsManagerEventConsumer* _interface;
-            const JobUnitID              _id;
-            const std::string*           _msg;
-    };
-
-    class ClientsManager : public Producer, public ClientsManagerEventProducer
-    {
-        public:
-            void inform_completion(const JobUnitID id,const std::string* message);
-
-            void set_listener(ClientsManagerEventConsumer* const interface);
+            void set_listener(JobManagerEventInterface* const interface);
 
             virtual bool  assign_job_unit  (const JobUnit& job_unit);
+
+            //this aint virtual
             virtual void  deregister_client(ClientProxy* client);
 
             inline static ClientsManager* get_instance() {return _instance;}
@@ -96,12 +66,10 @@ namespace parallel_clusterer
 
             virtual ClientProxy* get_available_client();
 
-            virtual void  register_client  (ClientProxy* client); //implemented here
+            //idem!
+            virtual void  register_client  (ClientProxy* client);
 
         private:
-            virtual void free_client_event();
-            virtual void job_unit_completed_event(const JobUnitID id, const std::string* msg);
-
             /*std::set<ClientProxy*>          _busy_clients;
             std::set<ClientProxy*>          _free_clients; */
             std::list<ClientProxy*>         _client_proxies;
@@ -111,7 +79,7 @@ namespace parallel_clusterer
 
             static ClientsManager*          _instance;
 
-            ClientsManagerEventConsumer*    _interface;
+            JobManagerEventInterface*       _interface;
     };
 
     /**

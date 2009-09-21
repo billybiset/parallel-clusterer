@@ -31,11 +31,10 @@ JobManager::JobManager() :
     _pendingList(),
     _ids_to_job_map(),
     _status(kStopped),
-    _mutex()
+    _mutex(),
+    _event_queue()
 {
-    _clients_manager->set_listener(this); //clarify this
-    _clients_manager->set_consumer(this);
-    set_consumer(this); //I'm the consumer of my own events ;)
+    _clients_manager->set_listener(this);
 }
 
 DistributableJob* JobManager::jobs_available() //will eventually change policy
@@ -80,8 +79,7 @@ void JobManager::stop_scheduler()
 
 void JobManager::inform_completion(const JobUnitID id, const std::string* message)
 {
-    boost::mutex::scoped_lock(_mutex); //always follow this order
-//     boost::mutex::scoped_lock(_jobUnits_mutex);
+    boost::mutex::scoped_lock(_mutex); 
     syslog(LOG_NOTICE,"JobUnit %u completed.",id);
 
     _ids_to_job_map[id]->process_results(id, message);
@@ -114,7 +112,6 @@ void JobManager::create_another_job_unit()
                               job->get_name(),job_unit->get_id(),job_unit->get_size());
 
             _ids_to_job_map[job_unit->get_id()] = job;
-//             boost::mutex::scoped_lock sl(_jobUnits_mutex);
             _jobQueue.push_back(job_unit); //just enqueue
 
         }
@@ -132,6 +129,24 @@ void JobManager::handle_distributable_job_completed_event(DistributableJob* dist
     boost::mutex::scoped_lock(_mutex);
     _producingJobs.remove(distjob);
 }
+
+void JobManager::free_client_event()
+{
+    _event_queue.push(new DeferredEvent0Param<JobManager>(&JobManager::handle_free_client_event));
+}
+
+void JobManager::job_unit_completed_event(JobUnitID* id, std::string* msg)
+{
+    _event_queue.push(new DeferredEvent2Param<JobManager,JobUnitID,std::string>
+                            (&JobManager::handle_job_unit_completed_event, id, msg));
+}
+
+void JobManager::distributable_job_completed_event(DistributableJob* distjob)
+{
+    _event_queue.push(new DeferredEvent1Param<JobManager,DistributableJob>
+                        (&JobManager::handle_distributable_job_completed_event,distjob));
+}
+
 
 void JobManager::handle_free_client_event()
 {
@@ -161,9 +176,10 @@ void JobManager::handle_free_client_event()
     handle_job_queue_not_full_event();
 }
 
-void JobManager::handle_job_unit_completed_event(const JobUnitID id, const std::string* msg)
+void JobManager::handle_job_unit_completed_event(JobUnitID* id, std::string* msg)
 {
-    inform_completion(id,msg);
+    inform_completion(*id,msg);
+    delete id;
 }
 
 void JobManager::run_scheduler()
@@ -171,13 +187,13 @@ void JobManager::run_scheduler()
     syslog(LOG_NOTICE,"Starting scheduler.");
     try
     {
-        Event* event;
+        DeferredEvent<JobManager>* event;
         while (_status != kStopped)
         {
-            event = wait_for_event();
+            event = _event_queue.wait_for_element();
             if (event != NULL)
             {
-                event->call();
+                event->call(this);
                 delete event;
             }
         } /*while*/
@@ -187,22 +203,6 @@ void JobManager::run_scheduler()
         syslog(LOG_NOTICE,"Error in scheduler: %s",e.what());
         _status = kStopped;
     }
-}
-
-
-JobQueueNotFullEvent::JobQueueNotFullEvent(JobManagerEventConsumer* const interface) :
-    _interface(interface)
-{
-}
-
-void JobQueueNotFullEvent::call()
-{
-    _interface->handle_job_queue_not_full_event();
-}
-
-void JobManager::job_queue_not_full_event()
-{
-    send_event(new JobQueueNotFullEvent(this));
 }
 
 void JobManager::handle_job_queue_not_full_event()
@@ -243,7 +243,6 @@ void JobManager::enqueue(DistributableJob* distjob)
 {
     boost::mutex::scoped_lock glock(_mutex);
     distjob->set_listener(this);
-    distjob->set_consumer(this);
     _waitingJobs.push_back(distjob);
 }
 

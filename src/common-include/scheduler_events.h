@@ -1,90 +1,63 @@
 #ifndef SCHEDULER_EVENTS_H
 #define SCHEDULER_EVENTS_H
 
-#include "synchronized_containers.h"
+#include "common.h"
 
-    struct Event
+
+namespace parallel_clusterer
+{
+
+    class DistributableJob;
+
+    template <class Interface>
+    struct DeferredEvent
     {
-        virtual void call() = 0;
+        virtual void call(Interface* i) = 0;
     };
 
-    template <class EventType>
-    class Consumer
+    template <class Interface>
+    class DeferredEvent0Param : public DeferredEvent<Interface>
     {
-    private:
-        LockingQueue<EventType*> incoming_events;
+        void (Interface::*method)();
 
-    protected:
-
-        Consumer() :
-            incoming_events()
-        {
-        }
-
-        EventType* wait_for_event()
-        {
-            return incoming_events.wait_for_element();
-        }
+        virtual void call(Interface* i) { (i->*method)(); }
     public:
-        void push_event(EventType* event)
-        {
-            incoming_events.push(event);
-        }
+        DeferredEvent0Param(void (Interface::*m)()) : method(m){}
     };
 
-    class Producer
+
+    template <class Interface, class Param>
+    class DeferredEvent1Param : public DeferredEvent<Interface>
     {
-        public:
-            void set_consumer(Consumer<Event>* consumer)
-            {
-                cons = consumer;
-            }
+        void (Interface::*method)(Param* p);
+        Param* const p;
 
-        protected:
-            Producer() :
-                cons(NULL)
-            {
-            }
-
-            void send_event(Event* event)
-            {
-                cons->push_event(event);
-            }
-        private:
-            Consumer<Event>* cons;
+        virtual void call(Interface* i) { (i->*method)(p); }
+    public:
+        DeferredEvent1Param(void (Interface::*m)(Param*), Param* p) : method(m), p(p){}
     };
 
-/*
-    template<class Interface>
-    struct Caller
+    template <class Interface, class Param1, class Param2>
+    class DeferredEvent2Param : public DeferredEvent<Interface>
     {
-        virtual void call(Interface* scheduler) = 0;
-        virtual ~Caller(){}
+        void (Interface::*method)(Param1* p1,Param2* p2);
+        Param1* const p1;
+        Param2* const p2;
+
+        virtual void call(Interface* i) { (i->*method)(p1,p2); }
+    public:
+        DeferredEvent2Param(void (Interface::*m)(Param1*,Param2*), Param1* p1, Param2* p2) : method(m), p1(p1), p2(p2){}
     };
 
-    class ClientsManagerSender :
-        public ClientsManagerInterface,
-        public Producer<Caller<ClientsManagerInterface> >
+    struct JobManagerEventInterface
     {
-        public:
-            virtual void free_client_event()
-            {
-                struct Event : public Caller<ClientsManagerInterface>
-                {
-                    Event() {}
+        //ClientsManager events
+        virtual void free_client_event()                                         = 0;
+        virtual void job_unit_completed_event(JobUnitID* id, std::string* msg)   = 0;
 
-                    virtual void call(ClientsManagerInterface* scheduler)
-                    {
-                        scheduler->free_client_event();
-                    }
-                };
-                send_event(new Event());
-            }
-
-            ClientsManagerSender(Consumer<Caller<ClientsManagerInterface> >& cons) :
-                Producer<Caller<ClientsManagerInterface> >(&cons)
-            {
-            }
+        //DistributableJob events
+        virtual void distributable_job_completed_event(DistributableJob* distob) = 0;
     };
-*/
+}
+
 #endif
