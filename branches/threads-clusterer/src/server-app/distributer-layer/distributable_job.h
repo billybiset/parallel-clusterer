@@ -12,43 +12,7 @@
 
 namespace parallel_clusterer
 {
-    class DistributableJob;
-
-    struct DistributableJobEventProducer
-    {
-        virtual void distributable_job_completed_event(DistributableJob* distob) = 0;
-//         virtual void distributable_job_done_generating_event(DistributableJob* distob) = 0;
-    };
-
-    struct DistributableJobEventConsumer
-    {
-        virtual void handle_distributable_job_completed_event(DistributableJob* distjob)  = 0;
-//         virtual void handle_distributable_job_done_generating_event(DistributableJob* distob) = 0;
-    };
-
-    class DistributableJobCompletedEvent : public Event
-    {
-        public:
-            DistributableJobCompletedEvent(DistributableJobEventConsumer* interface,DistributableJob* distjob);
-        private:
-            virtual void call();
-            DistributableJobEventConsumer* _interface;
-            DistributableJob*              _distjob;
-    };
-
-/*
-    class DistributableJobDoneGeneratingEvent : public Event
-    {
-        public:
-            DistributableJobDoneGeneratingEvent(DistributableJobEventConsumer* interface,DistributableJob* distjob);
-        private:
-            virtual void call();
-            DistributableJobEventConsumer* _interface;
-            DistributableJob*              _distjob;
-    };
-*/
-
-    class DistributableJob : public DistributableJobEventProducer, public Producer
+    class DistributableJob
     {
         public:
             /*interface for main*/
@@ -57,7 +21,7 @@ namespace parallel_clusterer
             void  inform_generation ();
 
             bool  completion_accepted(const JobUnitID& id);
-            void set_listener(DistributableJobEventConsumer* const interface);
+            void  set_listener(JobManagerEventInterface* const interface);
 
             virtual void      process_results (const JobUnitID id, const std::string* message) = 0;
 
@@ -81,7 +45,7 @@ namespace parallel_clusterer
 
             bool  finished();
 
-            DistributableJobEventConsumer* _interface;
+            JobManagerEventInterface* _interface;
 
             std::set<JobUnitID> _completed;           /*when _completed.size() = _j_u_gen then */
             size_t              _job_units_generated; /*the job is completed.                  */
