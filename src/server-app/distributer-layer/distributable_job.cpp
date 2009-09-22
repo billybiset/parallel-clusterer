@@ -9,6 +9,7 @@
 using namespace parallel_clusterer;
 
 DistributableJob::DistributableJob() :
+    _listener(JobManager::get_instance()->get_distributable_job_listener()),
     _completed(),
     _job_units_generated(0),
     _completed_mutex(),
@@ -17,10 +18,6 @@ DistributableJob::DistributableJob() :
     JobManager::get_instance()->enqueue(this);
 }
 
-void DistributableJob::set_listener(DistributableJobListener* const listener)
-{
-    _listener = listener;
-}
 
 void DistributableJob::run() const
 {

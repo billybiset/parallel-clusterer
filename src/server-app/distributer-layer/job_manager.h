@@ -32,6 +32,8 @@ namespace parallel_clusterer
         public:
             static JobManager* get_instance();
 
+            DistributableJobListener* const get_distributable_job_listener();
+
             void   enqueue(DistributableJob* distjob);
 
             void   start_scheduler();
@@ -91,7 +93,7 @@ namespace parallel_clusterer
 
             boost::mutex                    _mutex;
 
-            LockingQueue<DeferredEvent<JobManagerEventHandler> *>    _event_queue;
+            LockingQueue<Event<JobManagerEventHandler> *>    _event_queue;
     };
 }
 #endif
