@@ -145,8 +145,6 @@ void JobManager::handle_job_unit_completed_event(JobUnitID id, std::string* mess
     {
         mili::find(_ids_to_job_map,id)->process_results(id, message);
 
-        delete message; //release the mem
-
         //remove from pending list
         std::list<JobUnit*>::iterator it;
         it = find_if(_pendingList.begin(),_pendingList.end(),
@@ -161,6 +159,7 @@ void JobManager::handle_job_unit_completed_event(JobUnitID id, std::string* mess
     {
         syslog(LOG_NOTICE,"Error: %s.",e.what());
     }
+    delete message; //release the mem
 }
 
 void JobManager::run_scheduler()
