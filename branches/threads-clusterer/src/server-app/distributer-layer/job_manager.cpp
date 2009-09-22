@@ -135,15 +135,15 @@ void JobManager::free_client_event()
     _event_queue.push(new DeferredEvent0Param<JobManagerEventHandler>(&JobManagerEventHandler::handle_free_client_event));
 }
 
-void JobManager::job_unit_completed_event(JobUnitID* id, std::string* msg)
+void JobManager::job_unit_completed_event(JobUnitID id, std::string* msg)
 {
-    _event_queue.push(new DeferredEvent2Param<JobManagerEventHandler,JobUnitID,std::string>
+    _event_queue.push(new DeferredEvent2Param<JobManagerEventHandler,JobUnitID,std::string*>
                             (&JobManagerEventHandler::handle_job_unit_completed_event, id, msg));
 }
 
 void JobManager::distributable_job_completed_event(DistributableJob* distjob)
 {
-    _event_queue.push(new DeferredEvent1Param<JobManagerEventHandler,DistributableJob>
+    _event_queue.push(new DeferredEvent1Param<JobManagerEventHandler,DistributableJob*>
                         (&JobManagerEventHandler::handle_distributable_job_completed_event,distjob));
 }
 
@@ -175,10 +175,9 @@ void JobManager::handle_free_client_event()
     handle_job_queue_not_full_event();
 }
 
-void JobManager::handle_job_unit_completed_event(JobUnitID* id, std::string* msg)
+void JobManager::handle_job_unit_completed_event(JobUnitID id, std::string* msg)
 {
-    inform_completion(*id,msg);
-    delete id;
+    inform_completion(id,msg);
 }
 
 void JobManager::run_scheduler()

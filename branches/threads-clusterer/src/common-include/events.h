@@ -28,24 +28,24 @@ namespace parallel_clusterer
     template <class Interface, class Param>
     class DeferredEvent1Param : public DeferredEvent<Interface>
     {
-        void (Interface::*method)(Param* p);
-        Param* const p;
+        void (Interface::*method)(Param p);
+        Param const p;
 
         virtual void call(Interface* i) { (i->*method)(p); }
     public:
-        DeferredEvent1Param(void (Interface::*m)(Param*), Param* p) : method(m), p(p){}
+        DeferredEvent1Param(void (Interface::*m)(Param), Param p) : method(m), p(p){}
     };
 
     template <class Interface, class Param1, class Param2>
     class DeferredEvent2Param : public DeferredEvent<Interface>
     {
-        void (Interface::*method)(Param1* p1,Param2* p2);
-        Param1* const p1;
-        Param2* const p2;
+        void (Interface::*method)(Param1 p1,Param2 p2);
+        Param1 const p1;
+        Param2 const p2;
 
         virtual void call(Interface* i) { (i->*method)(p1,p2); }
     public:
-        DeferredEvent2Param(void (Interface::*m)(Param1*,Param2*), Param1* p1, Param2* p2) : method(m), p1(p1), p2(p2){}
+        DeferredEvent2Param(void (Interface::*m)(Param1,Param2), Param1 p1, Param2 p2) : method(m), p1(p1), p2(p2){}
     };
 
 }

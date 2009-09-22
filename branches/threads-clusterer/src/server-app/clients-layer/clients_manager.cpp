@@ -39,7 +39,7 @@ void ClientsManager::deregister_client(ClientProxy* client)
 void ClientsManager::inform_completion(JobUnitID id, std::string* message)
 {
     boost::mutex::scoped_lock glock(_client_proxies_mutex);
-    _listener->job_unit_completed_event(new JobUnitID(id), message);
+    _listener->job_unit_completed_event(id, message);
     _listener->free_client_event(); //should follow this order
 }
 

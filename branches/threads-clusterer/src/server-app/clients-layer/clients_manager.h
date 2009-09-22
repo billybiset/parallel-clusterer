@@ -47,8 +47,8 @@ namespace parallel_clusterer
 {
     struct ClientsManagerListener
     {
-        virtual void free_client_event()                                         = 0;
-        virtual void job_unit_completed_event(JobUnitID* id, std::string* msg)   = 0;
+        virtual void free_client_event()                                        = 0;
+        virtual void job_unit_completed_event(JobUnitID id, std::string* msg)   = 0;
     };
 
     class ClientsManager
