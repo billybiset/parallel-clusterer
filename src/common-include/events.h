@@ -1,12 +1,11 @@
-#ifndef SCHEDULER_EVENTS_H
-#define SCHEDULER_EVENTS_H
+#ifndef EVENTS_H
+#define EVENTS_H
 
 #include "common.h"
 
 
 namespace parallel_clusterer
 {
-
     class DistributableJob;
 
     template <class Interface>
@@ -49,15 +48,6 @@ namespace parallel_clusterer
         DeferredEvent2Param(void (Interface::*m)(Param1*,Param2*), Param1* p1, Param2* p2) : method(m), p1(p1), p2(p2){}
     };
 
-    struct JobManagerEventInterface
-    {
-        //ClientsManager events
-        virtual void free_client_event()                                         = 0;
-        virtual void job_unit_completed_event(JobUnitID* id, std::string* msg)   = 0;
-
-        //DistributableJob events
-        virtual void distributable_job_completed_event(DistributableJob* distob) = 0;
-    };
 }
 
 #endif

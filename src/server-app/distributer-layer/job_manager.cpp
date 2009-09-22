@@ -132,21 +132,20 @@ void JobManager::handle_distributable_job_completed_event(DistributableJob* dist
 
 void JobManager::free_client_event()
 {
-    _event_queue.push(new DeferredEvent0Param<JobManager>(&JobManager::handle_free_client_event));
+    _event_queue.push(new DeferredEvent0Param<JobManagerEventHandler>(&JobManagerEventHandler::handle_free_client_event));
 }
 
 void JobManager::job_unit_completed_event(JobUnitID* id, std::string* msg)
 {
-    _event_queue.push(new DeferredEvent2Param<JobManager,JobUnitID,std::string>
-                            (&JobManager::handle_job_unit_completed_event, id, msg));
+    _event_queue.push(new DeferredEvent2Param<JobManagerEventHandler,JobUnitID,std::string>
+                            (&JobManagerEventHandler::handle_job_unit_completed_event, id, msg));
 }
 
 void JobManager::distributable_job_completed_event(DistributableJob* distjob)
 {
-    _event_queue.push(new DeferredEvent1Param<JobManager,DistributableJob>
-                        (&JobManager::handle_distributable_job_completed_event,distjob));
+    _event_queue.push(new DeferredEvent1Param<JobManagerEventHandler,DistributableJob>
+                        (&JobManagerEventHandler::handle_distributable_job_completed_event,distjob));
 }
-
 
 void JobManager::handle_free_client_event()
 {
@@ -187,7 +186,7 @@ void JobManager::run_scheduler()
     syslog(LOG_NOTICE,"Starting scheduler.");
     try
     {
-        DeferredEvent<JobManager>* event;
+        DeferredEvent<JobManagerEventHandler>* event;
         while (_status != kStopped)
         {
             event = _event_queue.wait_for_element();

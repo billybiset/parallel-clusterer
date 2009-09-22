@@ -44,7 +44,7 @@ void ClientsManager::inform_completion(JobUnitID id, std::string* message)
 }
 
 
-void ClientsManager::set_listener(JobManagerEventInterface* const interface)
+void ClientsManager::set_listener(ClientsManagerEventConsumer* const interface)
 {
     _interface = interface;
 }

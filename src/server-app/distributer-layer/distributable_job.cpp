@@ -17,7 +17,7 @@ DistributableJob::DistributableJob() :
     JobManager::get_instance()->enqueue(this);
 }
 
-void DistributableJob::set_listener(JobManagerEventInterface* const interface)
+void DistributableJob::set_listener(DistributableJobEventConsumer* const interface)
 {
     _interface = interface;
 }
