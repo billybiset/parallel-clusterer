@@ -46,6 +46,12 @@ void DistributableJob::inform_generation()
     ++_job_units_generated;
 }
 
+void DistributableJob::process_results (JobUnitID id, const std::string* message)
+{
+    if (completion_accepted(id))
+        handle_results(id,message);
+}
+
 bool DistributableJob::completion_accepted(const JobUnitID& id)
 {
     boost::mutex::scoped_lock glock(_completed_mutex);
@@ -61,7 +67,7 @@ bool DistributableJob::completion_accepted(const JobUnitID& id)
         if (finished())
         {
             _condition.notify_all();
-//             _interface->distributable_job_completed_event(this);
+            _interface->distributable_job_completed_event(this);
         }
 
         return true;

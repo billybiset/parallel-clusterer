@@ -37,15 +37,12 @@ const char* Counter::get_name() const
     return "Counter";
 }
 
-void Counter::process_results (JobUnitID id, const std::string* message)
+void Counter::handle_results (JobUnitID id, const std::string* message)
 {
-    if (completion_accepted(id)) // this line should be in DistJob.cpp somewhere
-    { //deliver result
-        BIStream bis(*message);
-        size_t count;
-        bis >> count;
-        _total_count += count;
-    }
+    BIStream bis(*message);
+    size_t count;
+    bis >> count;
+    _total_count += count;
 }
 
 void Counter::output_results() const

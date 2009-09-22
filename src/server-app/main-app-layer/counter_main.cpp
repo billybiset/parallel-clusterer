@@ -44,21 +44,21 @@ int main()
 
     Counter * counter_job1 = new Counter("data/file2.txt");
     Counter * counter_job2 = new Counter("data/short.txt");
-//     Counter * counter_job3 = new Counter("data/file1.txt");
-//     Counter * counter_job4 = new Counter("data/file2.txt");
+    Counter * counter_job3 = new Counter("data/file1.txt");
+    Counter * counter_job4 = new Counter("data/file2.txt");
 
     counter_job1->run();
     counter_job2->run();
-//     counter_job3->run();
-//     counter_job4->run();
+    counter_job3->run();
+    counter_job4->run();
 
     counter_job1->wait_completion();
     counter_job2->wait_completion();
-//     counter_job3->wait_completion();
-//     counter_job4->wait_completion();
+    counter_job3->wait_completion();
+    counter_job4->wait_completion();
 
     counter_job1->output_results();
     counter_job2->output_results();
-//     counter_job3->output_results();
-//     counter_job4->output_results();
+    counter_job3->output_results();
+    counter_job4->output_results();
 }
