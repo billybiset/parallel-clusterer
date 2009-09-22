@@ -54,8 +54,6 @@ namespace parallel_clusterer
 
             void              create_another_job_unit();
 
-            void              inform_completion(const JobUnitID id,const std::string* message);
-
             /* Enqueuing ClientsManager events */
             virtual void      free_client_event();
             virtual void      job_unit_completed_event(JobUnitID id, std::string* msg);
