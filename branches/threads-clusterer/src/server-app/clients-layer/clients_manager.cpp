@@ -16,7 +16,7 @@ ClientsManager* ClientsManager::_instance = NULL;
 ClientsManager::ClientsManager() :
     _client_proxies(),
     _client_proxies_mutex(),
-    _interface(NULL)
+    _listener(NULL)
 {
     _instance = this;
 }
@@ -26,7 +26,7 @@ void ClientsManager::register_client(ClientProxy* client)
     boost::mutex::scoped_lock glock(_client_proxies_mutex);
     syslog(LOG_NOTICE,"Registering client %u.",client->get_id());
     _client_proxies.push_back(client);
-    _interface->free_client_event();
+    _listener->free_client_event();
 }
 
 void ClientsManager::deregister_client(ClientProxy* client)
@@ -39,14 +39,14 @@ void ClientsManager::deregister_client(ClientProxy* client)
 void ClientsManager::inform_completion(JobUnitID id, std::string* message)
 {
     boost::mutex::scoped_lock glock(_client_proxies_mutex);
-    _interface->job_unit_completed_event(new JobUnitID(id), message);
-    _interface->free_client_event(); //should follow this order
+    _listener->job_unit_completed_event(new JobUnitID(id), message);
+    _listener->free_client_event(); //should follow this order
 }
 
 
-void ClientsManager::set_listener(ClientsManagerEventConsumer* const interface)
+void ClientsManager::set_listener(ClientsManagerListener* const listener)
 {
-    _interface = interface;
+    _listener = listener;
 }
 
 bool ClientsManager::assign_job_unit (const JobUnit& job_unit)

@@ -25,8 +25,8 @@ namespace parallel_clusterer
     };
 
     class JobManager :
-        private ClientsManagerEventConsumer,
-        private DistributableJobEventConsumer,
+        private ClientsManagerListener,
+        private DistributableJobListener,
         private JobManagerEventHandler
     {
         public:
@@ -36,9 +36,6 @@ namespace parallel_clusterer
 
             void   start_scheduler();
             void   stop_scheduler();
-
-            //not public
-            void   inform_completion(const JobUnitID id,const std::string* message);
 
         private:
             /* Override these, as per -Weffc++ warnings */
@@ -56,6 +53,8 @@ namespace parallel_clusterer
             bool              job_queue_full(); //const
 
             void              create_another_job_unit();
+
+            void              inform_completion(const JobUnitID id,const std::string* message);
 
             /* Enqueuing ClientsManager events */
             virtual void      free_client_event();
