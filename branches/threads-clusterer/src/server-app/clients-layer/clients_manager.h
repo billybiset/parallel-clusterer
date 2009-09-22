@@ -60,10 +60,9 @@ namespace parallel_clusterer
 
             virtual bool  assign_job_unit  (const JobUnit& job_unit);
 
-            //this aint virtual
-            virtual void  deregister_client(ClientProxy* client);
-
             inline static ClientsManager* get_instance() {return _instance;}
+
+            void  deregister_client(ClientProxy* client);
 
         protected:
             ClientsManager();
@@ -71,12 +70,13 @@ namespace parallel_clusterer
 
             virtual ClientProxy* get_available_client();
 
-            //idem!
-            virtual void  register_client  (ClientProxy* client);
+            void  register_client  (ClientProxy* client);
 
         private:
-            /*std::set<ClientProxy*>          _busy_clients;
-            std::set<ClientProxy*>          _free_clients; */
+            /*
+            std::set<ClientProxy*>          _busy_clients;
+            std::set<ClientProxy*>          _free_clients;
+            */
             std::list<ClientProxy*>         _client_proxies;
             boost::mutex                    _client_proxies_mutex;
 

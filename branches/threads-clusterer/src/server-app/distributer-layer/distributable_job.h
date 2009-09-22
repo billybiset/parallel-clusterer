@@ -28,7 +28,8 @@ namespace parallel_clusterer
             bool  completion_accepted(const JobUnitID& id);
             void  set_listener(DistributableJobEventConsumer* const interface);
 
-            virtual void      process_results (const JobUnitID id, const std::string* message) = 0;
+            void              process_results (const JobUnitID id, const std::string* message);
+            virtual void      handle_results  (const JobUnitID id, const std::string* message) = 0;
 
             virtual JobUnit*  get_next_job_unit (JobUnitSize  size)        = 0;
 
