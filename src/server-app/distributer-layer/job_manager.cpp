@@ -48,23 +48,6 @@ DistributableJob* JobManager::jobs_available() //will eventually change policy
         _producingJobs.push_back(ret);
         return ret;
     }
-    /*
-    {
-        std::list<DistributableJob *>::iterator it;
-
-        it = find_if (_producingJobs.begin(), _producingJobs.end(),
-                      !boost::bind(&DistributableJob::finished_generating, _1) );
-
-        if (it != _producingJobs.end())
-        {
-            _producingJobs.remove(*it);
-            _producingJobs.push_back(*it);
-            return *it;
-        }
-        else
-            return NULL;
-    }
-    */
 }
 
 bool JobManager::job_queue_full() //const
@@ -75,26 +58,6 @@ bool JobManager::job_queue_full() //const
 void JobManager::stop_scheduler()
 {
     _status = kStopped;
-}
-
-void JobManager::inform_completion(const JobUnitID id, const std::string* message)
-{
-    boost::mutex::scoped_lock(_mutex); 
-    syslog(LOG_NOTICE,"JobUnit %u completed.",id);
-
-    _ids_to_job_map[id]->process_results(id, message);
-
-    delete message; //release the mem
-
-    //remove from pending list
-    std::list<JobUnit*>::iterator it;
-    it = find_if(_pendingList.begin(),_pendingList.end(),
-                boost::bind(&JobUnit::get_id, _1) == id);
-
-    if (it != _pendingList.end())
-        _pendingList.erase(it);
-    else
-        syslog(LOG_NOTICE,"Finished JobUnit %u was not in pending list.",id);
 }
 
 void JobManager::create_another_job_unit()
@@ -175,9 +138,24 @@ void JobManager::handle_free_client_event()
     handle_job_queue_not_full_event();
 }
 
-void JobManager::handle_job_unit_completed_event(JobUnitID id, std::string* msg)
+void JobManager::handle_job_unit_completed_event(JobUnitID id, std::string* message)
 {
-    inform_completion(id,msg);
+    boost::mutex::scoped_lock(_mutex);
+    syslog(LOG_NOTICE,"JobUnit %u completed.",id);
+
+    _ids_to_job_map[id]->process_results(id, message);
+
+    delete message; //release the mem
+
+    //remove from pending list
+    std::list<JobUnit*>::iterator it;
+    it = find_if(_pendingList.begin(),_pendingList.end(),
+                boost::bind(&JobUnit::get_id, _1) == id);
+
+    if (it != _pendingList.end())
+        _pendingList.erase(it);
+    else
+        syslog(LOG_NOTICE,"Finished JobUnit %u was not in pending list.",id);
 }
 
 void JobManager::run_scheduler()
