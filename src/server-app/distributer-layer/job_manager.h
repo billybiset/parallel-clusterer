@@ -18,7 +18,7 @@ namespace parallel_clusterer
     {
         //ClientsManager events
         virtual void handle_free_client_event()                                          = 0;
-        virtual void handle_job_unit_completed_event(JobUnitID* id, std::string* msg)    = 0;
+        virtual void handle_job_unit_completed_event(JobUnitID id, std::string* msg)    = 0;
 
         //DistributableJob events
         virtual void handle_distributable_job_completed_event(DistributableJob* distjob) = 0;
@@ -58,7 +58,7 @@ namespace parallel_clusterer
 
             /* Enqueuing ClientsManager events */
             virtual void      free_client_event();
-            virtual void      job_unit_completed_event(JobUnitID* id, std::string* msg);
+            virtual void      job_unit_completed_event(JobUnitID id, std::string* msg);
 
             /* Enqueuing DistributableJob events */
             virtual void      distributable_job_completed_event(DistributableJob* distjob);
@@ -66,7 +66,7 @@ namespace parallel_clusterer
 
             /* handling ClientsManager events */
             virtual void handle_free_client_event();
-            virtual void handle_job_unit_completed_event(JobUnitID* id, std::string* msg);
+            virtual void handle_job_unit_completed_event(JobUnitID id, std::string* msg);
 
             /* handling DistributableJob events */
             virtual void handle_distributable_job_completed_event(DistributableJob* distjob);
