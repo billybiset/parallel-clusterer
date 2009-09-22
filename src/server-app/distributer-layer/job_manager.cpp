@@ -23,11 +23,6 @@ JobManager* JobManager::get_instance ()
     return _instance; // address of sole instance
 }
 
-DistributableJobListener* const JobManager::get_distributable_job_listener()
-{
-    return this;
-}
-
 JobManager::JobManager() :
     _clients_manager(create_clients_manager()),
     _producingJobs(),
@@ -146,7 +141,11 @@ void JobManager::handle_job_unit_completed_event(JobUnitID id, std::string* mess
     boost::mutex::scoped_lock(_mutex);
     syslog(LOG_NOTICE,"JobUnit %u completed.",id);
 
-    _ids_to_job_map[id]->process_results(id, message);
+    DistributableJob* job = mili::find(_ids_to_job_map,id);
+    if (job != NULL)
+        job->process_results(id, message);
+    else
+        syslog(LOG_NOTICE,"ERROR: No such entry in the JobUnitID to DistributableJob*.");
 
     delete message; //release the mem
 
