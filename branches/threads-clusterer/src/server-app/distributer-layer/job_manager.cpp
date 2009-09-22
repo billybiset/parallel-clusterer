@@ -23,6 +23,11 @@ JobManager* JobManager::get_instance ()
     return _instance; // address of sole instance
 }
 
+DistributableJobListener* const JobManager::get_distributable_job_listener()
+{
+    return this;
+}
+
 JobManager::JobManager() :
     _clients_manager(create_clients_manager()),
     _producingJobs(),
@@ -95,19 +100,17 @@ void JobManager::handle_distributable_job_completed_event(DistributableJob* dist
 
 void JobManager::free_client_event()
 {
-    _event_queue.push(new DeferredEvent0Param<JobManagerEventHandler>(&JobManagerEventHandler::handle_free_client_event));
+    _event_queue.push(new_event(&JobManagerEventHandler::handle_free_client_event));
 }
 
 void JobManager::job_unit_completed_event(JobUnitID id, std::string* msg)
 {
-    _event_queue.push(new DeferredEvent2Param<JobManagerEventHandler,JobUnitID,std::string*>
-                            (&JobManagerEventHandler::handle_job_unit_completed_event, id, msg));
+    _event_queue.push(new_event(&JobManagerEventHandler::handle_job_unit_completed_event, id, msg));
 }
 
 void JobManager::distributable_job_completed_event(DistributableJob* distjob)
 {
-    _event_queue.push(new DeferredEvent1Param<JobManagerEventHandler,DistributableJob*>
-                        (&JobManagerEventHandler::handle_distributable_job_completed_event,distjob));
+    _event_queue.push(new_event(&JobManagerEventHandler::handle_distributable_job_completed_event,distjob));
 }
 
 void JobManager::handle_free_client_event()
@@ -163,7 +166,7 @@ void JobManager::run_scheduler()
     syslog(LOG_NOTICE,"Starting scheduler.");
     try
     {
-        DeferredEvent<JobManagerEventHandler>* event;
+        Event<JobManagerEventHandler>* event;
         while (_status != kStopped)
         {
             event = _event_queue.wait_for_element();
@@ -218,7 +221,6 @@ void JobManager::handle_new_job_event()
 void JobManager::enqueue(DistributableJob* distjob)
 {
     boost::mutex::scoped_lock glock(_mutex);
-    distjob->set_listener(this);
     _waitingJobs.push_back(distjob);
 }
 
