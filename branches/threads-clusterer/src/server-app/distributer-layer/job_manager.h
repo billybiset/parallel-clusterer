@@ -9,12 +9,25 @@
 #include "distributable_job.h"
 #include "job_unit.h"
 #include "clients_manager.h"
-#include "scheduler_events.h"
+#include "events.h"
 #include "synchronized_containers.h"
 
 namespace parallel_clusterer
 {
-    class JobManager : private JobManagerEventInterface
+    struct JobManagerEventHandler
+    {
+        //ClientsManager events
+        virtual void handle_free_client_event()                                          = 0;
+        virtual void handle_job_unit_completed_event(JobUnitID* id, std::string* msg)    = 0;
+
+        //DistributableJob events
+        virtual void handle_distributable_job_completed_event(DistributableJob* distjob) = 0;
+    };
+
+    class JobManager :
+        private ClientsManagerEventConsumer,
+        private DistributableJobEventConsumer,
+        private JobManagerEventHandler
     {
         public:
             static JobManager* get_instance();
@@ -26,13 +39,6 @@ namespace parallel_clusterer
 
             //not public
             void   inform_completion(const JobUnitID id,const std::string* message);
-
-            //ClientsManager events
-            virtual void handle_free_client_event();
-            virtual void handle_job_unit_completed_event( JobUnitID* id, std::string* msg);
-
-            //DistributableJob events
-            virtual void handle_distributable_job_completed_event(DistributableJob* distjob);
 
         private:
             /* Override these, as per -Weffc++ warnings */
@@ -51,12 +57,21 @@ namespace parallel_clusterer
 
             void              create_another_job_unit();
 
-            /* handling ClientsManager events */
+            /* Enqueuing ClientsManager events */
             virtual void      free_client_event();
             virtual void      job_unit_completed_event(JobUnitID* id, std::string* msg);
 
-            /* handling DistributableJob events */
+            /* Enqueuing DistributableJob events */
             virtual void      distributable_job_completed_event(DistributableJob* distjob);
+
+
+            /* handling ClientsManager events */
+            virtual void handle_free_client_event();
+            virtual void handle_job_unit_completed_event(JobUnitID* id, std::string* msg);
+
+            /* handling DistributableJob events */
+            virtual void handle_distributable_job_completed_event(DistributableJob* distjob);
+
 
             void              handle_new_job_event();
 
@@ -79,7 +94,7 @@ namespace parallel_clusterer
 
             boost::mutex                    _mutex;
 
-            LockingQueue<DeferredEvent<JobManager> *>    _event_queue;
+            LockingQueue<DeferredEvent<JobManagerEventHandler> *>    _event_queue;
     };
 }
 #endif

@@ -8,10 +8,15 @@
 
 #include "job_unit.h"
 #include "common.h"
-#include "scheduler_events.h"
+#include "events.h"
 
 namespace parallel_clusterer
 {
+    struct DistributableJobEventConsumer
+    {
+        virtual void distributable_job_completed_event(DistributableJob* distob) = 0;
+    };
+
     class DistributableJob
     {
         public:
@@ -21,7 +26,7 @@ namespace parallel_clusterer
             void  inform_generation ();
 
             bool  completion_accepted(const JobUnitID& id);
-            void  set_listener(JobManagerEventInterface* const interface);
+            void  set_listener(DistributableJobEventConsumer* const interface);
 
             virtual void      process_results (const JobUnitID id, const std::string* message) = 0;
 
@@ -45,7 +50,7 @@ namespace parallel_clusterer
 
             bool  finished();
 
-            JobManagerEventInterface* _interface;
+            DistributableJobEventConsumer* _interface;
 
             std::set<JobUnitID> _completed;           /*when _completed.size() = _j_u_gen then */
             size_t              _job_units_generated; /*the job is completed.                  */
