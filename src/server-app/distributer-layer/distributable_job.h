@@ -12,7 +12,7 @@
 
 namespace parallel_clusterer
 {
-    struct DistributableJobEventConsumer
+    struct DistributableJobListener
     {
         virtual void distributable_job_completed_event(DistributableJob* distob) = 0;
     };
@@ -26,7 +26,7 @@ namespace parallel_clusterer
             void  inform_generation ();
 
             bool  completion_accepted(const JobUnitID& id);
-            void  set_listener(DistributableJobEventConsumer* const interface);
+            void  set_listener(DistributableJobListener* const listener);
 
             void              process_results (const JobUnitID id, const std::string* message);
             virtual void      handle_results  (const JobUnitID id, const std::string* message) = 0;
@@ -51,7 +51,7 @@ namespace parallel_clusterer
 
             bool  finished();
 
-            DistributableJobEventConsumer* _interface;
+            DistributableJobListener* _listener;
 
             std::set<JobUnitID> _completed;           /*when _completed.size() = _j_u_gen then */
             size_t              _job_units_generated; /*the job is completed.                  */

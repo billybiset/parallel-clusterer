@@ -17,9 +17,9 @@ DistributableJob::DistributableJob() :
     JobManager::get_instance()->enqueue(this);
 }
 
-void DistributableJob::set_listener(DistributableJobEventConsumer* const interface)
+void DistributableJob::set_listener(DistributableJobListener* const listener)
 {
-    _interface = interface;
+    _listener = listener;
 }
 
 void DistributableJob::run() const
@@ -67,7 +67,7 @@ bool DistributableJob::completion_accepted(const JobUnitID& id)
         if (finished())
         {
             _condition.notify_all();
-            _interface->distributable_job_completed_event(this);
+            _listener->distributable_job_completed_event(this);
         }
 
         return true;

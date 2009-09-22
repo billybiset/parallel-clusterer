@@ -45,7 +45,7 @@
 
 namespace parallel_clusterer
 {
-    struct ClientsManagerEventConsumer
+    struct ClientsManagerListener
     {
         virtual void free_client_event()                                         = 0;
         virtual void job_unit_completed_event(JobUnitID* id, std::string* msg)   = 0;
@@ -56,9 +56,9 @@ namespace parallel_clusterer
         public:
             void inform_completion(JobUnitID id, std::string* message);
 
-            void set_listener(ClientsManagerEventConsumer* const interface);
+            void set_listener(ClientsManagerListener* const listener);
 
-            virtual bool  assign_job_unit  (const JobUnit& job_unit);
+            bool assign_job_unit  (const JobUnit& job_unit);
 
             inline static ClientsManager* get_instance() {return _instance;}
 
@@ -84,7 +84,7 @@ namespace parallel_clusterer
 
             static ClientsManager*          _instance;
 
-            ClientsManagerEventConsumer*    _interface;
+            ClientsManagerListener*         _listener;
     };
 
     /**
