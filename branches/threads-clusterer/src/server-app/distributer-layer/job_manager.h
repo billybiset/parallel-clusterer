@@ -32,7 +32,7 @@ namespace parallel_clusterer
         public:
             static JobManager* get_instance();
 
-            DistributableJobListener* const get_distributable_job_listener();
+            inline DistributableJobListener* const get_distributable_job_listener() {return this;}
 
             void   enqueue(DistributableJob* distjob);
 
