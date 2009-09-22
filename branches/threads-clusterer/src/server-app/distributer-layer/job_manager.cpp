@@ -141,23 +141,26 @@ void JobManager::handle_job_unit_completed_event(JobUnitID id, std::string* mess
     boost::mutex::scoped_lock(_mutex);
     syslog(LOG_NOTICE,"JobUnit %u completed.",id);
 
-    DistributableJob* job = mili::find(_ids_to_job_map,id);
-    if (job != NULL)
-        job->process_results(id, message);
-    else
-        syslog(LOG_NOTICE,"ERROR: No such entry in the JobUnitID to DistributableJob*.");
+    try
+    {
+        mili::find(_ids_to_job_map,id)->process_results(id, message);
 
-    delete message; //release the mem
+        delete message; //release the mem
 
-    //remove from pending list
-    std::list<JobUnit*>::iterator it;
-    it = find_if(_pendingList.begin(),_pendingList.end(),
-                boost::bind(&JobUnit::get_id, _1) == id);
+        //remove from pending list
+        std::list<JobUnit*>::iterator it;
+        it = find_if(_pendingList.begin(),_pendingList.end(),
+                    boost::bind(&JobUnit::get_id, _1) == id);
 
-    if (it != _pendingList.end())
-        _pendingList.erase(it);
-    else
-        syslog(LOG_NOTICE,"Finished JobUnit %u was not in pending list.",id);
+        if (it != _pendingList.end())
+            _pendingList.erase(it);
+        else
+            syslog(LOG_NOTICE,"Finished JobUnit %u was not in pending list.",id);
+    }
+    catch(const std::exception& e)
+    {
+        syslog(LOG_NOTICE,"Error: %s.",e.what());
+    }
 }
 
 void JobManager::run_scheduler()
