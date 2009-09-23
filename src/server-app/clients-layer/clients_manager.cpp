@@ -36,11 +36,15 @@ void ClientsManager::deregister_client(ClientProxy* client)
     _client_proxies.remove(client);
 }
 
+void ClientsManager::free_client_event()
+{
+    _listener->free_client_event();
+}
+
 void ClientsManager::inform_completion(JobUnitID id, std::string* message)
 {
     boost::mutex::scoped_lock glock(_client_proxies_mutex);
     _listener->job_unit_completed_event(id, message);
-    _listener->free_client_event(); //should follow this order
 }
 
 
@@ -58,7 +62,10 @@ bool ClientsManager::assign_job_unit (const JobUnit& job_unit)
         return true;
     }
     else
+    {
+        syslog(LOG_NOTICE,"There are no clients available.");
         return false;
+    }
 }
 
 ClientProxy* ClientsManager::get_available_client()

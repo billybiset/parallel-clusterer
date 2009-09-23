@@ -54,15 +54,19 @@ namespace parallel_clusterer
     class ClientsManager
     {
         public:
+            /* Interface for base classes, can't put it protected */
             void inform_completion(JobUnitID id, std::string* message);
 
-            void set_listener(ClientsManagerListener* const listener);
-
-            bool assign_job_unit  (const JobUnit& job_unit);
+            void free_client_event();
 
             inline static ClientsManager* get_instance() {return _instance;}
 
             void  deregister_client(ClientProxy* client);
+
+            /* Interface for Job Manager */
+            void set_listener(ClientsManagerListener* const listener);
+
+            bool assign_job_unit  (const JobUnit& job_unit);
 
         protected:
             ClientsManager();
