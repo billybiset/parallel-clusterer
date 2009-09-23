@@ -1,5 +1,6 @@
 #include "common.h"
 #include "client_proxy.h"
+#include "clients_manager.h"
 
 using namespace parallel_clusterer;
 
@@ -12,4 +13,9 @@ ClientProxy::ClientProxy() :
 
 ClientProxy::~ClientProxy()
 {
+}
+
+void ClientProxy::i_am_free()
+{
+    ClientsManager::get_instance()->free_client_event();
 }

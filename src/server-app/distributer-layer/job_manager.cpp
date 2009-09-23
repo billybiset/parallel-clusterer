@@ -163,7 +163,10 @@ void JobManager::handle_job_unit_completed_event(JobUnitID id, std::string* mess
                     boost::bind(&JobUnit::get_id, _1) == id);
 
         if (it != _pendingList.end())
+        {
+            delete *it;
             _pendingList.erase(it);
+        }
         else
             syslog(LOG_NOTICE,"Finished JobUnit %u was not in pending list.",id);
     }
