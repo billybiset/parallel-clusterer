@@ -19,9 +19,9 @@ namespace parallel_clusterer
 
             inline  JobUnitSize get_size()             const {return _size;}
 
+            virtual ~JobUnit(){};
         protected:
             JobUnit();
-            virtual ~JobUnit(){};
 
             void  set_size(JobUnitSize size);
 
