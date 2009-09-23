@@ -142,7 +142,11 @@ void AsyncIOClientsManager::AsyncIOClientProxy::handle_receive(const boost::syst
         bis >> code;
 
         handle_response(code,_current_id);
+
+        //Mandatory order of things! first set status to idle before invoking free_client_event.
+        //You risk deadlock otherwise.
         _state = kIdle;
+        ClientsManager::get_instance()->free_client_event();
     }
     else
     {

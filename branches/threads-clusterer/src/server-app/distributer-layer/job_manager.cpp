@@ -89,8 +89,13 @@ void JobManager::create_another_job_unit()
 
 void JobManager::handle_distributable_job_completed_event(DistributableJob* distjob)
 {
-    boost::mutex::scoped_lock(_mutex);
-    _producingJobs.remove(distjob);
+    {
+        boost::mutex::scoped_lock(_mutex);
+        _producingJobs.remove(distjob);
+    }
+    handle_new_job_event();
+    handle_job_queue_not_full_event();
+    handle_free_client_event();
 }
 
 void JobManager::free_client_event()
@@ -110,18 +115,22 @@ void JobManager::distributable_job_completed_event(DistributableJob* distjob)
 
 void JobManager::handle_free_client_event()
 {
-    handle_new_job_event(); //check for waiting jobs to see if they can produce
-    handle_job_queue_not_full_event();
+    handle_new_job_event();             //check for waiting jobs to see if they can produce
+    handle_job_queue_not_full_event();  //check to see if the job queue needs filling
     boost::mutex::scoped_lock(_mutex);
 
     if (_jobQueue.empty())
     {
         if (! _pendingList.empty())
         {
-            _clients_manager->assign_job_unit(*_pendingList.front());
-            //send this one to the back
-            _pendingList.push_back(_pendingList.front());
-            _pendingList.pop_front();
+            if ( _clients_manager->assign_job_unit(*_pendingList.front()) )
+            {
+                //send this one to the back, act as Round Robin
+                _pendingList.push_back(_pendingList.front());
+                _pendingList.pop_front();
+            }
+            else
+                syslog(LOG_NOTICE,"Error sending JobUnit %u from Pending List to a client.",_pendingList.front()->get_id());
         }
     }
     else
@@ -132,6 +141,8 @@ void JobManager::handle_free_client_event()
             _pendingList.push_back(_jobQueue.front());
             _jobQueue.pop_front();
         }
+        else
+            syslog(LOG_NOTICE,"Error sending JobUnit %u from Job Queue to a client.",_jobQueue.front()->get_id());
     }
     handle_job_queue_not_full_event();
 }
@@ -143,6 +154,7 @@ void JobManager::handle_job_unit_completed_event(JobUnitID id, std::string* mess
 
     try
     {
+        //generates exception if _ids_to_job_map[id] is not defined
         mili::find(_ids_to_job_map,id)->process_results(id, message);
 
         //remove from pending list
@@ -217,6 +229,8 @@ void JobManager::handle_new_job_event()
             }
         }
     }
+//     if (i sent one to producing)
+//         handle_free_client_event();  //mmm!?
 }
 
 void JobManager::enqueue(DistributableJob* distjob)
