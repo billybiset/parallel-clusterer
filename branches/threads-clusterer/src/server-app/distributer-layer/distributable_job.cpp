@@ -29,7 +29,6 @@ void DistributableJob::wait_completion()
     boost::unique_lock<boost::mutex> lock(_completed_mutex);
     while(! finished())
         _condition.wait(lock);
-    boost::mutex::scoped_lock(_job_units_generated_mutex);
 }
 
 bool DistributableJob::finished()
@@ -46,9 +45,15 @@ void DistributableJob::inform_generation()
 
 void DistributableJob::process_results (JobUnitID id, const std::string* message)
 {
-    boost::mutex::scoped_lock(_job_units_generated_mutex);
     if (completion_accepted(id))
         handle_results(id,message);
+
+    if (finished())
+    {
+        _condition.notify_all();
+        _listener->distributable_job_completed_event(this);
+    }
+
 }
 
 bool DistributableJob::completion_accepted(const JobUnitID& id)
@@ -63,12 +68,6 @@ bool DistributableJob::completion_accepted(const JobUnitID& id)
     else
     {
         _completed.insert(id);
-        if (finished())
-        {
-            _condition.notify_all();
-            _listener->distributable_job_completed_event(this);
-        }
-
         return true;
     }
 }
