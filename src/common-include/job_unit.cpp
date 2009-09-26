@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "binstream.h"
+#include "mili.h"
 #include "common.h"
 #include "job_unit.h"
 
@@ -24,7 +24,7 @@ void  JobUnit::set_size(JobUnitSize size)
 const std::string JobUnit::serialize() const
 {
     /* header + message */
-    BOStream bs;
+    bostream bs;
     bs << get_id() << get_message(); /*Inserting the string adds its length, completing the header.*/
 
     return bs.str();

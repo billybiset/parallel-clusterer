@@ -75,15 +75,17 @@ ClientProxy* ClientsManager::get_available_client()
         return NULL;
     else
     {
-        std::list<ClientProxy *>::const_iterator it;
+        std::list<ClientProxy *>::iterator it;
 
         it = find_if (_client_proxies.begin(), _client_proxies.end(),
                     !boost::bind(&ClientProxy::busy, _1) );
 
         if (it != _client_proxies.end())
         {
-//             syslog(LOG_NOTICE,"Using client %u.",(*it)->get_id());
-            return *it;
+            ClientProxy* result(*it);
+            _client_proxies.erase(it);
+            _client_proxies.push_back(result);
+            return result;
         }
         else
             return NULL;
