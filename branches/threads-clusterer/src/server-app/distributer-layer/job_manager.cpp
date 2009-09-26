@@ -6,6 +6,7 @@
 
 #include <boost/thread/mutex.hpp>
 
+#include "mili.h"
 #include "job_manager.h"
 #include "clients_manager.h"
 #include "distributable_job.h"
@@ -155,7 +156,7 @@ void JobManager::handle_job_unit_completed_event(JobUnitID id, std::string* mess
     try
     {
         //generates exception if _ids_to_job_map[id] is not defined
-        mili::find(_ids_to_job_map,id)->process_results(id, message);
+        find(_ids_to_job_map,id)->process_results(id, message);
 
         //remove from pending list
         std::list<JobUnit*>::iterator it;

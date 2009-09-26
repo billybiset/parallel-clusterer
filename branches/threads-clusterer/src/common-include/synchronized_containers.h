@@ -12,12 +12,12 @@
     class SynchronizedQueue
     {
     public:
-        typedef mili::PrePosCaller<Container* const, PreMutex, PosMutex> SynchQueuePPC;
+        typedef PrePosCaller<Container* const, PreMutex, PosMutex> SynchQueuePPC;
     private:
         pthread_mutex_t mutex;
         Container       queue;
-        PreMutex  premutex;
-        PosMutex  posmutex;
+        PreMutex        premutex;
+        PosMutex        posmutex;
         SynchQueuePPC   synchQueuePPC;
     public:
         SynchronizedQueue() :
@@ -40,7 +40,7 @@
     class SynchronizedList
     {
     public:
-        typedef mili::PrePosCaller<Container* const, PreMutex, PosMutex> SynchListPPC;
+        typedef PrePosCaller<Container* const, PreMutex, PosMutex> SynchListPPC;
     private:
         pthread_mutex_t mutex;
         Container       cont;

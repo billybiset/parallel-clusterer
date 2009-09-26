@@ -1,9 +1,9 @@
 #include <fstream>
 #include <iostream>
 
+#include "mili.h"
 #include "counter.h"
 #include "job_unit.h"
-#include "binstream.h"
 
 using namespace parallel_clusterer;
 
@@ -39,7 +39,7 @@ const char* Counter::get_name() const
 
 void Counter::handle_results (JobUnitID id, const std::string* message)
 {
-    BIStream bis(*message);
+    bistream bis(*message);
     size_t count;
     bis >> count;
     _total_count += count;

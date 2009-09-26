@@ -42,23 +42,18 @@ int main()
     openlog ("FuDP",NULL, LOG_LOCAL1);
     syslog(LOG_NOTICE,"Start.");
 
-    Counter * counter_job1 = new Counter("data/file2.txt");
-    Counter * counter_job2 = new Counter("data/short.txt");
-    Counter * counter_job3 = new Counter("data/file1.txt");
-    Counter * counter_job4 = new Counter("data/file2.txt");
+    size_t const AMOUNT(10);
 
-    counter_job1->run();
-    counter_job2->run();
-    counter_job3->run();
-    counter_job4->run();
+    Counter * jobs[AMOUNT];
+    for (size_t i=0; i < AMOUNT; ++i)
+        jobs[i] = new Counter("data/file2.txt");
 
-    counter_job1->wait_completion();
-    counter_job2->wait_completion();
-    counter_job3->wait_completion();
-    counter_job4->wait_completion();
+    for (size_t i=0; i < AMOUNT; ++i)
+        jobs[i]->run();
 
-    counter_job1->output_results();
-    counter_job2->output_results();
-    counter_job3->output_results();
-    counter_job4->output_results();
+    for (size_t i=0; i < AMOUNT; ++i)
+        jobs[i]->wait_completion();
+
+    for (size_t i=0; i < AMOUNT; ++i)
+        jobs[i]->output_results();
 }

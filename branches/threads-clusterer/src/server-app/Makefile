@@ -10,7 +10,8 @@ CPPFLAGS+= -I$(BOOST_INCLUDE_PATH)
 MAIN_APP_INCLUDES = -Imain-app-layer/appjobs/ -Imain-app-layer/data-definitions -Imain-app-layer/data-handling
 CPPFLAGS+= -Idistributer-layer/ $(MAIN_APP_INCLUDES) -Imisc/ -Iclients-layer/ -I../common-include/ -I../../mili/include
 
-CPPFLAGS+= -DMILI_NAMESPACE
+#CPPFLAGS+= -DMILI_NAMESPACE
+CPPFLAGS+= -DNO_BITWISE_ENUMS
 
 #linker
 LDFLAGS+= -lboost_thread-gcc43-mt 
@@ -31,8 +32,7 @@ endif
 COMMON_CPP_SOURCES = \
             ../common-include/job_unit.cpp \
             ../common-include/serializable_object.cpp \
-            ../common-include/string_message.cpp \
-            ../common-include/binstream.cpp
+            ../common-include/string_message.cpp
 
 APPJOBS_CPP_SOURCES = \
             main-app-layer/appjobs/counter.cpp

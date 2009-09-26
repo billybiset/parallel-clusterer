@@ -42,7 +42,7 @@
 #include "clients_manager.h"
 #include "async_io_clients_manager.h"
 #include "job_unit.h"
-#include "binstream.h"
+#include "mili.h"
 
 using namespace parallel_clusterer;
 using boost::asio::ip::tcp;
@@ -108,7 +108,7 @@ void AsyncIOClientsManager::AsyncIOClientProxy::handle_response(ResponseCode cod
 
             JobUnitSize size;
 
-            BIStream bis2(std::string(size_buf,RESPONSE_HEADER_LENGTH));
+            bistream bis2(std::string(size_buf,RESPONSE_HEADER_LENGTH));
             bis2 >> size;
 
             if (size > 0)
@@ -136,7 +136,7 @@ void AsyncIOClientsManager::AsyncIOClientProxy::handle_receive(const boost::syst
     if (!ec)
     {
         boost::mutex::scoped_lock glock(_proxy_mutex);
-        BIStream bis(std::string(_code_buf,RESPONSE_HEADER_LENGTH));
+        bistream bis(std::string(_code_buf,RESPONSE_HEADER_LENGTH));
 
         ResponseCode code;
         bis >> code;
