@@ -1,0 +1,3 @@
+#!/bin/bash
+
+g++ xtc2gnuplot.cpp -I/usr/local/include/xdrfile/ -I../../../libraries/getopt -lxdrfile ../../../libraries/getopt/getopt_pp.o -o xtc2gnuplot
