@@ -1,5 +1,5 @@
 /**
- * \file  gnuplot_output.cpp
+ * \file  xtc2gnuplot.cpp
  * \brief Tool for converting .xtc file to gnuplot command file.
  *
  * FDC: FuDePAN Distributed Clusterer
@@ -148,6 +148,7 @@ void output(XDRFILE *xdrfile, int atoms, std::string input, std::string output_f
         plotfile.close();
         commandfile.close();
     }
+    xdrfile_close(xdrfile);
 }
 
 void show_help()
@@ -195,7 +196,6 @@ int main(int argc, char *argv[])
 
         if (exdrOK != result)
             std::cerr <<"Error initializing database. Wrong filename?\n";
-
 
         XDRFILE* xdrfile;
 
