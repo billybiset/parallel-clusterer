@@ -94,7 +94,13 @@ IteratorRange ProteinDatabase::get_iterator_pair(size_t begin, size_t end)
     return IteratorRange(_proteins.begin() + begin, _proteins.begin() + end);
 }
 
-const Protein& ProteinDatabase::operator[](ProteinID id)
+// const Protein& ProteinDatabase::operator[](ProteinID id)
+// {
+//     assert(id >= 0 && id < _proteins.size());
+//     return _proteins[id];
+// }
+
+Protein& ProteinDatabase::operator[](ProteinID id)
 {
     assert(id >= 0 && id < _proteins.size());
     return _proteins[id];
@@ -161,7 +167,6 @@ std::pair<size_t, size_t> ProteinDatabase::generate_elements(size_t from, size_t
                                                                            _atoms_vector[atom_number][1],
                                                                            _atoms_vector[atom_number][2]);
                     ++_last_protein_id;
-
                 }
             }
             else

@@ -66,7 +66,9 @@ namespace clusterer
 
             IteratorRange get_iterator_pair(size_t begin, size_t end);
 
-            const Protein& operator[](ProteinID id);
+//             const Protein& operator[](ProteinID id);
+
+            Protein& operator[](ProteinID id);
 
             const std::vector<Protein>&   get_proteins()   const;
         private:
