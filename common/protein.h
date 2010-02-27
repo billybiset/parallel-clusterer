@@ -126,81 +126,85 @@ namespace clusterer
         a[k][l]=h+s*(g-h*tau);
 
 
-    template <int JACOBI_DIM>
-    inline void jacobi(double a[][JACOBI_DIM],double d[],double v[][JACOBI_DIM],int *nrot)
-    {
-    int j,i;
-    int iq,ip;
-    double tresh,theta,tau,t,sm,s,h,g,c;
+template <int JACOBI_DIM>
+static void jacobi(double a[][JACOBI_DIM],double d[],double v[][JACOBI_DIM],int *nrot)
+{
+  int j,i;
+  int iq,ip;
+  double tresh,theta,tau,t,sm,s,h,g,c;
 
-    double b [JACOBI_DIM];
-    double z [JACOBI_DIM];
+  double b [JACOBI_DIM];
+  double z [JACOBI_DIM];
 
+  for (ip=0; ip<JACOBI_DIM; ip++) {
+    for (iq=0; iq<JACOBI_DIM; iq++) v[ip][iq]=0.0;
+    v[ip][ip]=1.0;
+ }
+  for (ip=0; ip<JACOBI_DIM;ip++) {
+    b[ip]=d[ip]=a[ip][ip];
+    z[ip]=0.0;
+  }
+  *nrot=0;
+  for (i=1; i<=50; i++) {
+    sm=0.0;
+    for (ip=0; ip<JACOBI_DIM-1; ip++) {
+      for (iq=ip+1; iq<JACOBI_DIM; iq++)
+        sm += fabs(a[ip][iq]);
+    }
+    if (sm == 0.0) {
+      return;
+    }
+    if (i < 4)
+      tresh=0.2*sm/(JACOBI_DIM*JACOBI_DIM);
+    else
+      tresh=0.0;
+    for (ip=0; ip<JACOBI_DIM-1; ip++) {
+      for (iq=ip+1; iq<JACOBI_DIM; iq++) {
+        g=100.0*fabs(a[ip][iq]);
+        if (i > 4 && fabs(d[ip])+g == fabs(d[ip])
+            && fabs(d[iq])+g == fabs(d[iq]))
+          a[ip][iq]=0.0;
+        else if (fabs(a[ip][iq]) > tresh) {
+          h=d[iq]-d[ip];
+          if (fabs(h)+g == fabs(h))
+            t=(a[ip][iq])/h;
+          else {
+            theta=0.5*h/(a[ip][iq]);
+            t=1.0/(fabs(theta)+sqrt(1.0+theta*theta));
+            if (theta < 0.0) t = -t;
+          }
+          c=1.0/sqrt(1+t*t);
+          s=t*c;
+          tau=s/(1.0+c);
+          h=t*a[ip][iq];
+          z[ip] -= h;
+          z[iq] += h;
+          d[ip] -= h;
+          d[iq] += h;
+          a[ip][iq]=0.0;
+          for (j=0; j<ip; j++) {
+            ROTATE(a,j,ip,j,iq)
+      }
+          for (j=ip+1; j<iq; j++) {
+            ROTATE(a,ip,j,j,iq)
+            }
+          for (j=iq+1; j<JACOBI_DIM; j++) {
+            ROTATE(a,ip,j,iq,j)
+            }
+          for (j=0; j<JACOBI_DIM; j++) {
+            ROTATE(v,j,ip,j,iq)
+            }
+          ++(*nrot);
+        }
+      }
+    }
     for (ip=0; ip<JACOBI_DIM; ip++) {
-        for (iq=0; iq<JACOBI_DIM; iq++) v[ip][iq]=0.0;
-        v[ip][ip]=1.0;
+      b[ip] +=  z[ip];
+      d[ip]  =  b[ip];
+      z[ip]  =  0.0;
     }
-    for (ip=0; ip<JACOBI_DIM;ip++) {
-        b[ip]=d[ip]=a[ip][ip];
-        z[ip]=0.0;
-    }
-    *nrot=0;
-    for (i=1; i<=50; i++) {
-        sm=0.0;
-        for (ip=0; ip<JACOBI_DIM-1; ip++) {
-        for (iq=ip+1; iq<JACOBI_DIM; iq++)
-            sm += fabs(a[ip][iq]);
-        }
-        if (sm == 0.0) {
-        return;
-        }
-        if (i < 4)
-        tresh=0.2*sm/(JACOBI_DIM*JACOBI_DIM);
-        else
-        tresh=0.0;
-        for (ip=0; ip<JACOBI_DIM-1; ip++) {
-        for (iq=ip+1; iq<JACOBI_DIM; iq++) {
-            g=100.0*fabs(a[ip][iq]);
-            if (i > 4 && fabs(d[ip])+g == fabs(d[ip])
-                && fabs(d[iq])+g == fabs(d[iq]))
-            a[ip][iq]=0.0;
-            else if (fabs(a[ip][iq]) > tresh) {
-            h=d[iq]-d[ip];
-            if (fabs(h)+g == fabs(h))
-                t=(a[ip][iq])/h;
-            else {
-                theta=0.5*h/(a[ip][iq]);
-                t=1.0/(fabs(theta)+sqrt(1.0+theta*theta));
-                if (theta < 0.0) t = -t;
-            }
-            c=1.0/sqrt(1+t*t);
-            s=t*c;
-            tau=s/(1.0+c);
-            h=t*a[ip][iq];
-            z[ip] -= h;
-            z[iq] += h;
-            d[ip] -= h;
-            d[iq] += h;
-            a[ip][iq]=0.0;
-            for (j=0; j<ip; j++)
-                ROTATE(a,j,ip,j,iq);
-            for (j=ip+1; j<iq; j++)
-                ROTATE(a,ip,j,j,iq);
-            for (j=iq+1; j<JACOBI_DIM; j++)
-                ROTATE(a,ip,j,iq,j);
-            for (j=0; j<JACOBI_DIM; j++)
-                ROTATE(v,j,ip,j,iq);
-            ++(*nrot);
-            }
-        }
-        }
-        for (ip=0; ip<JACOBI_DIM; ip++) {
-        b[ip] +=  z[ip];
-        d[ip]  =  b[ip];
-        z[ip]  =  0.0;
-        }
-    }
-    }
+  }
+}
 
 
     inline void oprod(const rvec a,const rvec b,rvec c)
@@ -432,20 +436,10 @@ namespace clusterer
                 const size_t NCOORDS = atoms();
 
                 float ret(0);
-                float ret0;
-
-                for(size_t i=0; i<NCOORDS; ++i)
-                    ret += (((*this)[i].x - b[i].x) * ((*this)[i].x - b[i].x)) +
-                        (((*this)[i].y - b[i].y) * ((*this)[i].y - b[i].y)) +
-                        (((*this)[i].z - b[i].z) * ((*this)[i].z - b[i].z));
-
-                ret0 = sqrt(ret/NCOORDS);
 
                 #ifndef NOROTALIGN
                     rotalign_to(b);
                 #endif
-
-                ret = .0;
 
                 assert(atoms() == b.size());
 
