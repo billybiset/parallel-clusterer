@@ -60,6 +60,13 @@ ClustererOutput::ClustererOutput(GetOpt_pp& options) throw(const char*) :
     }
 }
 
+bool ClustererOutput::should_rotalign_clusters() const
+{
+    bool ret;
+    _options >> OptionPresent('r',"rotalign", ret);
+    return ret;
+}
+
 void ClustererOutput::output_results(ProteinDatabase& protein_db,std::vector<Cluster>& clusters) throw(const char*)
 {
     if (should_output_centers())
@@ -109,7 +116,12 @@ void ClustererOutput::output_clusters(ProteinDatabase& protein_db, std::vector<C
         const std::vector<ProteinID>& members( clusters[ cluster ].members() );
 
         for (size_t protein(0); protein < members.size() ;++protein)
+        {
+            if (should_rotalign_clusters())
+                protein_db[ members[protein] ].rotalign_to( protein_db[ clusters[cluster].representative() ] );
+
             output.add( protein_db[ members[protein] ] );
+        }
     }
 }
 

@@ -384,9 +384,10 @@ static void jacobi(double a[][JACOBI_DIM],double d[],double v[][JACOBI_DIM],int 
 
 // ~Rotalign
 
-
         friend class ProteinRefWithClusterID; //herein lie monsters
+
         public:
+
             inline Protein() :    // shouldn't use this constructor
                 _atom_vector(0),
                 _id(0)
@@ -451,6 +452,12 @@ static void jacobi(double a[][JACOBI_DIM],double d[],double v[][JACOBI_DIM],int 
                 ret = sqrt(ret/NCOORDS);
 
                 return ret;
+            }
+
+
+            inline void rotalign_to(const Protein& other)
+            {
+                rotalign_to(other._atom_vector);
             }
 
             friend inline mili::bostream& operator<< (mili::bostream& bos, const Protein& protein);
