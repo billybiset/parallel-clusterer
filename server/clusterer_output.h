@@ -61,6 +61,8 @@ namespace clusterer
             inline bool should_output_clusters()   const {return ! _clusters_file_name.empty();   }
             inline bool should_output_text()       const {return ! _text_file_name.empty();       }
 
+            bool should_rotalign_clusters() const;
+
             GetOpt::GetOpt_pp& _options;
 
             std::string _centers_file_name;
