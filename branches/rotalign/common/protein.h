@@ -40,9 +40,6 @@
 #include <math.h>
 
 #include "mili/mili.h"
-#include "coord3d.h"
-// #include "rotalign.h"
-
 
 typedef size_t ProteinID;
 
@@ -62,6 +59,46 @@ namespace clusterer
         Clusters,
         Adding,
         Centers
+    };
+
+    struct Coord3d
+    {
+        inline Coord3d() :
+            x(.0),
+            y(.0),
+            z(.0)
+        {
+        }
+
+        inline Coord3d(float x , float y, float z ) :
+            x(x), y(y), z(z)
+        {
+        }
+
+        inline Coord3d(const Coord3d& other):
+            x(other.x),
+            y(other.y),
+            z(other.z)
+        {
+        }
+
+        inline Coord3d& operator += (const Coord3d& other)
+        {
+            x += other.x;
+            y += other.y;
+            z += other.z;
+            return (*this);
+        }
+
+        inline Coord3d& operator /= (float f)
+        {
+            x /= f;
+            y /= f;
+            z /= f;
+            return (*this);
+        }
+
+        float x,y,z;
     };
 
 
@@ -316,8 +353,8 @@ namespace clusterer
 
         const size_t NCOORDS = atoms();
 
-        rvec *const vt = structure2rvec_arr(_atom_vector),
-             *const vr = structure2rvec_arr(reference);
+        rvec *const vt = structure2rvec_arr(_atom_vector);
+        rvec *const vr = structure2rvec_arr(reference);
 
         float *const rls = new float[NCOORDS];
 
@@ -404,7 +441,7 @@ namespace clusterer
 
                 ret0 = sqrt(ret/NCOORDS);
 
-                #ifdef ROTALIGN
+                #ifndef NOROTALIGN
                     rotalign_to(b);
                 #endif
 

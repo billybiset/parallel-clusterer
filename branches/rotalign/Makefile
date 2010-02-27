@@ -1,5 +1,4 @@
 XDRFILE_INCLUDES= -I/usr/local/include/xdrfile/
-GETOPT_INCLUDES = -I../../libraries/getopt
 
 CLUSTERER_INCLUDES= -Icommon
 
@@ -7,14 +6,19 @@ LDFLAGS+= -L/usr/local/lib
 LDFLAGS+= -lboost_thread-gcc43-mt
 LDFLAGS+= -lboost_system-gcc43-mt
 LDFLAGS+= -lxdrfile
+LDFLAGS+= -lgetopt_pp
 
-CPPFLAGS+= -Icommon -Iserver -I/usr/local/include/xdrfile/ -DMILI_NAMESPACE -I/usr/include/boost-1_38/ -I../../libraries/getopt -Iclient/include
+
+CPPFLAGS+= -Icommon -Iserver -I/usr/local/include/xdrfile/ -DMILI_NAMESPACE -I/usr/include/boost-1_38/ -Iclient/include
 
 ifeq ($(COVER),on)
     CPPFLAGS+=-fprofile-arcs -ftest-coverage -fworking-directory
     LDFLAGS+=-lgcov
 endif
 
+ifeq ($(ROTALIGN),off)
+    CPPFLAGS+=-DNOROTALIGN
+endif
 
 ifeq ($(DEBUG),on)
     CPPFLAGS+=-ggdb3
@@ -50,8 +54,7 @@ OUTPUT_SOURCES = \
 CLUSTERER_SOURCES = \
 	$(JOBS_SOURCES) \
     $(MAIN_SOURCES) \
-    $(OUTPUT_SOURCES) \
-    ../../libraries/getopt/getopt_pp.cpp
+    $(OUTPUT_SOURCES)
 
 
 CLUSTERER_OBJECTS=$(patsubst %.cpp,%.o,$(CLUSTERER_SOURCES))
@@ -62,8 +65,7 @@ APPCLIENTS_CPP_SOURCES = \
 
 CLIENT_CPP_SOURCES = \
             client/clusterer_client.cpp \
-            $(APPCLIENTS_CPP_SOURCES) \
-            ../../libraries/getopt/getopt_pp.cpp
+            $(APPCLIENTS_CPP_SOURCES)
 
 CLIENT_OBJECTS=$(patsubst %.cpp,%.o,$(CLIENT_CPP_SOURCES))
 ###################
