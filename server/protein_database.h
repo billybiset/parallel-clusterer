@@ -56,7 +56,7 @@ namespace clusterer
 
             std::vector<float>& get_box();
 
-            float get_precision() const;
+            float  get_precision() const;
 
             bool   finished_reading() const;
 
@@ -66,11 +66,8 @@ namespace clusterer
 
             IteratorRange get_iterator_pair(size_t begin, size_t end);
 
-//             const Protein& operator[](ProteinID id);
-
             Protein& operator[](ProteinID id);
 
-            const std::vector<Protein>&   get_proteins()   const;
         private:
             bool                     _finished_reading;
             std::vector<Protein>     _proteins;

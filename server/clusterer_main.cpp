@@ -105,8 +105,9 @@ void show_help()
         "\t                            being the first frame of each XTC the center of the cluster,\n"
         "\t                            e.g.: \"cluster\" will generate cluster_0.xtc and so on.\n"
         "\t-o --output      [optional] Output text file, listing the number of each cluster.\n"
+        "\t-s --stats       [optional] Output some statistical data to text file.\n"
         "\n"
-        "Some kind of output must be specified, so either -e, -g, -l, or -o shall be present.\n\n"
+        "Some kind of output must be specified, so either -e, -g, -l, -o or -s shall be present.\n\n"
     ;
 }
 
@@ -173,7 +174,7 @@ int main(int argc, char** argv)
                 last_addition->run();
                 last_addition->wait_completion();
 
-                output.output_results(*db,clusters);
+                output.output_results(*db,clusters,cutoff);
             }
             catch(const char* msg)
             {

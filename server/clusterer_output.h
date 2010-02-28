@@ -47,19 +47,23 @@ namespace clusterer
         public:
             ClustererOutput(GetOpt::GetOpt_pp& options) throw(const char*);
 
-            void output_results(ProteinDatabase& protein_db, std::vector<Cluster>& clusters)  throw(const char*);
+            void output_results(ProteinDatabase& protein_db, std::vector<Cluster>& clusters, float cutoff)  throw(const char*);
 
         private:
             void output_centers   (ProteinDatabase& protein_db, std::vector<Cluster>& clusters);
             void output_geocenters(ProteinDatabase& protein_db, std::vector<Cluster>& clusters);
             void output_clusters  (ProteinDatabase& protein_db, std::vector<Cluster>& clusters);
 
-            void output_text(std::vector<Cluster>& clusters);
+            void output_stats     (ProteinDatabase& protein_db, std::vector<Cluster>& clusters, float cutoff);
+
+            void output_text (std::vector<Cluster>& clusters);
+
 
             inline bool should_output_centers()    const {return ! _centers_file_name.empty();    }
             inline bool should_output_geocenters() const {return ! _geocenters_file_name.empty(); }
             inline bool should_output_clusters()   const {return ! _clusters_file_name.empty();   }
             inline bool should_output_text()       const {return ! _text_file_name.empty();       }
+            inline bool should_output_stats()      const {return ! _stats_file_name.empty();      }
 
             bool should_rotalign_clusters() const;
 
@@ -69,6 +73,8 @@ namespace clusterer
             std::string _geocenters_file_name;
             std::string _clusters_file_name;
             std::string _text_file_name;
+            std::string _stats_file_name;
+            std::string _input_file_name;
     };
 }
 
