@@ -16,8 +16,8 @@ ifeq ($(COVER),on)
     LDFLAGS+=-lgcov
 endif
 
-ifeq ($(ROTALIGN),off)
-    CPPFLAGS+=-DNOROTALIGN
+ifneq ($(ROTALIGN),off)
+    CPPFLAGS+=-DROTALIGN
 endif
 
 ifeq ($(DEBUG),on)
@@ -70,6 +70,8 @@ CLIENT_CPP_SOURCES = \
 CLIENT_OBJECTS=$(patsubst %.cpp,%.o,$(CLIENT_CPP_SOURCES))
 ###################
 
+all: clusterer clusterer-client
+
 clusterer: $(CLUSTERER_OBJECTS)
 	$(CXX) -o clusterer $^ $(LDFLAGS) -lfud
 
@@ -77,11 +79,9 @@ clusterer-client: $(CLIENT_OBJECTS)
 	$(CXX) -o clusterer-client $^ $(LDFLAGS) -lfud_client
 
 
-all: clusterer clusterer-client
-
 .PHONY: cleanall cleanobj cleanbackup help
 
-cleanall : cleanobj cleanbackup
+clean : cleanobj cleanbackup
 	rm -f clusterer clusterer-client
 
 cleanobj :
@@ -95,7 +95,7 @@ help:
 	@echo --------------------------------------------------------
 	@echo To compile all modules just type "make"
 	@echo Current possible compilation modules are:
-	@echo $(STANDALONE_TOOLS) clusterer
+	@echo clusterer clusterer-client
 	@echo
 	@echo In order to turn on debugging set the environmental
 	@echo variable DEBUG to on or type "make DEBUG=on <target>"

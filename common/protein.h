@@ -104,7 +104,8 @@ namespace clusterer
 
     class Protein
     {
-// Rotalign
+
+// Rotalign code
 
     #define DIM     3           /* Dimension of vectors     */
 
@@ -126,85 +127,115 @@ namespace clusterer
         a[k][l]=h+s*(g-h*tau);
 
 
-template <int JACOBI_DIM>
-static void jacobi(double a[][JACOBI_DIM],double d[],double v[][JACOBI_DIM],int *nrot)
-{
-  int j,i;
-  int iq,ip;
-  double tresh,theta,tau,t,sm,s,h,g,c;
+    template <int JACOBI_DIM>
+    static void jacobi(double a[][JACOBI_DIM],double d[],double v[][JACOBI_DIM],int *nrot)
+    {
+        int j,i;
+        int iq,ip;
+        double tresh,theta,tau,t,sm,s,h,g,c;
 
-  double b [JACOBI_DIM];
-  double z [JACOBI_DIM];
+        double b [JACOBI_DIM];
+        double z [JACOBI_DIM];
 
-  for (ip=0; ip<JACOBI_DIM; ip++) {
-    for (iq=0; iq<JACOBI_DIM; iq++) v[ip][iq]=0.0;
-    v[ip][ip]=1.0;
- }
-  for (ip=0; ip<JACOBI_DIM;ip++) {
-    b[ip]=d[ip]=a[ip][ip];
-    z[ip]=0.0;
-  }
-  *nrot=0;
-  for (i=1; i<=50; i++) {
-    sm=0.0;
-    for (ip=0; ip<JACOBI_DIM-1; ip++) {
-      for (iq=ip+1; iq<JACOBI_DIM; iq++)
-        sm += fabs(a[ip][iq]);
-    }
-    if (sm == 0.0) {
-      return;
-    }
-    if (i < 4)
-      tresh=0.2*sm/(JACOBI_DIM*JACOBI_DIM);
-    else
-      tresh=0.0;
-    for (ip=0; ip<JACOBI_DIM-1; ip++) {
-      for (iq=ip+1; iq<JACOBI_DIM; iq++) {
-        g=100.0*fabs(a[ip][iq]);
-        if (i > 4 && fabs(d[ip])+g == fabs(d[ip])
-            && fabs(d[iq])+g == fabs(d[iq]))
-          a[ip][iq]=0.0;
-        else if (fabs(a[ip][iq]) > tresh) {
-          h=d[iq]-d[ip];
-          if (fabs(h)+g == fabs(h))
-            t=(a[ip][iq])/h;
-          else {
-            theta=0.5*h/(a[ip][iq]);
-            t=1.0/(fabs(theta)+sqrt(1.0+theta*theta));
-            if (theta < 0.0) t = -t;
-          }
-          c=1.0/sqrt(1+t*t);
-          s=t*c;
-          tau=s/(1.0+c);
-          h=t*a[ip][iq];
-          z[ip] -= h;
-          z[iq] += h;
-          d[ip] -= h;
-          d[iq] += h;
-          a[ip][iq]=0.0;
-          for (j=0; j<ip; j++) {
-            ROTATE(a,j,ip,j,iq)
-      }
-          for (j=ip+1; j<iq; j++) {
-            ROTATE(a,ip,j,j,iq)
-            }
-          for (j=iq+1; j<JACOBI_DIM; j++) {
-            ROTATE(a,ip,j,iq,j)
-            }
-          for (j=0; j<JACOBI_DIM; j++) {
-            ROTATE(v,j,ip,j,iq)
-            }
-          ++(*nrot);
+        for (ip=0; ip<JACOBI_DIM; ip++)
+        {
+            for (iq=0; iq<JACOBI_DIM; iq++)
+                v[ip][iq]=0.0;
+
+            v[ip][ip]=1.0;
         }
-      }
+
+        for (ip=0; ip<JACOBI_DIM;ip++)
+        {
+            b[ip]=d[ip]=a[ip][ip];
+            z[ip]=0.0;
+        }
+
+        *nrot=0;
+
+        for (i=1; i<=50; i++)
+        {
+            sm=0.0;
+
+            for (ip=0; ip<JACOBI_DIM-1; ip++)
+            {
+                for (iq=ip+1; iq<JACOBI_DIM; iq++)
+                    sm += fabs(a[ip][iq]);
+            }
+
+            if (sm == 0.0)
+                return;
+
+            if (i < 4)
+                tresh=0.2*sm/(JACOBI_DIM*JACOBI_DIM);
+            else
+                tresh=0.0;
+
+            for (ip=0; ip<JACOBI_DIM-1; ip++)
+            {
+                for (iq=ip+1; iq<JACOBI_DIM; iq++)
+                {
+                    g=100.0*fabs(a[ip][iq]);
+
+                    if (i > 4 && fabs(d[ip])+g == fabs(d[ip]) && fabs(d[iq])+g == fabs(d[iq]) )
+                        a[ip][iq]=0.0;
+                    else if (fabs(a[ip][iq]) > tresh)
+                    {
+                        h=d[iq]-d[ip];
+
+                        if (fabs(h)+g == fabs(h))
+                            t=(a[ip][iq])/h;
+                        else
+                        {
+                            theta = 0.5*h/(a[ip][iq]);
+                            t     = 1.0/(fabs(theta)+sqrt(1.0+theta*theta));
+
+                            if (theta < 0.0)
+                                t = -t;
+                        }
+
+                        c      = 1.0/sqrt(1+t*t);
+                        s      = t*c;
+                        tau    = s/(1.0+c);
+                        h      = t*a[ip][iq];
+
+                        z[ip] -= h;
+                        z[iq] += h;
+                        d[ip] -= h;
+                        d[iq] += h;
+
+                        a[ip][iq]=0.0;
+
+                        for (j=0; j<ip; j++)
+                        {
+                            ROTATE(a,j,ip,j,iq)
+                        }
+                        for (j=ip+1; j<iq; j++)
+                        {
+                            ROTATE(a,ip,j,j,iq)
+                        }
+                        for (j=iq+1; j<JACOBI_DIM; j++)
+                        {
+                            ROTATE(a,ip,j,iq,j)
+                        }
+                        for (j=0; j<JACOBI_DIM; j++)
+                        {
+                            ROTATE(v,j,ip,j,iq)
+                        }
+
+                        ++(*nrot);
+                    }
+                }
+            }
+
+            for (ip=0; ip<JACOBI_DIM; ip++)
+            {
+                b[ip] +=  z[ip];
+                d[ip]  =  b[ip];
+                z[ip]  =  0.0;
+            }
+        }
     }
-    for (ip=0; ip<JACOBI_DIM; ip++) {
-      b[ip] +=  z[ip];
-      d[ip]  =  b[ip];
-      z[ip]  =  0.0;
-    }
-  }
-}
 
 
     inline void oprod(const rvec a,const rvec b,rvec c)
@@ -227,11 +258,14 @@ static void jacobi(double a[][JACOBI_DIM],double d[],double v[][JACOBI_DIM],int 
         double omega[2*DIM][2*DIM];
         double om[2*DIM][2*DIM];
 
-        for(i=0; i<2*DIM; i++) {
+        for(i=0; i<2*DIM; i++)
+        {
             d[i]=0;
-            for(j=0; j<2*DIM; j++) {
-            omega[i][j]=0;
-            om[i][j]=0;
+
+            for(j=0; j<2*DIM; j++)
+            {
+                omega[i][j]=0;
+                om[i][j]=0;
             }
         }
 
@@ -239,25 +273,31 @@ static void jacobi(double a[][JACOBI_DIM],double d[],double v[][JACOBI_DIM],int 
         clear_mat(u);
         for(n=0;(n<natoms);n++)
             if ((mn = w_rls[n]) != 0.0)
-            for(c=0; (c<DIM); c++) {
-            xpc=xp[n][c];
-            for(r=0; (r<DIM); r++) {
-            xnr=x[n][r];
-            u[c][r]+=mn*xnr*xpc;
-            }
-            }
+                for(c=0; (c<DIM); c++)
+                {
+                    xpc=xp[n][c];
+
+                    for(r=0; (r<DIM); r++)
+                    {
+                        xnr=x[n][r];
+                        u[c][r]+=mn*xnr*xpc;
+                    }
+                }
 
         /*construct omega*/
         /*omega is symmetric -> omega==omega' */
         for(r=0; r<2*DIM; r++)
             for(c=0; c<=r; c++)
-            if (r>=DIM && c<DIM) {
-                omega[r][c]=u[r-DIM][c];
-                omega[c][r]=u[r-DIM][c];
-            } else {
-                omega[r][c]=0;
-                omega[c][r]=0;
-            }
+                if (r>=DIM && c<DIM)
+                {
+                    omega[r][c]=u[r-DIM][c];
+                    omega[c][r]=u[r-DIM][c];
+                }
+                else
+                {
+                    omega[r][c]=0;
+                    omega[c][r]=0;
+                }
 
         /*determine h and k*/
         jacobi<2*DIM>(omega,d,om,&irot);
@@ -271,17 +311,23 @@ static void jacobi(double a[][JACOBI_DIM],double d[],double v[][JACOBI_DIM],int 
         index=0; /* For the compiler only */
 
         /* Copy only the first two eigenvectors */
-        for(j=0; j<2; j++) {
+        for(j=0; j<2; j++)
+        {
             max_d=-1000;
+
             for(i=0; i<2*DIM; i++)
-            if (d[i]>max_d) {
-                max_d=d[i];
-                index=i;
-            }
+                if (d[i]>max_d)
+                {
+                    max_d=d[i];
+                    index=i;
+                }
+
             d[index]=-10000;
-            for(i=0; i<DIM; i++) {
-            vh[j][i]=M_SQRT2*om[i][index];
-            vk[j][i]=M_SQRT2*om[i+DIM][index];
+
+            for(i=0; i<DIM; i++)
+            {
+                vh[j][i]=M_SQRT2*om[i][index];
+                vk[j][i]=M_SQRT2*om[i+DIM][index];
             }
         }
         /* Calculate the last eigenvector as the outer-product of the first two.
@@ -294,11 +340,11 @@ static void jacobi(double a[][JACOBI_DIM],double d[],double v[][JACOBI_DIM],int 
         /*determine R*/
         for(r=0; r<DIM; r++)
             for(c=0; c<DIM; c++)
-            R[r][c] = vk[0][r]*vh[0][c] +
-                    vk[1][r]*vh[1][c] +
-                    vk[2][r]*vh[2][c];
-    }
+                R[r][c] = vk[0][r]*vh[0][c] +
+                          vk[1][r]*vh[1][c] +
+                          vk[2][r]*vh[2][c];
 
+    }
 
     inline void do_fit(int natoms,float *w_rls,rvec *xp,rvec *x)
     {
@@ -382,11 +428,11 @@ static void jacobi(double a[][JACOBI_DIM],double d[],double v[][JACOBI_DIM],int 
         delete [] rls;
     }
 
-// ~Rotalign
+// ~Rotalign code
 
         friend class ProteinRefWithClusterID; //herein lie monsters
 
-        public:
+        public: // public methods of class Protein
 
             inline Protein() :    // shouldn't use this constructor
                 _atom_vector(0),
@@ -438,7 +484,7 @@ static void jacobi(double a[][JACOBI_DIM],double d[],double v[][JACOBI_DIM],int 
 
                 float ret(0);
 
-                #ifndef NOROTALIGN
+                #ifdef ROTALIGN
                     rotalign_to(b);
                 #endif
 
