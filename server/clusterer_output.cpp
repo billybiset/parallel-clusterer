@@ -162,7 +162,7 @@ void ClustererOutput::output_stats(ProteinDatabase& protein_db, std::vector<Clus
 
     output_file << "Metrics:" << endl;
     output_file << "    Total Structures: " << protein_db.size() << endl;
-    output_file << "    Used Cutoff: " << cutoff;
+    output_file << "    Used Cutoff: " << cutoff << endl;
     output_file << "    Total Clusters: " << clusters.size() << endl;
     output_file << "    Cluster Sizes:" << endl;
 
