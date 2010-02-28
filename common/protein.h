@@ -123,9 +123,15 @@ namespace clusterer
         a[2][0]=a[2][1]=a[2][2]=nul;
     }
 
-    #define ROTATE(a,i,j,k,l) g=a[i][j];h=a[k][l];a[i][j]=g-s*(h+g*tau);\
-        a[k][l]=h+s*(g-h*tau);
+    static inline void rotate(double a[][6], int i, int j, int k, int l,
+                              double tau, double s)
+    {
+        const double g = a[i][j];
+        const double h = a[k][l];
 
+        a[i][j] = g-s*(h+g*tau);
+        a[k][l] = h+s*(g-h*tau);
+    }
 
     template <int JACOBI_DIM>
     static void jacobi(double a[][JACOBI_DIM],double d[],double v[][JACOBI_DIM],int *nrot)
@@ -204,24 +210,19 @@ namespace clusterer
                         d[ip] -= h;
                         d[iq] += h;
 
-                        a[ip][iq]=0.0;
+                        a[ip][iq] = 0.0;
 
                         for (j=0; j<ip; j++)
-                        {
-                            ROTATE(a,j,ip,j,iq)
-                        }
+                            rotate(a,j,ip,j,iq,tau,s);
+
                         for (j=ip+1; j<iq; j++)
-                        {
-                            ROTATE(a,ip,j,j,iq)
-                        }
+                            rotate(a,ip,j,j,iq,tau,s);
+
                         for (j=iq+1; j<JACOBI_DIM; j++)
-                        {
-                            ROTATE(a,ip,j,iq,j)
-                        }
+                            rotate(a,ip,j,iq,j,tau,s);
+
                         for (j=0; j<JACOBI_DIM; j++)
-                        {
-                            ROTATE(v,j,ip,j,iq)
-                        }
+                            rotate(v,j,ip,j,iq,tau,s);
 
                         ++(*nrot);
                     }
