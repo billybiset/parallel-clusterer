@@ -134,7 +134,7 @@ namespace clusterer
     }
 
     template <int JACOBI_DIM>
-    static void jacobi(double a[][JACOBI_DIM],double d[],double v[][JACOBI_DIM],int *nrot)
+    static void jacobi(double a[][JACOBI_DIM],double d[],double v[][JACOBI_DIM],int& nrot)
     {
         int j,i;
         int iq,ip;
@@ -157,7 +157,7 @@ namespace clusterer
             z[ip]=0.0;
         }
 
-        *nrot=0;
+        nrot=0;
 
         for (i=1; i<=50; i++)
         {
@@ -183,7 +183,10 @@ namespace clusterer
                 {
                     g=100.0*fabs(a[ip][iq]);
 
-                    if (i > 4 && fabs(d[ip])+g == fabs(d[ip]) && fabs(d[iq])+g == fabs(d[iq]) )
+                    const double fabs_d_ip = fabs(d[ip]);
+                    const double fabs_d_iq = fabs(d[iq]);
+
+                    if (i > 4 && fabs_d_ip + g == fabs_d_ip && fabs_d_iq + g == fabs_d_iq )
                         a[ip][iq]=0.0;
                     else if (fabs(a[ip][iq]) > tresh)
                     {
@@ -224,7 +227,7 @@ namespace clusterer
                         for (j=0; j<JACOBI_DIM; j++)
                             rotate(v,j,ip,j,iq,tau,s);
 
-                        ++(*nrot);
+                        ++nrot;
                     }
                 }
             }
@@ -301,7 +304,7 @@ namespace clusterer
                 }
 
         /*determine h and k*/
-        jacobi<2*DIM>(omega,d,om,&irot);
+        jacobi<2*DIM>(omega,d,om,irot);
         /*float   **omega = input matrix a[0..n-1][0..n-1] must be symmetric
         *int     natoms = number of rows and columns
         *float      NULL = d[0]..d[n-1] are the eigenvalues of a[][]
