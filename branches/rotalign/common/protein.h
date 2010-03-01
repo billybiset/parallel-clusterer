@@ -118,95 +118,100 @@ namespace clusterer
     {
         const float nul=0.0;
 
-        a[0][0]=a[0][1]=a[0][2]=nul;
-        a[1][0]=a[1][1]=a[1][2]=nul;
-        a[2][0]=a[2][1]=a[2][2]=nul;
+        a[0][0] = a[0][1] = a[0][2] = nul;
+        a[1][0] = a[1][1] = a[1][2] = nul;
+        a[2][0] = a[2][1] = a[2][2] = nul;
     }
 
-    static inline void rotate(double a[][6], int i, int j, int k, int l,
+    static inline void rotate(double a[][6], size_t i, size_t j, size_t k, size_t l,
                               double tau, double s)
     {
         const double g = a[i][j];
         const double h = a[k][l];
 
-        a[i][j] = g-s*(h+g*tau);
-        a[k][l] = h+s*(g-h*tau);
+        a[i][j] = g - s * (h + g * tau);
+        a[k][l] = h + s * (g - h * tau);
     }
 
-    template <int JACOBI_DIM>
-    static void jacobi(double a[][JACOBI_DIM],double d[],double v[][JACOBI_DIM],int& nrot)
+    template <size_t JACOBI_DIM>
+    static void jacobi(double a[][JACOBI_DIM],double d[],double v[][JACOBI_DIM],size_t& nrot)
     {
-        int j,i;
-        int iq,ip;
-        double tresh,theta,tau,t,sm,s,h,g,c;
-
         double b [JACOBI_DIM];
         double z [JACOBI_DIM];
 
-        for (ip=0; ip<JACOBI_DIM; ip++)
+        for (size_t ip(0); ip < JACOBI_DIM; ++ip)
         {
-            for (iq=0; iq<JACOBI_DIM; iq++)
-                v[ip][iq]=0.0;
+            for (size_t iq(0); iq < JACOBI_DIM; ++iq)
+                v[ip][iq] = 0.0;
 
-            v[ip][ip]=1.0;
+            v[ip][ip] = 1.0;
         }
 
-        for (ip=0; ip<JACOBI_DIM;ip++)
+        for (size_t ip(0); ip < JACOBI_DIM; ++ip)
         {
-            b[ip]=d[ip]=a[ip][ip];
-            z[ip]=0.0;
+            b[ip] = d[ip] = a[ip][ip];
+            z[ip] = 0.0;
         }
 
-        nrot=0;
+        nrot = 0;
 
-        for (i=1; i<=50; i++)
+        for (size_t i(1); i <= 50; ++i)
         {
-            sm=0.0;
+            double sm(0.0);
 
-            for (ip=0; ip<JACOBI_DIM-1; ip++)
+            for (size_t ip(0); ip < JACOBI_DIM-1; ++ip)
             {
-                for (iq=ip+1; iq<JACOBI_DIM; iq++)
+                for (size_t iq(ip+1); iq < JACOBI_DIM; ++iq)
                     sm += fabs(a[ip][iq]);
             }
 
             if (sm == 0.0)
                 return;
 
-            if (i < 4)
-                tresh=0.2*sm/(JACOBI_DIM*JACOBI_DIM);
-            else
-                tresh=0.0;
+            double tresh;
 
-            for (ip=0; ip<JACOBI_DIM-1; ip++)
+            if (i < 4)
+                tresh = 0.2 * sm / mili::square(JACOBI_DIM);
+            else
+                tresh = 0.0;
+
+            for (size_t ip(0); ip < JACOBI_DIM-1; ++ip)
             {
-                for (iq=ip+1; iq<JACOBI_DIM; iq++)
+                for (size_t iq(ip+1); iq < JACOBI_DIM; ++iq)
                 {
-                    g=100.0*fabs(a[ip][iq]);
+                    const double g( 100.0 * fabs( a[ip][iq] ) );
 
                     const double fabs_d_ip = fabs(d[ip]);
                     const double fabs_d_iq = fabs(d[iq]);
 
+                    //use mili::is_lossless_sum later
                     if (i > 4 && fabs_d_ip + g == fabs_d_ip && fabs_d_iq + g == fabs_d_iq )
-                        a[ip][iq]=0.0;
-                    else if (fabs(a[ip][iq]) > tresh)
+                        a[ip][iq] = 0.0;
+                    else if (fabs( a[ip][iq] ) > tresh)
                     {
-                        h=d[iq]-d[ip];
+                        double h( d[iq]-d[ip] );
 
-                        if (fabs(h)+g == fabs(h))
-                            t=(a[ip][iq])/h;
+                        double t;
+                        const double fabs_h( fabs(h) );
+
+                        //Idem
+                        if (fabs_h + g == fabs_h)
+                            t = ( a[ip][iq] ) / h;
                         else
                         {
-                            theta = 0.5*h/(a[ip][iq]);
-                            t     = 1.0/(fabs(theta)+sqrt(1.0+theta*theta));
+                            const double theta( 0.5 * h / ( a[ip][iq] ) );
+
+                            t = 1.0 / ( fabs(theta) + sqrt( 1.0 + mili::square(theta) ));
 
                             if (theta < 0.0)
                                 t = -t;
                         }
 
-                        c      = 1.0/sqrt(1+t*t);
-                        s      = t*c;
-                        tau    = s/(1.0+c);
-                        h      = t*a[ip][iq];
+                        const double c( 1.0 / sqrt( 1 + mili::square(t) ) );
+                        const double s( t * c);
+                        const double tau( s / (1.0 + c) );
+
+                        h = t * a[ip][iq];
 
                         z[ip] -= h;
                         z[iq] += h;
@@ -215,16 +220,16 @@ namespace clusterer
 
                         a[ip][iq] = 0.0;
 
-                        for (j=0; j<ip; j++)
+                        for (size_t j(0); j < ip; ++j)
                             rotate(a,j,ip,j,iq,tau,s);
 
-                        for (j=ip+1; j<iq; j++)
+                        for (size_t j(ip+1); j < iq; ++j)
                             rotate(a,ip,j,j,iq,tau,s);
 
-                        for (j=iq+1; j<JACOBI_DIM; j++)
+                        for (size_t j(iq+1); j < JACOBI_DIM; ++j)
                             rotate(a,ip,j,iq,j,tau,s);
 
-                        for (j=0; j<JACOBI_DIM; j++)
+                        for (size_t j(0); j < JACOBI_DIM; ++j)
                             rotate(v,j,ip,j,iq,tau,s);
 
                         ++nrot;
@@ -232,7 +237,7 @@ namespace clusterer
                 }
             }
 
-            for (ip=0; ip<JACOBI_DIM; ip++)
+            for (size_t ip(0); ip < JACOBI_DIM; ++ip)
             {
                 b[ip] +=  z[ip];
                 d[ip]  =  b[ip];
@@ -244,15 +249,16 @@ namespace clusterer
 
     inline void oprod(const rvec a,const rvec b,rvec c)
     {
-        c[0]=a[1]*b[2]-a[2]*b[1];
-        c[1]=a[2]*b[0]-a[0]*b[2];
-        c[2]=a[0]*b[1]-a[1]*b[0];
+        c[0] = a[1]*b[2]-a[2]*b[1];
+        c[1] = a[2]*b[0]-a[0]*b[2];
+        c[2] = a[0]*b[1]-a[1]*b[0];
     }
 
 
     inline void calc_fit_R(int natoms,float *w_rls,rvec *xp,rvec *x,matrix R)
     {
-        int    c,r,n,j,i,irot;
+        size_t irot;
+        int    c,r,n,j,i;
         double d[2*DIM],xnr,xpc;
         matrix vh,vk,u;
         float   mn;
@@ -304,7 +310,7 @@ namespace clusterer
                 }
 
         /*determine h and k*/
-        jacobi<2*DIM>(omega,d,om,irot);
+        jacobi<2 * DIM>(omega,d,om,irot);
         /*float   **omega = input matrix a[0..n-1][0..n-1] must be symmetric
         *int     natoms = number of rows and columns
         *float      NULL = d[0]..d[n-1] are the eigenvalues of a[][]
