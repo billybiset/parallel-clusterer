@@ -4,7 +4,7 @@
  *
  * FDC: FuDePAN Distributed Clusterer
  * <http://fud.googlecode.com/>
- * Copyright (C) 2009 Guillermo Biset, FuDePAN
+ * Copyright (C) 2009,2010 Guillermo Biset, FuDePAN
  *
  * This file is part of the FuD project.
  *
@@ -143,9 +143,9 @@ std::pair<size_t, size_t> ProteinDatabase::generate_elements(size_t from, size_t
             {
                 _precision = prec;
 
-                //const int DIM is defined in xdrfile.h (should be 3)
-                for (int i(0); i < DIM; ++i)
-                    for (int j(0); j < DIM; ++j)
+                //DIM is defined in xdrfile.h (should be 3)
+                for (size_t i(0); i < DIM; ++i)
+                    for (size_t j(0); j < DIM; ++j)
                         _box.push_back(box[i][j]);
             }
 
