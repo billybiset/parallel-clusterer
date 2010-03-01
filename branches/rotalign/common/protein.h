@@ -4,7 +4,7 @@
  *
  * FDC: FuDePAN Distributed Clusterer
  * <http://fud.googlecode.com/>
- * Copyright (C) 2010 Guillermo Biset, FuDePAN
+ * Copyright (C) 2009,2010 Guillermo Biset, FuDePAN
  *
  * This file is part of the FuD project.
  *
