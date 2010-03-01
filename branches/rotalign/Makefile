@@ -20,6 +20,10 @@ ifneq ($(ROTALIGN),off)
     CPPFLAGS+=-DROTALIGN
 endif
 
+ifneq ($(PEDANTIC),off)
+    CPPFLAGS+=-pedantic -ansi
+endif
+
 ifeq ($(DEBUG),on)
     CPPFLAGS+=-ggdb3
 else
