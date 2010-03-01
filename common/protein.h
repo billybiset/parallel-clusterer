@@ -4,7 +4,7 @@
  *
  * FDC: FuDePAN Distributed Clusterer
  * <http://fud.googlecode.com/>
- * Copyright (C) 2009 Guillermo Biset, FuDePAN
+ * Copyright (C) 2010 Guillermo Biset, FuDePAN
  *
  * This file is part of the FuD project.
  *
@@ -109,10 +109,9 @@ namespace clusterer
 
     #define DIM     3           /* Dimension of vectors     */
 
-    typedef float           real;
-    typedef real            rvec[DIM];
+    typedef float           rvec[DIM];
     typedef double          dvec[DIM];
-    typedef real            matrix[DIM][DIM];
+    typedef float           matrix[DIM][DIM];
 
     static inline void clear_mat(matrix a)
     {

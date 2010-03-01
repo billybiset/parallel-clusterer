@@ -33,6 +33,7 @@
  */
 
 #include <syslog.h>
+#include <memory>
 
 #include "protein_database.h"
 #include "protein.h"
@@ -123,7 +124,8 @@ std::pair<size_t, size_t> ProteinDatabase::generate_elements(size_t from, size_t
     }
     else
     {
-        rvec   _atoms_vector[_atoms_in_a_protein];
+        std::auto_ptr<rvec> _atoms_vector(new rvec[ _atoms_in_a_protein ] );
+
         int    result;
         int    step;
         float  time;
@@ -135,7 +137,7 @@ std::pair<size_t, size_t> ProteinDatabase::generate_elements(size_t from, size_t
         for (protein_number = 0; protein_number < size && !_finished_reading; ++protein_number)
         {
             // read one protein
-            result = read_xtc(_xd,_atoms_in_a_protein,&step,&time,box,_atoms_vector,&prec);
+            result = read_xtc(_xd,_atoms_in_a_protein,&step,&time,box,_atoms_vector.get(),&prec);
 
             if (step == 1) //first iteration
             {
@@ -157,9 +159,9 @@ std::pair<size_t, size_t> ProteinDatabase::generate_elements(size_t from, size_t
                     assert(_proteins.size() == _last_protein_id + 1);
 
                     for (int atom_number(0); atom_number < _atoms_in_a_protein; ++atom_number)
-                        _proteins[_last_protein_id][atom_number] = Coord3d(_atoms_vector[atom_number][0],
-                                                                           _atoms_vector[atom_number][1],
-                                                                           _atoms_vector[atom_number][2]);
+                        _proteins[_last_protein_id][atom_number] = Coord3d(_atoms_vector.get()[atom_number][0],
+                                                                           _atoms_vector.get()[atom_number][1],
+                                                                           _atoms_vector.get()[atom_number][2]);
                     ++_last_protein_id;
                 }
             }
