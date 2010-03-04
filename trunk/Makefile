@@ -1,5 +1,4 @@
 XDRFILE_INCLUDES= -I/usr/local/include/xdrfile/
-GETOPT_INCLUDES = -I../../libraries/getopt
 
 CLUSTERER_INCLUDES= -Icommon
 
@@ -7,14 +6,23 @@ LDFLAGS+= -L/usr/local/lib
 LDFLAGS+= -lboost_thread-gcc43-mt
 LDFLAGS+= -lboost_system-gcc43-mt
 LDFLAGS+= -lxdrfile
+LDFLAGS+= -lgetopt_pp
 
-CPPFLAGS+= -Icommon -Iserver -I/usr/local/include/xdrfile/ -DMILI_NAMESPACE -I/usr/include/boost-1_38/ -I../../libraries/getopt -Iclient/include
+
+CPPFLAGS+= -Icommon -Iserver -I/usr/local/include/xdrfile/ -DMILI_NAMESPACE -I/usr/include/boost-1_38/ -Iclient/include
 
 ifeq ($(COVER),on)
     CPPFLAGS+=-fprofile-arcs -ftest-coverage -fworking-directory
     LDFLAGS+=-lgcov
 endif
 
+ifneq ($(ROTALIGN),off)
+    CPPFLAGS+=-DROTALIGN
+endif
+
+ifneq ($(PEDANTIC),off)
+    CPPFLAGS+=-pedantic -ansi
+endif
 
 ifeq ($(DEBUG),on)
     CPPFLAGS+=-ggdb3
@@ -50,8 +58,7 @@ OUTPUT_SOURCES = \
 CLUSTERER_SOURCES = \
 	$(JOBS_SOURCES) \
     $(MAIN_SOURCES) \
-    $(OUTPUT_SOURCES) \
-    ../../libraries/getopt/getopt_pp.cpp
+    $(OUTPUT_SOURCES)
 
 
 CLUSTERER_OBJECTS=$(patsubst %.cpp,%.o,$(CLUSTERER_SOURCES))
@@ -62,11 +69,12 @@ APPCLIENTS_CPP_SOURCES = \
 
 CLIENT_CPP_SOURCES = \
             client/clusterer_client.cpp \
-            $(APPCLIENTS_CPP_SOURCES) \
-            ../../libraries/getopt/getopt_pp.cpp
+            $(APPCLIENTS_CPP_SOURCES)
 
 CLIENT_OBJECTS=$(patsubst %.cpp,%.o,$(CLIENT_CPP_SOURCES))
 ###################
+
+all: clusterer clusterer-client
 
 clusterer: $(CLUSTERER_OBJECTS)
 	$(CXX) -o clusterer $^ $(LDFLAGS) -lfud
@@ -75,11 +83,9 @@ clusterer-client: $(CLIENT_OBJECTS)
 	$(CXX) -o clusterer-client $^ $(LDFLAGS) -lfud_client
 
 
-all: clusterer clusterer-client
-
 .PHONY: cleanall cleanobj cleanbackup help
 
-cleanall : cleanobj cleanbackup
+clean : cleanobj cleanbackup
 	rm -f clusterer clusterer-client
 
 cleanobj :
@@ -93,7 +99,7 @@ help:
 	@echo --------------------------------------------------------
 	@echo To compile all modules just type "make"
 	@echo Current possible compilation modules are:
-	@echo $(STANDALONE_TOOLS) clusterer
+	@echo clusterer clusterer-client
 	@echo
 	@echo In order to turn on debugging set the environmental
 	@echo variable DEBUG to on or type "make DEBUG=on <target>"
