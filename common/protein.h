@@ -105,343 +105,330 @@ namespace clusterer
     class Protein
     {
 
-// Rotalign code
+// Rotalign code ------------------------------------------------------------
 
-    #define DIM     3           /* Dimension of vectors     */
+        #define DIM     3           /* Dimension of vectors     */
 
-    typedef float           rvec[DIM];
-    typedef double          dvec[DIM];
-    typedef float           matrix[DIM][DIM];
+        typedef float           rvec[DIM];
+        typedef double          dvec[DIM];
+        typedef float           matrix[DIM][DIM];
 
-    static inline void clear_mat(matrix a)
-    {
-        const float nul=0.0;
-
-        a[0][0] = a[0][1] = a[0][2] = nul;
-        a[1][0] = a[1][1] = a[1][2] = nul;
-        a[2][0] = a[2][1] = a[2][2] = nul;
-    }
-
-    static inline void rotate(double a[][6], size_t i, size_t j, size_t k, size_t l,
-                              double tau, double s)
-    {
-        const double g = a[i][j];
-        const double h = a[k][l];
-
-        a[i][j] = g - s * (h + g * tau);
-        a[k][l] = h + s * (g - h * tau);
-    }
-
-    template <size_t JACOBI_DIM>
-    static void jacobi(double a[][JACOBI_DIM],double d[],double v[][JACOBI_DIM],size_t& nrot)
-    {
-        double b [JACOBI_DIM];
-        double z [JACOBI_DIM];
-
-        for (size_t ip(0); ip < JACOBI_DIM; ++ip)
+        static inline void clear_mat(matrix a)
         {
-            for (size_t iq(0); iq < JACOBI_DIM; ++iq)
-                v[ip][iq] = 0.0;
+            const float nul=0.0;
 
-            v[ip][ip] = 1.0;
+            a[0][0] = a[0][1] = a[0][2] = nul;
+            a[1][0] = a[1][1] = a[1][2] = nul;
+            a[2][0] = a[2][1] = a[2][2] = nul;
         }
 
-        for (size_t ip(0); ip < JACOBI_DIM; ++ip)
+        static inline void rotate(double a[][6], size_t i, size_t j, size_t k, size_t l,
+                                double tau, double s)
         {
-            b[ip] = d[ip] = a[ip][ip];
-            z[ip] = 0.0;
+            const double g = a[i][j];
+            const double h = a[k][l];
+
+            a[i][j] = g - s * (h + g * tau);
+            a[k][l] = h + s * (g - h * tau);
         }
 
-        nrot = 0;
-
-        for (size_t i(1); i <= 50; ++i)
+        template <size_t JACOBI_DIM>
+        static void jacobi(double a[][JACOBI_DIM],double d[],double v[][JACOBI_DIM])
         {
-            double sm(0.0);
+            double b [JACOBI_DIM];
+            double z [JACOBI_DIM];
 
-            for (size_t ip(0); ip < JACOBI_DIM-1; ++ip)
+            for (size_t ip(0); ip < JACOBI_DIM; ++ip)
             {
-                for (size_t iq(ip+1); iq < JACOBI_DIM; ++iq)
-                    sm += fabs(a[ip][iq]);
-            }
+                for (size_t iq(0); iq < JACOBI_DIM; ++iq)
+                    v[ip][iq] = 0.0;
 
-            if (sm == 0.0)
-                return;
-
-            double tresh;
-
-            if (i < 4)
-                tresh = 0.2 * sm / mili::square(JACOBI_DIM);
-            else
-                tresh = 0.0;
-
-            for (size_t ip(0); ip < JACOBI_DIM-1; ++ip)
-            {
-                for (size_t iq(ip+1); iq < JACOBI_DIM; ++iq)
-                {
-                    const double g( 100.0 * fabs( a[ip][iq] ) );
-
-                    const double fabs_d_ip = fabs(d[ip]);
-                    const double fabs_d_iq = fabs(d[iq]);
-
-                    //use mili::is_lossless_sum later
-                    if (i > 4 && fabs_d_ip + g == fabs_d_ip && fabs_d_iq + g == fabs_d_iq )
-                        a[ip][iq] = 0.0;
-                    else if (fabs( a[ip][iq] ) > tresh)
-                    {
-                        double h( d[iq]-d[ip] );
-
-                        double t;
-                        const double fabs_h( fabs(h) );
-
-                        //Idem
-                        if (fabs_h + g == fabs_h)
-                            t = ( a[ip][iq] ) / h;
-                        else
-                        {
-                            const double theta( 0.5 * h / ( a[ip][iq] ) );
-
-                            t = 1.0 / ( fabs(theta) + sqrt( 1.0 + mili::square(theta) ));
-
-                            if (theta < 0.0)
-                                t = -t;
-                        }
-
-                        const double c( 1.0 / sqrt( 1 + mili::square(t) ) );
-                        const double s( t * c);
-                        const double tau( s / (1.0 + c) );
-
-                        h = t * a[ip][iq];
-
-                        z[ip] -= h;
-                        z[iq] += h;
-                        d[ip] -= h;
-                        d[iq] += h;
-
-                        a[ip][iq] = 0.0;
-
-                        for (size_t j(0); j < ip; ++j)
-                            rotate(a,j,ip,j,iq,tau,s);
-
-                        for (size_t j(ip+1); j < iq; ++j)
-                            rotate(a,ip,j,j,iq,tau,s);
-
-                        for (size_t j(iq+1); j < JACOBI_DIM; ++j)
-                            rotate(a,ip,j,iq,j,tau,s);
-
-                        for (size_t j(0); j < JACOBI_DIM; ++j)
-                            rotate(v,j,ip,j,iq,tau,s);
-
-                        ++nrot;
-                    }
-                }
+                v[ip][ip] = 1.0;
             }
 
             for (size_t ip(0); ip < JACOBI_DIM; ++ip)
             {
-                b[ip] +=  z[ip];
-                d[ip]  =  b[ip];
-                z[ip]  =  0.0;
+                b[ip] = d[ip] = a[ip][ip];
+                z[ip] = 0.0;
             }
-        }
-    }
 
-
-    inline void oprod(const rvec a,const rvec b,rvec c)
-    {
-        c[0] = a[1]*b[2]-a[2]*b[1];
-        c[1] = a[2]*b[0]-a[0]*b[2];
-        c[2] = a[0]*b[1]-a[1]*b[0];
-    }
-
-
-    inline void calc_fit_R(int natoms,float *w_rls,rvec *xp,rvec *x,matrix R)
-    {
-        size_t irot;
-        int    c,r,n,j,i;
-        double d[2*DIM],xnr,xpc;
-        matrix vh,vk,u;
-        float   mn;
-        int    index;
-        float   max_d;
-
-        double omega[2*DIM][2*DIM];
-        double om[2*DIM][2*DIM];
-
-        for(i=0; i<2*DIM; i++)
-        {
-            d[i]=0;
-
-            for(j=0; j<2*DIM; j++)
+            for (size_t i(1); i <= 50; ++i)
             {
-                omega[i][j]=0;
-                om[i][j]=0;
-            }
-        }
+                double sm(0.0);
 
-        /*calculate the matrix U*/
-        clear_mat(u);
-        for(n=0;(n<natoms);n++)
-            if ((mn = w_rls[n]) != 0.0)
-                for(c=0; (c<DIM); c++)
+                for (size_t ip(0); ip < JACOBI_DIM-1; ++ip)
                 {
-                    xpc=xp[n][c];
+                    for (size_t iq(ip+1); iq < JACOBI_DIM; ++iq)
+                        sm += fabs(a[ip][iq]);
+                }
 
-                    for(r=0; (r<DIM); r++)
+                if (sm == 0.0)
+                    return;
+
+                double tresh;
+
+                if (i < 4)
+                    tresh = 0.2 * sm / mili::square(JACOBI_DIM);
+                else
+                    tresh = 0.0;
+
+                for (size_t ip(0); ip < JACOBI_DIM-1; ++ip)
+                {
+                    for (size_t iq(ip+1); iq < JACOBI_DIM; ++iq)
                     {
-                        xnr=x[n][r];
-                        u[c][r]+=mn*xnr*xpc;
+                        const double g( 100.0 * fabs( a[ip][iq] ) );
+
+                        const double fabs_d_ip = fabs(d[ip]);
+                        const double fabs_d_iq = fabs(d[iq]);
+
+                        //use mili::is_lossless_sum later
+                        if (i > 4 && fabs_d_ip + g == fabs_d_ip && fabs_d_iq + g == fabs_d_iq )
+                            a[ip][iq] = 0.0;
+                        else if (fabs( a[ip][iq] ) > tresh)
+                        {
+                            double h( d[iq]-d[ip] );
+
+                            double t;
+                            const double fabs_h( fabs(h) );
+
+                            //Idem
+                            if (fabs_h + g == fabs_h)
+                                t = ( a[ip][iq] ) / h;
+                            else
+                            {
+                                const double theta( 0.5 * h / ( a[ip][iq] ) );
+
+                                t = 1.0 / ( fabs(theta) + sqrt( 1.0 + mili::square(theta) ));
+
+                                if (theta < 0.0)
+                                    t = -t;
+                            }
+
+                            const double c( 1.0 / sqrt( 1 + mili::square(t) ) );
+                            const double s( t * c);
+                            const double tau( s / (1.0 + c) );
+
+                            h = t * a[ip][iq];
+
+                            z[ip] -= h;
+                            z[iq] += h;
+                            d[ip] -= h;
+                            d[iq] += h;
+
+                            a[ip][iq] = 0.0;
+
+                            for (size_t j(0); j < ip; ++j)
+                                rotate(a,j,ip,j,iq,tau,s);
+
+                            for (size_t j(ip+1); j < iq; ++j)
+                                rotate(a,ip,j,j,iq,tau,s);
+
+                            for (size_t j(iq+1); j < JACOBI_DIM; ++j)
+                                rotate(a,ip,j,iq,j,tau,s);
+
+                            for (size_t j(0); j < JACOBI_DIM; ++j)
+                                rotate(v,j,ip,j,iq,tau,s);
+
+                        }
                     }
                 }
 
-        /*construct omega*/
-        /*omega is symmetric -> omega==omega' */
-        for(r=0; r<2*DIM; r++)
-            for(c=0; c<=r; c++)
-                if (r>=DIM && c<DIM)
+                for (size_t ip(0); ip < JACOBI_DIM; ++ip)
                 {
-                    omega[r][c]=u[r-DIM][c];
-                    omega[c][r]=u[r-DIM][c];
+                    b[ip] +=  z[ip];
+                    d[ip]  =  b[ip];
+                    z[ip]  =  0.0;
                 }
-                else
-                {
-                    omega[r][c]=0;
-                    omega[c][r]=0;
-                }
-
-        /*determine h and k*/
-        jacobi<2 * DIM>(omega,d,om,irot);
-        /*float   **omega = input matrix a[0..n-1][0..n-1] must be symmetric
-        *int     natoms = number of rows and columns
-        *float      NULL = d[0]..d[n-1] are the eigenvalues of a[][]
-        *float       **v = v[0..n-1][0..n-1] contains the vectors in columns
-        *int      *irot = number of jacobi rotations
-        */
-
-        index=0; /* For the compiler only */
-
-        /* Copy only the first two eigenvectors */
-        for(j=0; j<2; j++)
-        {
-            max_d=-1000;
-
-            for(i=0; i<2*DIM; i++)
-                if (d[i]>max_d)
-                {
-                    max_d=d[i];
-                    index=i;
-                }
-
-            d[index]=-10000;
-
-            for(i=0; i<DIM; i++)
-            {
-                vh[j][i]=M_SQRT2*om[i][index];
-                vk[j][i]=M_SQRT2*om[i+DIM][index];
             }
         }
-        /* Calculate the last eigenvector as the outer-product of the first two.
-        * This insures that the conformation is not mirrored and
-        * prevents problems with completely flat reference structures.
-        */
-        oprod(vh[0],vh[1],vh[2]);
-        oprod(vk[0],vk[1],vk[2]);
 
-        /*determine R*/
-        for(r=0; r<DIM; r++)
-            for(c=0; c<DIM; c++)
-                R[r][c] = vk[0][r]*vh[0][c] +
-                          vk[1][r]*vh[1][c] +
-                          vk[2][r]*vh[2][c];
 
-    }
-
-    inline void do_fit(int natoms,float *w_rls,rvec *xp,rvec *x)
-    {
-        int    j,m,r,c;
-        matrix R;
-        rvec   x_old;
-
-        /* Calculate the rotation matrix R */
-        calc_fit_R(natoms,w_rls,xp,x,R);
-
-        /*rotate X*/
-        for(j=0; j<natoms; j++)
+        inline void oprod(const rvec a,const rvec b,rvec c)
         {
-            for(m=0; m<DIM; m++)
-                x_old[m]=x[j][m];
+            c[0] = a[1]*b[2]-a[2]*b[1];
+            c[1] = a[2]*b[0]-a[0]*b[2];
+            c[2] = a[0]*b[1]-a[1]*b[0];
+        }
 
-            for(r=0; r<DIM; r++)
+
+        inline void calc_fit_R(int natoms,float *w_rls,rvec *xp,rvec *x,matrix R)
+        {
+            const size_t DIM_DOUBLE(2*DIM);
+
+            double d[2* DIM];
+            matrix vh,vk,u;
+            int    index;
+
+            double omega[2*DIM][2*DIM];
+            double om[2*DIM][2*DIM];
+
+            for(size_t i(0); i < DIM_DOUBLE; ++i)
             {
-                x[j][r]=0;
+                d[i] = 0;
 
-                for(c=0; c<DIM; c++)
-                    x[j][r]+=R[r][c]*x_old[c];
+                for(size_t j(0); j < DIM_DOUBLE; ++j)
+                {
+                    omega[i][j] = 0;
+                    om[i][j]    = 0;
+                }
+            }
+
+            /*calculate the matrix U*/
+            clear_mat(u);
+
+            for(int n(0); n < natoms; ++n)
+            {
+                const float mn(w_rls[n]);
+
+                if (mn != 0.0)
+                {
+                    for(size_t c(0); c < DIM; ++c)
+                        for(size_t r(0); r < DIM; ++r)
+                            u[c][r] += mn * x[n][r] * xp[n][c];
+                }
+            }
+
+            /*construct omega*/
+            /*omega is symmetric -> omega==omega' */
+            for(size_t r(0); r < DIM_DOUBLE; ++r)
+            {
+                for(size_t c(0); c <= r; ++c)
+                {
+                    if (r >= DIM && c < DIM)
+                    {
+                        omega[r][c] = u[r - DIM][c];
+                        omega[c][r] = u[r - DIM][c];
+                    }
+                    else
+                    {
+                        omega[r][c] = 0;
+                        omega[c][r] = 0;
+                    }
+                }
+            }
+
+            /*determine h and k*/
+            jacobi<2 * DIM>(omega,d,om);
+            /*float   **omega = input matrix a[0..n-1][0..n-1] must be symmetric
+            *int     natoms = number of rows and columns
+            *float      NULL = d[0]..d[n-1] are the eigenvalues of a[][]
+            *float       **v = v[0..n-1][0..n-1] contains the vectors in columns
+            */
+
+            /* Copy only the first two eigenvectors */
+            for(size_t j(0); j < 2; ++j)
+            {
+                index = 0;
+
+                for(size_t i(1); i < DIM_DOUBLE; ++i)
+                    if ( d[index] < d[i] )
+                        index = i;
+
+                d[index]=-10000;
+
+                for(size_t i(0); i < DIM; ++i)
+                {
+                    vh[j][i] = M_SQRT2 * om[i][index];
+                    vk[j][i] = M_SQRT2 * om[i+DIM][index];
+                }
+            }
+            /* Calculate the last eigenvector as the outer-product of the first two.
+            * This insures that the conformation is not mirrored and
+            * prevents problems with completely flat reference structures.
+            */
+            oprod(vh[0],vh[1],vh[2]);
+            oprod(vk[0],vk[1],vk[2]);
+
+            /*determine R*/
+            for(size_t r(0); r < DIM; ++r)
+                for(size_t c(0); c < DIM; ++c)
+                    R[r][c] = vk[0][r] * vh[0][c] +
+                              vk[1][r] * vh[1][c] +
+                              vk[2][r] * vh[2][c];
+        }
+
+        inline void do_fit(int natoms,float *w_rls,rvec *xp,rvec *x)
+        {
+            matrix R;
+
+            /* Calculate the rotation matrix R */
+            calc_fit_R(natoms,w_rls,xp,x,R);
+
+            /*rotate X*/
+            for(int j(0); j < natoms; ++j) //use int j because natoms is int
+            {
+                rvec x_old;
+
+                for(size_t m(0); m < DIM; ++m)
+                    x_old[m] = x[j][m];
+
+                for(size_t r(0); r<DIM; ++r)
+                {
+                    x[j][r]=0;
+
+                    for(size_t c(0); c < DIM; ++c)
+                        x[j][r]+=R[r][c]*x_old[c];
+                }
             }
         }
-    }
 
-    inline void Coord3D2rvec(const Coord3d& coord3d, rvec rv)
-    {
-        rv[0] = coord3d.x;
-        rv[1] = coord3d.y;
-        rv[2] = coord3d.z;
-    }
-
-
-    inline rvec* structure2rvec_arr(const std::vector<Coord3d>& s)
-    {
-        const size_t ncoords = s.size();
-        rvec* ret = new rvec[ncoords];
-
-        for(size_t i = 0; i < ncoords; ++i)
-            Coord3D2rvec(s[i], ret[i]);
-
-        return ret;
-    }
-
-    inline void rvec2Coord3D(const rvec rv, Coord3d& coord3d)
-    {
-        coord3d.x = rv[0];
-        coord3d.y = rv[1];
-        coord3d.z = rv[2];
-    }
-
-    inline void rotalign_to(const std::vector<Coord3d>& reference)
-    {
-        assert( atoms() == reference.size() );
-
-        const size_t NCOORDS = atoms();
-
-        rvec *const vt = structure2rvec_arr(_atom_vector);
-        rvec *const vr = structure2rvec_arr(reference);
-
-        float *const rls = new float[NCOORDS];
-
-        size_t i;
-
-        for(i=0; i<NCOORDS; ++i)
-            rls[i] = 1.0;
-
-        do_fit(NCOORDS, rls, vr, vt);
-
-        for(i=0; i<NCOORDS; ++i)
+        inline void Coord3D2rvec(const Coord3d& coord3d, rvec rv)
         {
-            Coord3d c;
-            rvec2Coord3D(vt[i], c);
-
-            _atom_vector[i] = c;
+            rv[0] = coord3d.x;
+            rv[1] = coord3d.y;
+            rv[2] = coord3d.z;
         }
 
-        delete [] vt;
-        delete [] vr;
-        delete [] rls;
-    }
 
-// ~Rotalign code
+        inline rvec* structure2rvec_arr(const std::vector<Coord3d>& s)
+        {
+            const size_t ncoords = s.size();
+            rvec* ret = new rvec[ncoords];
+
+            for(size_t i = 0; i < ncoords; ++i)
+                Coord3D2rvec(s[i], ret[i]);
+
+            return ret;
+        }
+
+        inline void rvec2Coord3D(const rvec rv, Coord3d& coord3d)
+        {
+            coord3d.x = rv[0];
+            coord3d.y = rv[1];
+            coord3d.z = rv[2];
+        }
+
+        inline void rotalign_to(const std::vector<Coord3d>& reference)
+        {
+            assert( atoms() == reference.size() );
+
+            const size_t NCOORDS = atoms();
+
+            rvec *const vt = structure2rvec_arr(_atom_vector);
+            rvec *const vr = structure2rvec_arr(reference);
+
+            float *const rls = new float[NCOORDS];
+
+            size_t i;
+
+            for(i=0; i<NCOORDS; ++i)
+                rls[i] = 1.0;
+
+            do_fit(NCOORDS, rls, vr, vt);
+
+            for(i=0; i<NCOORDS; ++i)
+                rvec2Coord3D(vt[i],_atom_vector[i]);
+
+            delete [] vt;
+            delete [] vr;
+            delete [] rls;
+        }
+
+// ~Rotalign code ------------------------------------------------------------
 
         friend class ProteinRefWithClusterID; //herein lie monsters
 
-        public: // public methods of class Protein
+        public: // of class Protein
 
             inline Protein() :    // shouldn't use this constructor
                 _atom_vector(0),
@@ -517,6 +504,7 @@ namespace clusterer
 
             friend inline mili::bostream& operator<< (mili::bostream& bos, const Protein& protein);
             friend inline mili::bistream& operator>> (mili::bistream& bis, Protein& protein);
+
 
             inline Coord3d& operator[](size_t index)
             {
