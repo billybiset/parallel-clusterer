@@ -40,6 +40,10 @@ ifeq ($(EFFECTIVE),on)
 endif
 
 #########Sources###############################################
+
+COMMON_SOURCES = \
+    common/protein.cpp
+
 MAIN_SOURCES = \
     server/protein_database.cpp \
     server/cluster.cpp \
@@ -57,6 +61,7 @@ OUTPUT_SOURCES = \
 
 CLUSTERER_SOURCES = \
 	$(JOBS_SOURCES) \
+    $(COMMON_SOURCES) \
     $(MAIN_SOURCES) \
     $(OUTPUT_SOURCES)
 
@@ -69,6 +74,7 @@ APPCLIENTS_CPP_SOURCES = \
 
 CLIENT_CPP_SOURCES = \
             client/clusterer_client.cpp \
+            $(COMMON_SOURCES) \
             $(APPCLIENTS_CPP_SOURCES)
 
 CLIENT_OBJECTS=$(patsubst %.cpp,%.o,$(CLIENT_CPP_SOURCES))
