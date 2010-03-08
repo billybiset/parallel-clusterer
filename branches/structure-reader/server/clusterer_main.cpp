@@ -4,7 +4,7 @@
  *
  * FDC: FuDePAN Distributed Clusterer
  * <http://fud.googlecode.com/>
- * Copyright (C) 2009 Guillermo Biset, FuDePAN
+ * Copyright (C) 2009,2010 Guillermo Biset, FuDePAN
  *
  * This file is part of the FuD project.
  *
@@ -53,7 +53,7 @@
  *
  *
  * The projects' webpage is located at
- * <A HREF="http://fud.googlecode.com"> GoogleCode </A>
+ * <A HREF="http://parallel-clusterer.googlecode.com"> GoogleCode </A>
  *
  * <hr>
  * @section notes release.notes
@@ -76,6 +76,8 @@
 #include <iomanip>
 
 #include "getopt_pp.h"
+
+#include "xtc_reader.h"
 #include "protein_database.h"
 
 #include "jobs/representatives_job.h"
@@ -140,7 +142,9 @@ int main(int argc, char** argv)
             {
                 ClustererOutput output(options);
 
-                ProteinDatabase* db = new ProteinDatabase( input_file.c_str() );
+                StructureReader* reader = new XtcReader( input_file.c_str() );
+
+                ProteinDatabase* db = new ProteinDatabase( reader );
 
                 std::vector<Cluster> clusters;
 
