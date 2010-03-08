@@ -44,7 +44,7 @@ extern "C"
 
 namespace clusterer
 {
-    class XtcReader : StructureReader
+    class XtcReader : public StructureReader
     {
         public:
             XtcReader(const char* file_name) throw (const char*);
