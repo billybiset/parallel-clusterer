@@ -33,61 +33,34 @@
  */
 
 #include <syslog.h>
-#include <memory>
 
 #include "protein_database.h"
+#include "structure_reader.h"
 #include "protein.h"
 
 using namespace clusterer;
 
 ProteinID ProteinDatabase::_last_protein_id = 0;
 
-extern "C"
-{
-    #include "xdrfile_xtc.h"
-}
-
-ProteinDatabase::ProteinDatabase(char const *file_name) throw (const char*) :
-    _finished_reading(false),
+ProteinDatabase::ProteinDatabase(StructureReader* reader) throw (const char*) :
     _proteins(),
-    _atoms_in_a_protein(),
-    _box(),
-    _precision(1000.0)
+    _reader(reader)
 {
-    // You can't always get what you want...
-    std::string str(file_name);
-    char *fname = new char[str.size() + 1];
-    strcpy(fname,str.c_str());
-    // ...(RS)
-
-    int result;
-
-    result = read_xtc_natoms(fname,&_atoms_in_a_protein);
-
-    if (exdrOK != result)
-        throw( "Error initializing database. Wrong filename?");
-    else
-        syslog(LOG_NOTICE,"Read %d atoms from file.",_atoms_in_a_protein);
-
-    _xd = xdrfile_open(fname,"r");
-
-    if (NULL == _xd)
-        throw("Error opening file." );
 }
 
 size_t ProteinDatabase::get_atom_number() const
 {
-    return _atoms_in_a_protein;
+    return _reader->get_atom_number();
 }
 
-std::vector<float>& ProteinDatabase::get_box()
+std::vector<float> ProteinDatabase::get_box() const
 {
-    return _box;
+    return _reader->get_box();
 }
 
 float ProteinDatabase::get_precision() const
 {
-    return _precision;
+    return _reader->get_precision();
 }
 
 IteratorRange ProteinDatabase::get_iterator_pair(size_t begin, size_t end)
@@ -103,7 +76,7 @@ Protein& ProteinDatabase::operator[](ProteinID id)
 
 bool ProteinDatabase::finished_reading() const
 {
-    return _finished_reading;
+    return _reader->finished_reading();
 }
 
 size_t ProteinDatabase::size() const
@@ -115,63 +88,26 @@ std::pair<size_t, size_t> ProteinDatabase::generate_elements(size_t from, size_t
 {
     size_t end;
 
-    if (_finished_reading)
-    {
-        if (from + size > _proteins.size() - 1)
-            end =  _proteins.size() - 1;
-        else
-            end = from + size;
-    }
+    if (_reader->finished_reading())
+        end = std::min(from + size, _proteins.size() - 1);
     else
     {
-        std::auto_ptr<rvec> _atoms_vector(new rvec[ _atoms_in_a_protein ] );
-
-        int    result;
-        int    step;
-        float  time;
-        matrix box;
-        float  prec;
-
         size_t protein_number;
 
-        for (protein_number = 0; protein_number < size && !_finished_reading; ++protein_number)
+        for (protein_number = 0; protein_number < size && !_reader->finished_reading(); ++protein_number)
         {
-            // read one protein
-            result = read_xtc(_xd,_atoms_in_a_protein,&step,&time,box,_atoms_vector.get(),&prec);
+           // read one protein
+            _proteins.push_back( Protein(_last_protein_id, _reader->get_atom_number() ));
 
-            if (step == 1) //first iteration
-            {
-                _precision = prec;
+            _reader->read_structure( _proteins[_last_protein_id] );
 
-                //DIM is defined in xdrfile.h (should be 3)
-                for (size_t i(0); i < DIM; ++i)
-                    for (size_t j(0); j < DIM; ++j)
-                        _box.push_back(box[i][j]);
-            }
-
-            if (exdrENDOFFILE != result)
-            {
-                if (exdrOK != result)
-                    syslog(LOG_NOTICE,"ERROR: read_xtc %d",result);
-                else
-                {
-                    _proteins.push_back(Protein(_last_protein_id, _atoms_in_a_protein));
-                    assert(_proteins.size() == _last_protein_id + 1);
-
-                    for (int atom_number(0); atom_number < _atoms_in_a_protein; ++atom_number)
-                        _proteins[_last_protein_id][atom_number] = Coord3d(_atoms_vector.get()[atom_number][0],
-                                                                           _atoms_vector.get()[atom_number][1],
-                                                                           _atoms_vector.get()[atom_number][2]);
-                    ++_last_protein_id;
-                }
-            }
-            else
-                _finished_reading = true;
+            ++_last_protein_id;
         }
-        if (_finished_reading)
-            end = from + (protein_number - 1);
-        else
-            end = from + protein_number;
+
+        end = from + protein_number;
+
+        if ( _reader->finished_reading() )
+            --end;
     }
 
     return std::pair<size_t,size_t>(from,end);
