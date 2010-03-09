@@ -31,6 +31,8 @@
  *
  */
 
+#include <memory>
+
 #include "structure_reader.h"
 
 extern "C"
@@ -53,7 +55,7 @@ namespace clusterer
             //Inherited methods from StructureReader:
             virtual void   read_structure(Protein& protein);
 
-            virtual std::vector<float> get_box() const;
+            virtual float* get_box();
 
             virtual size_t get_atom_number()  const;
             virtual float  get_precision()    const;
@@ -63,7 +65,7 @@ namespace clusterer
             bool                     _finished_reading;
             XDRFILE*                 _xd;
             int                      _atoms_in_a_protein;
-            std::vector<float>       _box;
+            matrix                   _box;
             float                    _precision;
     };
 }
