@@ -50,7 +50,7 @@ namespace clusterer
 
             size_t             get_atom_number()  const;
 
-            std::vector<float> get_box()          const;
+            float*             get_box();
 
             float              get_precision()    const;
 

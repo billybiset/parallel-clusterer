@@ -49,7 +49,7 @@ namespace clusterer
     class XtcOutput
     {
         public:
-            XtcOutput(const char* file_name, std::vector<float> box, float prec) throw(const char*);
+            XtcOutput(const char* file_name, float* box, float prec) throw(const char*);
 
             void add(const Protein& protein);
             void add(const std::vector<Coord3d>& backbone);

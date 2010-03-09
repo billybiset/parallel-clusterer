@@ -81,21 +81,13 @@ void XtcReader::read_structure(Protein& protein)
     int    result;
     int    step;
     float  time;
-    matrix box;
     float  prec;
 
     // read one protein
-    result = read_xtc(_xd,_atoms_in_a_protein,&step,&time,box,_atoms_vector.get(),&prec);
+    result = read_xtc(_xd,_atoms_in_a_protein,&step,&time,_box,_atoms_vector.get(),&prec);
 
     if (step == 1) //first iteration
-    {
         _precision = prec;
-
-        //DIM is defined in xdrfile.h (should be 3)
-        for (size_t i(0); i < DIM; ++i)
-            for (size_t j(0); j < DIM; ++j)
-                _box.push_back(box[i][j]);
-    }
 
     if (exdrENDOFFILE != result)
     {
@@ -113,9 +105,9 @@ void XtcReader::read_structure(Protein& protein)
         _finished_reading = true;
 }
 
-std::vector<float> XtcReader::get_box() const
+float* XtcReader::get_box()
 {
-    return _box;
+    return &(_box[0][0]);
 }
 
 size_t XtcReader::get_atom_number()  const

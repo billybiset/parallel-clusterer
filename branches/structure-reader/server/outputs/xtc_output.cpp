@@ -42,7 +42,7 @@ extern "C"
 
 using namespace clusterer;
 
-XtcOutput::XtcOutput(const char* file_name, std::vector<float> box, float prec) throw(const char*) :
+XtcOutput::XtcOutput(const char* file_name, float* box, float prec) throw(const char*) :
     _TIME_START(1.0f),
     _TIME_STEP(1.0f),
     _step(1),
@@ -54,10 +54,9 @@ XtcOutput::XtcOutput(const char* file_name, std::vector<float> box, float prec) 
     if (NULL == _xdr_file)
         throw("Error opening file for writing." );
 
-    //const int DIM is defined in xdrfile.h (should be 3)
-    for (int i(0); i < DIM; ++i)
-        for (int j(0); j < DIM; ++j)
-            _matrix[i][j] = box[i*DIM + j];
+    //avoid size_t because mili::square deduces int
+    for (int i(0); i < mili::square(DIM); ++i)
+        _matrix[i / DIM][i % DIM] = box[i];
 }
 
 void XtcOutput::add(const Protein& protein)

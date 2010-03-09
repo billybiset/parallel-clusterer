@@ -53,7 +53,7 @@ size_t ProteinDatabase::get_atom_number() const
     return _reader->get_atom_number();
 }
 
-std::vector<float> ProteinDatabase::get_box() const
+float* ProteinDatabase::get_box()
 {
     return _reader->get_box();
 }

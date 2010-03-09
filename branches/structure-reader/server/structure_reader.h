@@ -45,7 +45,7 @@ namespace clusterer
         public:
             virtual void read_structure(Protein& protein) = 0;
 
-            virtual std::vector<float> get_box() const = 0;
+            virtual float* get_box()                = 0;
 
             virtual size_t get_atom_number()  const = 0;
             virtual float  get_precision()    const = 0;
