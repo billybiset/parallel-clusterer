@@ -1,15 +1,14 @@
 /**
- * \file  xtc_output.h
- * \brief Definition of XtcOutput class.
+ * \file  structure_reader.h
+ * \brief Definition of StructureReader class.
  *
  * FDC: FuDePAN Distributed Clusterer
  * <http://fud.googlecode.com/>
- * Copyright (C) 2009 Guillermo Biset, FuDePAN
+ * Copyright (C) 2010 Guillermo Biset, FuDePAN
  *
- * This file is part of the FuD project.
+ * This file is part of the FDC project.
  *
- * Contents:       Header file for FDC providing class XtcOutput.
- *                 To generate output to GROMACS' .xtc files.
+ * Contents:       Header file for FDC providing class StructureReader.
  *
  * System:         FDC
  * Language:       C++
@@ -32,41 +31,25 @@
  *
  */
 
-#ifndef XTC_OUTPUT_H
-#define XTC_OUTPUT_H
-
 #include <vector>
 
 #include "protein.h"
 
-extern "C"
-{
-    #include "xdrfile.h"
-}
+#ifndef STRUCTURE_READER_H
+#define STRUCTURE_READER_H
 
 namespace clusterer
 {
-    class XtcOutput
+    class StructureReader
     {
         public:
-            XtcOutput(const char* file_name, float* box, float prec) throw(const char*);
+            virtual void read_structure(Protein& protein) = 0;
 
-            void add(const Protein& protein);
-            void add(const std::vector<Coord3d>& backbone);
+            virtual float* get_box()                = 0;
 
-            void finish();
-
-        private:
-            void take_step();
-
-            const float _TIME_START;
-            const float _TIME_STEP;
-
-            XDRFILE* _xdr_file;
-            int      _step;
-            float    _time;
-            matrix   _matrix;
-            float    _precision;
+            virtual size_t get_atom_number()  const = 0;
+            virtual float  get_precision()    const = 0;
+            virtual bool   finished_reading() const = 0;
     };
 }
 

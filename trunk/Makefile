@@ -45,6 +45,7 @@ COMMON_SOURCES = \
     common/protein.cpp
 
 MAIN_SOURCES = \
+    server/xtc_reader.cpp \
     server/protein_database.cpp \
     server/cluster.cpp \
     server/clusterer_output.cpp \

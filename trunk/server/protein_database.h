@@ -34,13 +34,9 @@
 #ifndef PROTEIN_DATABASE_H
 #define PROTEIN_DATABASE_H
 
-extern "C"
-{
-    #include "xdrfile.h"
-}
-
 #include "protein.h"
 #include "cluster.h"
+#include "structure_reader.h"
 
 namespace clusterer
 {
@@ -50,17 +46,17 @@ namespace clusterer
     class ProteinDatabase
     {
         public:
-            ProteinDatabase(const char* file_name) throw (const char*);
+            ProteinDatabase(StructureReader* reader) throw (const char*);
 
-            size_t get_atom_number() const;
+            size_t             get_atom_number()  const;
 
-            std::vector<float>& get_box();
+            float*             get_box();
 
-            float  get_precision() const;
+            float              get_precision()    const;
 
-            bool   finished_reading() const;
+            bool               finished_reading() const;
 
-            size_t size() const;
+            size_t             size()             const;
 
             std::pair<size_t, size_t> generate_elements(size_t from, size_t size);
 
@@ -69,12 +65,8 @@ namespace clusterer
             Protein& operator[](ProteinID id);
 
         private:
-            bool                     _finished_reading;
             std::vector<Protein>     _proteins;
-            XDRFILE*                 _xd;
-            int                      _atoms_in_a_protein;
-            std::vector<float>       _box;
-            float                    _precision;
+            StructureReader* const   _reader;
 
             static ProteinID         _last_protein_id;
     };
