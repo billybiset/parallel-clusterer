@@ -40,16 +40,15 @@
 
 namespace clusterer
 {
-    class StructureReader
+    struct StructureReader
     {
-        public:
-            virtual void read_structure(Protein& protein) = 0;
+        virtual void   read_structure(Protein& protein) = 0;
 
-            virtual float* get_box()                = 0;
+        virtual float* get_box()                        = 0;
 
-            virtual size_t get_atom_number()  const = 0;
-            virtual float  get_precision()    const = 0;
-            virtual bool   finished_reading() const = 0;
+        virtual size_t get_atom_number()          const = 0;
+        virtual float  get_precision()            const = 0;
+        virtual bool   finished_reading()         const = 0;
     };
 }
 
