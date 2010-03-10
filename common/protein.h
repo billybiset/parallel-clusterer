@@ -69,7 +69,7 @@ namespace clusterer
 
         //Type definitions:
 
-        #define DIM     3           /* Dimension of vectors     */
+        #define DIM     3       /* Dimension of vectors     */
 
         typedef float           rvec[DIM];
         typedef double          dvec[DIM];
@@ -77,11 +77,19 @@ namespace clusterer
 
         //Simple functions:
 
-        void clear_mat(matrix a);
+        inline void clear_mat(matrix a);
 
-        void oprod(const rvec a,const rvec b,rvec c);
+        inline void oprod(const rvec a,const rvec b,rvec c);
 
-        void rotate(double a[][6], size_t i, size_t j, size_t k, size_t l, double tau, double s);
+        inline void rotate(double a[][6], size_t i, size_t j, size_t k, size_t l, double tau, double s);
+
+        // Cast functions:
+
+        inline void Coord3D2rvec(const Coord3d& coord3d, rvec rv);
+
+        inline rvec* structure2rvec_arr(const std::vector<Coord3d>& s);
+
+        inline void rvec2Coord3D(const rvec rv, Coord3d& coord3d);
 
         //Rotation implementation functions:
 
@@ -93,14 +101,6 @@ namespace clusterer
         void do_fit(int natoms,float *w_rls,rvec *xp,rvec *x);
 
         void rotalign_to(const std::vector<Coord3d>& reference);
-
-        // Cast functions:
-
-        void Coord3D2rvec(const Coord3d& coord3d, rvec rv);
-
-        rvec* structure2rvec_arr(const std::vector<Coord3d>& s);
-
-        void rvec2Coord3D(const rvec rv, Coord3d& coord3d);
 
         // ~Rotalign code ------------------------------------------------------------
 
@@ -159,7 +159,6 @@ namespace clusterer
             friend inline mili::bostream& operator<< (mili::bostream& bos, const Protein& protein);
             friend inline mili::bistream& operator>> (mili::bistream& bis, Protein& protein);
 
-
             inline Coord3d& operator[](size_t index)
             {
                 return _atom_vector[index];
@@ -201,31 +200,10 @@ namespace clusterer
             ProteinID                   _id; //Used to id the cluster it belongs to
     };
 
-    inline mili::bostream& operator<< (mili::bostream& bos, const ProteinRefWithClusterID& protein)
-    {
-        bos << protein._id << protein._vec;
-
-        return bos;
-    }
-
-
-    inline mili::bostream& operator<< (mili::bostream& bos, const Protein& protein)
-    {
-        bos << protein._id << protein._atom_vector;
-
-        return bos;
-    }
-
-    inline mili::bistream& operator>> (mili::bistream& bis, Protein& protein)
-    {
-        std::vector<Coord3d> v;
-        ProteinID id;
-        bis >> id;
-        bis >> v;
-        protein = Protein(v,id);
-
-        return bis;
-    }
+    //To have cleaner code, inline functions are here
+    #define PROTEIN_INLINE_H
+    #include "protein_inline.h"
+    #undef PROTEIN_INLINE_H
 }
 
 #endif
