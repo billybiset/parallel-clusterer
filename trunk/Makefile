@@ -9,7 +9,7 @@ LDFLAGS+= -lxdrfile
 LDFLAGS+= -lgetopt_pp
 
 
-CPPFLAGS+= -Icommon -Iserver -I/usr/local/include/xdrfile/ -DMILI_NAMESPACE -DNO_COROUTINES -I/usr/include/boost-1_38/ -Iclient/include
+CPPFLAGS+= -Icommon -Iserver -I/usr/local/include/xdrfile/ -DMILI_NAMESPACE -I/usr/include/boost-1_38/ -Iclient/include
 
 ifeq ($(COVER),on)
     CPPFLAGS+=-fprofile-arcs -ftest-coverage -fworking-directory
