@@ -39,10 +39,6 @@
 
 #include <syslog.h>
 
-extern "C"
-{
-    #include "xdrfile.h"
-}
 
 #include "mili/mili.h"
 #include "centers_job.h"
