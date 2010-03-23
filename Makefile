@@ -7,7 +7,7 @@ LDFLAGS+= -lboost_thread-gcc43-mt
 LDFLAGS+= -lboost_system-gcc43-mt
 LDFLAGS+= -lxdrfile
 LDFLAGS+= -lgetopt_pp
-
+LDFLAGS+= -lprot-filer
 
 CPPFLAGS+= -Icommon -Iserver -I/usr/local/include/xdrfile/ -DMILI_NAMESPACE -I/usr/include/boost-1_38/ -Iclient/include
 

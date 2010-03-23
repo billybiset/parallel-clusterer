@@ -36,7 +36,7 @@
 
 #include "protein.h"
 #include "cluster.h"
-#include "structure_reader.h"
+#include "prot-filer/format_filer.h"
 
 namespace clusterer
 {
@@ -46,11 +46,11 @@ namespace clusterer
     class ProteinDatabase
     {
         public:
-            ProteinDatabase(StructureReader* reader) throw (const char*);
+            ProteinDatabase(FormatFiler* reader) throw (const char*);
 
             size_t             get_atom_number()  const;
 
-            float*             get_box();
+            const float*       get_box();
 
             float              get_precision()    const;
 
@@ -66,7 +66,7 @@ namespace clusterer
 
         private:
             std::vector<Protein>     _proteins;
-            StructureReader* const   _reader;
+            FormatFiler * const      _reader;
 
             static ProteinID         _last_protein_id;
     };
