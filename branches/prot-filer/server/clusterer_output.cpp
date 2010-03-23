@@ -36,7 +36,6 @@
 #include <algorithm>
 
 #include "clusterer_output.h"
-#include "outputs/xtc_output.h"
 #include "prot-filer/format_filer.h"
 static const string output_format = "xtc_default";
 

@@ -1,15 +1,15 @@
-XDRFILE_INCLUDES= -I/usr/local/include/xdrfile/
+#XDRFILE_INCLUDES= -I/usr/local/include/xdrfile/
 
 CLUSTERER_INCLUDES= -Icommon
 
 LDFLAGS+= -L/usr/local/lib
 LDFLAGS+= -lboost_thread-gcc43-mt
 LDFLAGS+= -lboost_system-gcc43-mt
-LDFLAGS+= -lxdrfile
+#LDFLAGS+= -lxdrfile
 LDFLAGS+= -lgetopt_pp
 LDFLAGS+= -lprot-filer
 
-CPPFLAGS+= -Icommon -Iserver -I/usr/local/include/xdrfile/ -DMILI_NAMESPACE -I/usr/include/boost-1_38/ -Iclient/include
+CPPFLAGS+= -Icommon -Iserver -DMILI_NAMESPACE -I/usr/include/boost-1_38/ -Iclient/include
 
 ifeq ($(COVER),on)
     CPPFLAGS+=-fprofile-arcs -ftest-coverage -fworking-directory
@@ -45,7 +45,6 @@ COMMON_SOURCES = \
     common/protein.cpp
 
 MAIN_SOURCES = \
-    server/xtc_reader.cpp \
     server/protein_database.cpp \
     server/cluster.cpp \
     server/clusterer_output.cpp \
@@ -57,14 +56,11 @@ JOBS_SOURCES = \
 	server/jobs/clusters_job.cpp \
 	server/jobs/representatives_job.cpp 
 
-OUTPUT_SOURCES = \
-	server/outputs/xtc_output.cpp
 
 CLUSTERER_SOURCES = \
 	$(JOBS_SOURCES) \
     $(COMMON_SOURCES) \
-    $(MAIN_SOURCES) \
-    $(OUTPUT_SOURCES)
+    $(MAIN_SOURCES) 
 
 
 CLUSTERER_OBJECTS=$(patsubst %.cpp,%.o,$(CLUSTERER_SOURCES))

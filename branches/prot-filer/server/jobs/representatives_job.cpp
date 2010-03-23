@@ -3,10 +3,6 @@
 
 #include <syslog.h>
 
-extern "C"
-{
-    #include "xdrfile.h"
-}
 
 #include "mili/mili.h"
 #include "representatives_job.h"
