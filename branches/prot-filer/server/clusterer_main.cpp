@@ -77,7 +77,6 @@
 
 #include "getopt_pp.h"
 
-#include "xtc_reader.h"
 #include "protein_database.h"
 
 #include "jobs/representatives_job.h"
@@ -94,7 +93,7 @@ using namespace clusterer;
 const size_t DEFAULT_PORT   = 31337;
 const float  DEFAULT_CUTOFF = 0.15;
 
-
+const static string input_format = "xtc_default";
 void show_help()
 {
     std::cout << "Valid options are:\n"
@@ -142,7 +141,8 @@ int main(int argc, char** argv)
             {
                 ClustererOutput output(options);
 
-                StructureReader* reader = new XtcReader( input_file.c_str() );
+                FormatFiler* reader = FilerFactory::get_instance()->create(input_format);
+                reader->open_read( input_file );
 
                 ProteinDatabase* db = new ProteinDatabase( reader );
 
@@ -179,6 +179,7 @@ int main(int argc, char** argv)
                 last_addition->wait_completion();
 
                 output.output_results(*db,clusters,cutoff);
+                FilerFactory::destroy_instance();
             }
             catch(const char* msg)
             {

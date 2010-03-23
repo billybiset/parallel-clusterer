@@ -35,14 +35,14 @@
 #include <syslog.h>
 
 #include "protein_database.h"
-#include "structure_reader.h"
+#include "prot-filer/format_filer.h"
 #include "protein.h"
 
 using namespace clusterer;
 
 ProteinID ProteinDatabase::_last_protein_id = 0;
 
-ProteinDatabase::ProteinDatabase(StructureReader* reader) throw (const char*) :
+ProteinDatabase::ProteinDatabase(FormatFiler* reader) throw (const char*) :
     _proteins(),
     _reader(reader)
 {
@@ -53,7 +53,7 @@ size_t ProteinDatabase::get_atom_number() const
     return _reader->get_atom_number();
 }
 
-float* ProteinDatabase::get_box()
+const float* ProteinDatabase::get_box()
 {
     return _reader->get_box();
 }
@@ -99,7 +99,7 @@ std::pair<size_t, size_t> ProteinDatabase::generate_elements(size_t from, size_t
            // read one protein
             _proteins.push_back( Protein(_last_protein_id, _reader->get_atom_number() ));
 
-            _reader->read_structure( _proteins[_last_protein_id] );
+            _reader->read( _proteins[_last_protein_id] );
 
             ++_last_protein_id;
         }

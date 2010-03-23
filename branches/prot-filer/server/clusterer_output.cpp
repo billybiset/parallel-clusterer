@@ -37,6 +37,8 @@
 
 #include "clusterer_output.h"
 #include "outputs/xtc_output.h"
+#include "prot-filer/format_filer.h"
+static const string output_format = "xtc_default";
 
 using namespace GetOpt;
 using namespace clusterer;
@@ -91,22 +93,29 @@ void ClustererOutput::output_results(ProteinDatabase& protein_db,std::vector<Clu
 
 void ClustererOutput::output_centers(ProteinDatabase& protein_db,std::vector<Cluster>& clusters)
 {
-    XtcOutput output(_centers_file_name.c_str(),protein_db.get_box(),protein_db.get_precision());
+    FormatFiler * output = FilerFactory::get_instance()->create(output_format); 
+    
+    output->open_write(_centers_file_name,protein_db.get_box(),protein_db.get_precision());
 
     for(size_t cluster(0); cluster < clusters.size(); ++cluster)
-        output.add( protein_db[ clusters[cluster].representative() ] );
+        output->write( protein_db[ clusters[cluster].representative() ] );
 
-    output.finish();
+    output->close();
+    delete output;
+    FilerFactory::destroy_instance();
 }
 
 void ClustererOutput::output_geocenters(ProteinDatabase& protein_db,std::vector<Cluster>& clusters)
 {
-    XtcOutput output(_geocenters_file_name.c_str(),protein_db.get_box(),protein_db.get_precision());
+    FormatFiler * output = FilerFactory::get_instance()->create(output_format);
+    output->open_write(_geocenters_file_name,protein_db.get_box(),protein_db.get_precision());
 
     for(size_t cluster(0); cluster < clusters.size(); ++cluster)
-        output.add( clusters[cluster].geometric_mean() );
+        output->write( clusters[cluster].geometric_mean() );
 
-    output.finish();
+    output->close();
+    delete output;
+    FilerFactory::destroy_instance();
 }
 
 void ClustererOutput::output_clusters(ProteinDatabase& protein_db, std::vector<Cluster>& clusters)
@@ -116,9 +125,10 @@ void ClustererOutput::output_clusters(ProteinDatabase& protein_db, std::vector<C
         std::stringstream file_name;
         file_name << _clusters_file_name << '_' << cluster << ".xtc";
 
-        XtcOutput output(file_name.str().c_str(),protein_db.get_box(),protein_db.get_precision());
+        FormatFiler * output = FilerFactory::get_instance()->create(output_format); 
+        output->open_write(file_name.str(),protein_db.get_box(),protein_db.get_precision());
 
-        output.add( protein_db[ clusters[cluster].representative() ]);
+        output->write( protein_db[ clusters[cluster].representative() ]);
 
         const std::vector<ProteinID>& members( clusters[ cluster ].members() );
 
@@ -127,9 +137,12 @@ void ClustererOutput::output_clusters(ProteinDatabase& protein_db, std::vector<C
             if (should_rotalign_clusters())
                 protein_db[ members[protein] ].rotalign_to( protein_db[ clusters[cluster].representative() ] );
 
-            output.add( protein_db[ members[protein] ] );
+            output->write( protein_db[ members[protein] ] );
         }
+        output->close();
+        delete output;
     }
+    FilerFactory::destroy_instance();
 }
 
 void ClustererOutput::output_text(std::vector<Cluster>& clusters)
