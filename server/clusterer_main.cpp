@@ -93,7 +93,7 @@ using namespace clusterer;
 const size_t DEFAULT_PORT   = 31337;
 const float  DEFAULT_CUTOFF = 0.15;
 
-const static string input_format = "xtc_default";
+const static string default_input_format = "xtc";
 void show_help()
 {
     std::cout << "Valid options are:\n"
@@ -107,6 +107,7 @@ void show_help()
         "\t                            e.g.: \"cluster\" will generate cluster_0.xtc and so on.\n"
         "\t-o --output      [optional] Output text file, listing the number of each cluster.\n"
         "\t-s --stats       [optional] Output some statistical data to text file.\n"
+        "\t-f --input_format[optional] By default: xtc.\n"
         "\n"
         "Some kind of output must be specified, so either -e, -g, -l, -o or -s shall be present.\n\n"
     ;
@@ -135,7 +136,7 @@ int main(int argc, char** argv)
         }
         else
         {
-            options >> Option('p', "port", port) >> Option('c',"cutoff",cutoff) >> Option('i',"input",input_file);
+            options >> Option('p', "port", port) >> Option('c',"cutoff",cutoff) >> Option('i',"input",input_file) >> Option('f',"input_format",input_format, default_input_format);
 
             try
             {

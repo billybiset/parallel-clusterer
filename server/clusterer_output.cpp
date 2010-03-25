@@ -37,7 +37,7 @@
 
 #include "clusterer_output.h"
 #include "prot-filer/format_filer.h"
-static const string output_format = "xtc_default";
+static const string output_format = "xtc";
 
 using namespace GetOpt;
 using namespace clusterer;
