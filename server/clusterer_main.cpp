@@ -122,6 +122,7 @@ int main(int argc, char** argv)
     float cutoff(DEFAULT_CUTOFF);
 
     std::string input_file;
+    std::string input_format;
 
     GetOpt_pp options(argc, argv);
 
