@@ -101,6 +101,7 @@ void show_help()
         "\t-c --cutoff                 Set cutoff. Default=" << DEFAULT_CUTOFF << std::endl <<
         "\t-e --centers     [optional] Output XTC file name for the centers.\n"
         "\t-g --geo         [optional] Output XTC file name for the geometric centers.\n"
+        "\t-m --means       [optional] Use geometric means to calculate new cluster representatives.\n"
         "\t-h --help                   Show this help and exits.\n"
         "\t-i --input                  Input xtc file.\n"
         "\t-l --clusters    [optional] Specifies the prefix of the XTC files, each per cluster, \n"
@@ -156,27 +157,33 @@ int main(int argc, char** argv)
                 clusters_job->run();
                 clusters_job->wait_completion();
 
-                AddingJob*      adding_job = new AddingJob(*db, clusters, cutoff);
-                adding_job->run();
-                adding_job->wait_completion();
+                if (options >> OptionPresent('m',"means") )
+                {
+                    AddingJob*      adding_job = new AddingJob(*db, clusters, cutoff);
+                    adding_job->run();
+                    adding_job->wait_completion();
 
-                CentersJob*      centers_job = new CentersJob(*db, clusters, cutoff);
-                centers_job->run();
-                centers_job->wait_completion();
+                    CentersJob*      centers_job = new CentersJob(*db, clusters, cutoff);
+                    centers_job->run();
+                    centers_job->wait_completion();
 
-                std::vector<ProteinID> new_reps;
-                for (size_t i(0); i < clusters.size(); ++i)
-                    new_reps.push_back(clusters[i].representative());
+                    std::vector<ProteinID> new_reps;
+                    for (size_t i(0); i < clusters.size(); ++i)
+                        new_reps.push_back(clusters[i].representative());
 
-                clusters.clear();
+                    clusters.clear();
 
-                ClustersJob* last_run = new ClustersJob(*db,new_reps, clusters, cutoff);
-                last_run->run();
-                last_run->wait_completion();
+                    ClustersJob* last_run = new ClustersJob(*db,new_reps, clusters, cutoff);
+                    last_run->run();
+                    last_run->wait_completion();
+                }
 
-                AddingJob*   last_addition = new AddingJob(*db, clusters, cutoff);
-                last_addition->run();
-                last_addition->wait_completion();
+                if ( options >> OptionPresent('g', "geo")) //for output purposes
+                {
+                    AddingJob*   last_addition = new AddingJob(*db, clusters, cutoff);
+                    last_addition->run();
+                    last_addition->wait_completion();
+                }
 
                 output.output_results(*db,clusters,cutoff);
             }

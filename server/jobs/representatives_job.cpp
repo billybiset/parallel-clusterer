@@ -1,5 +1,4 @@
 #include <fstream>
-#include <iostream>
 
 #include <syslog.h>
 
@@ -73,7 +72,9 @@ JobUnit* RepresentativesJob::produce_next_job_unit(JobUnitSize size)
 
     if (range_pos.first != range_pos.second)
     {
-        JobUnit* res = new RepresentativesJobJobUnit(_protein_db, _protein_db.get_iterator_pair(range_pos.first,range_pos.second) ,_cutoff,_marked_ids);
+        JobUnit* res = new RepresentativesJobJobUnit(_protein_db,
+                           _protein_db.get_iterator_pair(range_pos.first,range_pos.second) ,
+                           _cutoff,_marked_ids);
 
         _next_protein = range_pos.second;
 
@@ -103,13 +104,13 @@ RepresentativesJob::RepresentativesJobJobUnit::RepresentativesJobJobUnit(Protein
         _bos << db[ marked_ids[i] ];
 
     // Add proteins that are not marked or checked
-    _bos << std::distance(range.first,range.second);
+    size_t distance( std::distance(range.first,range.second) );
+    _bos << distance;
+
     for (ProteinIterator it(range.first); it != range.second; ++it)
         _bos << *it;
 
     set_size(marked_ids.size() + std::distance(range.first,range.second));
-
-//     std:: cerr << "Inserted " << db->get_marked_ids().size() << " marked, and " << vector_slice.second - vector_slice.first << " unmared." << std::endl;
 }
 
 const std::string& RepresentativesJob::RepresentativesJobJobUnit::get_message() const

@@ -85,7 +85,6 @@ void AddingJob::handle_results (JobUnitID id,InputMessage& input)
 
     if (_added_total_for_cluster[cluster_id] >= cluster.get_size())
         cluster.calculate_mean();
-
 }
 
 void AddingJob::output_results() const
