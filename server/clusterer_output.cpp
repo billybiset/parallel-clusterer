@@ -1,66 +1,67 @@
 /**
- * \file  clusterer_output.cpp
- * \brief Implementation of ClustererOutput class.
- *
- * FDC: FuDePAN Distributed Clusterer
- * <http://fud.googlecode.com/>
- * Copyright (C) 2009,2010 Guillermo Biset, FuDePAN
- *
- * This file is part of the FuD project.
- *
- * Contents:       Implementation file for FDC providing class ClustererOutput.
- *
- * System:         FDC
- * Language:       C++
- *
- * Author:         Guillermo Biset
- * E-Mail:         billybiset AT gmail.com
- *
- * FDC is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * FDC is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with FuD.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
+* \file  clusterer_output.cpp
+* \brief Implementation of ClustererOutput class.
+*
+* FDC: FuDePAN Distributed Clusterer
+* <http://fud.googlecode.com/>
+* Copyright (C) 2009,2010 Guillermo Biset, FuDePAN
+*
+* This file is part of the FuD project.
+*
+* Contents:       Implementation file for FDC providing class ClustererOutput.
+*
+* System:         FDC
+* Language:       C++
+*
+* Author:         Guillermo Biset
+* E-Mail:         billybiset AT gmail.com
+*
+* FDC is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* FDC is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with FuD.  If not, see <http://www.gnu.org/licenses/>.
+*
+*/
 
 #include <iostream>
 #include <fstream>
 #include <algorithm>
 
 #include "clusterer_output.h"
-#include "outputs/xtc_output.h"
+#include "prot-filer/format_filer.h"
+static const string output_format = "xtc";
 
 using namespace GetOpt;
 using namespace clusterer;
 
 ClustererOutput::ClustererOutput(GetOpt_pp& options) throw(const char*) :
-    _options(options),
-    _centers_file_name(),
-    _geocenters_file_name(),
-    _clusters_file_name(),
-    _text_file_name(),
-    _stats_file_name(),
-    _input_file_name()
+_options(options),
+_centers_file_name(),
+_geocenters_file_name(),
+_clusters_file_name(),
+_text_file_name(),
+_stats_file_name(),
+_input_file_name()
 {
     options >> Option('e',"centers",  _centers_file_name)
-            >> Option('g',"geo",   _geocenters_file_name)
-            >> Option('l',"clusters",_clusters_file_name)
-            >> Option('o',"output",      _text_file_name)
-            >> Option('s',"stats",      _stats_file_name)
-            >> Option('i',"input",      _input_file_name) ;
+    >> Option('g',"geo",   _geocenters_file_name)
+    >> Option('l',"clusters",_clusters_file_name)
+    >> Option('o',"output",      _text_file_name)
+    >> Option('s',"stats",      _stats_file_name)
+    >> Option('i',"input",      _input_file_name) ;
 
     if((!should_output_centers() ) && (!should_output_geocenters()) &&
-       (!should_output_clusters()) && (!should_output_text()) && (!should_output_stats()) )
+        (!should_output_clusters()) && (!should_output_text()) && (!should_output_stats()) )
     {
-         throw("Specify an output option from [g,l,e,o,s].");
+        throw("Specify an output option from [g,l,e,o,s].");
     }
 }
 
@@ -91,22 +92,29 @@ void ClustererOutput::output_results(ProteinDatabase& protein_db,std::vector<Clu
 
 void ClustererOutput::output_centers(ProteinDatabase& protein_db,std::vector<Cluster>& clusters)
 {
-    XtcOutput output(_centers_file_name.c_str(),protein_db.get_box(),protein_db.get_precision());
+    FormatFiler * output = FilerFactory::get_instance()->create(output_format);
+
+    output->open_write(_centers_file_name,protein_db.get_box(),protein_db.get_precision());
 
     for(size_t cluster(0); cluster < clusters.size(); ++cluster)
-        output.add( protein_db[ clusters[cluster].representative() ] );
+        output->write( protein_db[ clusters[cluster].representative() ] );
 
-    output.finish();
+    output->close();
+    delete output;
+    FilerFactory::destroy_instance();
 }
 
 void ClustererOutput::output_geocenters(ProteinDatabase& protein_db,std::vector<Cluster>& clusters)
 {
-    XtcOutput output(_geocenters_file_name.c_str(),protein_db.get_box(),protein_db.get_precision());
+    FormatFiler * output = FilerFactory::get_instance()->create(output_format);
+    output->open_write(_geocenters_file_name,protein_db.get_box(),protein_db.get_precision());
 
     for(size_t cluster(0); cluster < clusters.size(); ++cluster)
-        output.add( clusters[cluster].geometric_mean() );
+        output->write( clusters[cluster].geometric_mean() );
 
-    output.finish();
+    output->close();
+    delete output;
+    FilerFactory::destroy_instance();
 }
 
 void ClustererOutput::output_clusters(ProteinDatabase& protein_db, std::vector<Cluster>& clusters)
@@ -116,9 +124,10 @@ void ClustererOutput::output_clusters(ProteinDatabase& protein_db, std::vector<C
         std::stringstream file_name;
         file_name << _clusters_file_name << '_' << cluster << ".xtc";
 
-        XtcOutput output(file_name.str().c_str(),protein_db.get_box(),protein_db.get_precision());
+        FormatFiler * output = FilerFactory::get_instance()->create(output_format);
+        output->open_write(file_name.str(),protein_db.get_box(),protein_db.get_precision());
 
-        output.add( protein_db[ clusters[cluster].representative() ]);
+        output->write( protein_db[ clusters[cluster].representative() ]);
 
         const std::vector<ProteinID>& members( clusters[ cluster ].members() );
 
@@ -127,9 +136,12 @@ void ClustererOutput::output_clusters(ProteinDatabase& protein_db, std::vector<C
             if (should_rotalign_clusters())
                 protein_db[ members[protein] ].rotalign_to( protein_db[ clusters[cluster].representative() ] );
 
-            output.add( protein_db[ members[protein] ] );
+            output->write( protein_db[ members[protein] ] );
         }
+        output->close();
+        delete output;
     }
+    FilerFactory::destroy_instance();
 }
 
 void ClustererOutput::output_text(std::vector<Cluster>& clusters)
