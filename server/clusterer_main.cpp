@@ -77,7 +77,6 @@
 
 #include "getopt_pp.h"
 
-#include "xtc_reader.h"
 #include "protein_database.h"
 
 #include "jobs/representatives_job.h"
@@ -94,26 +93,28 @@ using namespace clusterer;
 const size_t DEFAULT_PORT   = 31337;
 const float  DEFAULT_CUTOFF = 0.15;
 
+const std::string DEFAULT_INPUT_FORMAT("xtc");
+
 
 void show_help()
 {
     std::cout << "Valid options are:\n"
-        "\t-c --cutoff                 Set cutoff. Default=" << DEFAULT_CUTOFF << std::endl <<
-        "\t-e --centers     [optional] Output XTC file name for the centers.\n"
-        "\t-g --geo         [optional] Output XTC file name for the geometric centers.\n"
-        "\t-m --means       [optional] Use geometric means to calculate new cluster representatives.\n"
-        "\t-h --help                   Show this help and exits.\n"
-        "\t-i --input                  Input xtc file.\n"
-        "\t-l --clusters    [optional] Specifies the prefix of the XTC files, each per cluster, \n"
-        "\t                            being the first frame of each XTC the center of the cluster,\n"
-        "\t                            e.g.: \"cluster\" will generate cluster_0.xtc and so on.\n"
-        "\t-o --output      [optional] Output text file, listing the number of each cluster.\n"
-        "\t-s --stats       [optional] Output some statistical data to text file.\n"
+        "\t-c --cutoff                  Set cutoff. Default=" << DEFAULT_CUTOFF << std::endl <<
+        "\t-e --centers      [optional] Output XTC file name for the centers.\n"
+        "\t-g --geo          [optional] Output XTC file name for the geometric centers.\n"
+        "\t-m --means        [optional] Use geometric means to calculate new cluster representatives.\n"
+        "\t-h --help                    Show this help and exits.\n"
+        "\t-i --input                   Input xtc file.\n"
+        "\t-f --input_format [optional] Format type (compressed or xtc). Default=" << DEFAULT_INPUT_FORMAT << ".\n"
+        "\t-l --clusters     [optional] Specifies the prefix of the XTC files, each per cluster, \n"
+        "\t                             being the first frame of each XTC the center of the cluster,\n"
+        "\t                             e.g.: \"cluster\" will generate cluster_0.xtc and so on.\n"
+        "\t-o --output       [optional] Output text file, listing the number of each cluster.\n"
+        "\t-s --stats        [optional] Output some statistical data to text file.\n"
         "\n"
         "Some kind of output must be specified, so either -e, -g, -l, -o or -s shall be present.\n\n"
     ;
 }
-
 
 
 int main(int argc, char** argv)
@@ -123,6 +124,7 @@ int main(int argc, char** argv)
     float cutoff(DEFAULT_CUTOFF);
 
     std::string input_file;
+    std::string input_format(DEFAULT_INPUT_FORMAT);
 
     GetOpt_pp options(argc, argv);
 
@@ -137,55 +139,63 @@ int main(int argc, char** argv)
         }
         else
         {
-            options >> Option('p', "port", port) >> Option('c',"cutoff",cutoff) >> Option('i',"input",input_file);
+            options >> Option('p', "port", port)        >>
+                       Option('c', "cutoff", cutoff)    >>
+                       Option('i', "input", input_file) >>
+                       Option('f', "input_format", input_format);
 
             try
             {
                 ClustererOutput output(options);
 
-                StructureReader* reader = new XtcReader( input_file.c_str() );
-
-                ProteinDatabase* db = new ProteinDatabase( reader );
-
-                std::vector<Cluster> clusters;
-
-                RepresentativesJob* repjob = new RepresentativesJob(*db,cutoff);
-                repjob->run();
-                repjob->wait_completion();
-
-                ClustersJob*  clusters_job = new ClustersJob(*db, repjob->get_marked_ids_vector(), clusters, cutoff);
-                clusters_job->run();
-                clusters_job->wait_completion();
-
-                if (options >> OptionPresent('m',"means") )
+                FormatFiler* reader = FilerFactory::get_instance()->create(input_format);
+                if (reader == NULL)
+                    std::cerr << "Error opening data." << std::endl;
+                else
                 {
-                    AddingJob*      adding_job = new AddingJob(*db, clusters, cutoff);
-                    adding_job->run();
-                    adding_job->wait_completion();
+                    reader->open_read( input_file );
+                    ProteinDatabase* db = new ProteinDatabase( reader );
 
-                    CentersJob*      centers_job = new CentersJob(*db, clusters, cutoff);
-                    centers_job->run();
-                    centers_job->wait_completion();
+                    std::vector<Cluster> clusters;
 
-                    std::vector<ProteinID> new_reps;
-                    for (size_t i(0); i < clusters.size(); ++i)
-                        new_reps.push_back(clusters[i].representative());
+                    RepresentativesJob* repjob = new RepresentativesJob(*db,cutoff);
+                    repjob->run();
+                    repjob->wait_completion();
 
-                    clusters.clear();
+                    ClustersJob*  clusters_job = new ClustersJob(*db, repjob->get_marked_ids_vector(), clusters, cutoff);
+                    clusters_job->run();
+                    clusters_job->wait_completion();
 
-                    ClustersJob* last_run = new ClustersJob(*db,new_reps, clusters, cutoff);
-                    last_run->run();
-                    last_run->wait_completion();
+                    if (options >> OptionPresent('m',"means") )
+                    {
+                        AddingJob*      adding_job = new AddingJob(*db, clusters, cutoff);
+                        adding_job->run();
+                        adding_job->wait_completion();
+
+                        CentersJob*      centers_job = new CentersJob(*db, clusters, cutoff);
+                        centers_job->run();
+                        centers_job->wait_completion();
+
+                        std::vector<ProteinID> new_reps;
+                        for (size_t i(0); i < clusters.size(); ++i)
+                            new_reps.push_back(clusters[i].representative());
+
+                        clusters.clear();
+
+                        ClustersJob* last_run = new ClustersJob(*db,new_reps, clusters, cutoff);
+                        last_run->run();
+                        last_run->wait_completion();
+                    }
+
+                    if ( options >> OptionPresent('g', "geo")) //for output purposes
+                    {
+                        AddingJob*   last_addition = new AddingJob(*db, clusters, cutoff);
+                        last_addition->run();
+                        last_addition->wait_completion();
+                    }
+
+                    output.output_results(*db,clusters,cutoff);
                 }
-
-                if ( options >> OptionPresent('g', "geo")) //for output purposes
-                {
-                    AddingJob*   last_addition = new AddingJob(*db, clusters, cutoff);
-                    last_addition->run();
-                    last_addition->wait_completion();
-                }
-
-                output.output_results(*db,clusters,cutoff);
             }
             catch(const char* msg)
             {

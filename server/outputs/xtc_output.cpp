@@ -42,7 +42,7 @@ extern "C"
 
 using namespace clusterer;
 
-XtcOutput::XtcOutput(const char* file_name, float* box, float prec) throw(const char*) :
+XtcOutput::XtcOutput(const char* file_name, const float* box, float prec) throw(const char*) :
     _TIME_START(1.0f),
     _TIME_STEP(1.0f),
     _step(1),
