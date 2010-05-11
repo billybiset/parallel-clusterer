@@ -5,11 +5,11 @@ CLUSTERER_INCLUDES= -Icommon
 LDFLAGS+= -L/usr/local/lib
 LDFLAGS+= -lboost_thread-gcc43-mt
 LDFLAGS+= -lboost_system-gcc43-mt
-LDFLAGS+= -lxdrfile
+LDFLAGS+= -lprot-filer
 LDFLAGS+= -lgetopt_pp
 
 
-CPPFLAGS+= -Icommon -Iserver -I/usr/local/include/xdrfile/ -DMILI_NAMESPACE -I/usr/include/boost-1_38/ -Iclient/include
+CPPFLAGS+= -Icommon -Iserver -I/usr/local/include/xdrfile/ -DMILI_NAMESPACE -Iclient/include
 
 ifeq ($(COVER),on)
     CPPFLAGS+=-fprofile-arcs -ftest-coverage -fworking-directory
@@ -45,7 +45,6 @@ COMMON_SOURCES = \
     common/protein.cpp
 
 MAIN_SOURCES = \
-    server/xtc_reader.cpp \
     server/protein_database.cpp \
     server/cluster.cpp \
     server/clusterer_output.cpp \
