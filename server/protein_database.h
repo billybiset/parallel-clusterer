@@ -40,9 +40,6 @@
 
 namespace clusterer
 {
-    typedef std::vector<Protein>::iterator ProteinIterator;
-    typedef std::pair<ProteinIterator,ProteinIterator> IteratorRange;
-
     class ProteinDatabase
     {
         public:
@@ -57,10 +54,6 @@ namespace clusterer
             bool               finished_reading() const;
 
             size_t             size()             const;
-
-            std::pair<size_t, size_t> generate_elements(size_t from, size_t size);
-
-            IteratorRange get_iterator_pair(size_t begin, size_t end);
 
             Protein& operator[](ProteinID id);
 

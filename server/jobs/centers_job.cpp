@@ -84,21 +84,6 @@ void CentersJob::handle_results (JobUnitID id,InputMessage& input)
     _clusters[cluster_id].set_representative(distance,closest_id);
 }
 
-void CentersJob::output_results() const
-{
-    std::cout << "Total Clusters: " << _clusters.size() << std::endl;
-    size_t acum(0);
-    for (size_t i(0); i < _clusters.size(); ++i)
-    {
-        const Cluster& cluster( _clusters[i] );
-        std::cout << "Cluster " << std::setw(4) << i << ". Representative : "  << std::setw(8) << cluster.representative() << ". Members : "  << std::setw(8) << cluster.members().size() << '.' << std::endl;
-        acum += cluster.get_size();
-
-    }
-    std::cout << "Total proteins in clusters: " << acum << std::endl;
-
-}
-
 DistributableJobStatus CentersJob::get_status() const
 {
     if (_current_cluster == _clusters.size() )

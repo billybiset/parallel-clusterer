@@ -1,34 +1,34 @@
 /**
-* \file  clusterer_output.cpp
-* \brief Implementation of ClustererOutput class.
-*
-* FDC: FuDePAN Distributed Clusterer
-* <http://fud.googlecode.com/>
-* Copyright (C) 2009,2010 Guillermo Biset, FuDePAN
-*
-* This file is part of the FuD project.
-*
-* Contents:       Implementation file for FDC providing class ClustererOutput.
-*
-* System:         FDC
-* Language:       C++
-*
-* Author:         Guillermo Biset
-* E-Mail:         billybiset AT gmail.com
-*
-* FDC is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* FDC is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with FuD.  If not, see <http://www.gnu.org/licenses/>.
-*
+ * \file  clusterer_output.cpp
+ * \brief Implementation of ClustererOutput class.
+ *
+ * FDC: FuDePAN Distributed Clusterer
+ * <http://fud.googlecode.com/>
+ * Copyright (C) 2009,2010 Guillermo Biset, FuDePAN
+ *
+ * This file is part of the FuD project.
+ *
+ * Contents:       Implementation file for FDC providing class ClustererOutput.
+ *
+ * System:         FDC
+ * Language:       C++
+ *
+ * Author:         Guillermo Biset
+ * E-Mail:         billybiset AT gmail.com
+ *
+ * FDC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FDC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FuD.  If not, see <http://www.gnu.org/licenses/>.
+ *
 */
 
 #include <iostream>
@@ -43,13 +43,13 @@ using namespace GetOpt;
 using namespace clusterer;
 
 ClustererOutput::ClustererOutput(GetOpt_pp& options) throw(const char*) :
-_options(options),
-_centers_file_name(),
-_geocenters_file_name(),
-_clusters_file_name(),
-_text_file_name(),
-_stats_file_name(),
-_input_file_name()
+    _options(options),
+    _centers_file_name(),
+    _geocenters_file_name(),
+    _clusters_file_name(),
+    _text_file_name(),
+    _stats_file_name(),
+    _input_file_name()
 {
     options >> Option('e',"centers",  _centers_file_name)
     >> Option('g',"geo",   _geocenters_file_name)

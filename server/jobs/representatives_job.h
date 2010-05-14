@@ -63,19 +63,6 @@ namespace clusterer
             virtual DistributableJobStatus get_status()    const;
             virtual const char*            get_name()      const;
 
-            class RepresentativesJobJobUnit : public JobUnit
-            {
-                public:
-                    RepresentativesJobJobUnit(ProteinDatabase& db, IteratorRange range, float cutoff, const std::vector<ProteinID>& marked_ids);
-
-                private:
-                    virtual ~RepresentativesJobJobUnit(){};
-
-                    virtual const std::string& get_message()    const;
-
-                    OutputMessage _bos;
-            };
-
             ProteinDatabase&       _protein_db;
             int                    _atoms_in_a_protein; //can this be size_t?
             std::vector<ProteinID> _marked_ids;

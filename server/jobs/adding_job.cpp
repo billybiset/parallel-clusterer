@@ -87,23 +87,6 @@ void AddingJob::handle_results (JobUnitID id,InputMessage& input)
         cluster.calculate_mean();
 }
 
-void AddingJob::output_results() const
-{
-    const std::vector<Cluster>& clusters(_clusters);
-
-    std::cout << "Finished calculating geometric means for " << clusters.size() << " clusters." << std::endl;
-    /*
-    for (size_t i(0); i < clusters.size(); ++i)
-    {
-        const Cluster& cluster( clusters[i]);
-        std::cout << "Cluster " << std::setw(4) << i << ". Mean : ";
-        for (size_t a(0); a < _atoms_in_a_protein; ++a)
-            std::cout << '<' << cluster.geometric_mean()[a].x << ',' << cluster.geometric_mean()[a].y << ',' << cluster.geometric_mean()[a].z << "> | ";
-        std::cout << std::endl;
-    }
-    */
-}
-
 DistributableJobStatus AddingJob::get_status() const
 {
     if (_current_cluster == (_clusters.size()) )
@@ -125,8 +108,6 @@ JobUnit* AddingJob::produce_next_job_unit(JobUnitSize size)
         last = cluster.members().size();
     else
         last = _next_protein + size;
-
-//     std::cerr << "Cluster " << _current_cluster << " has " << cluster.get_size() << ", and I'm sending <" << _next_protein << ',' << last << ">." <<std::endl;
 
     JobUnit* res = new AddingJobJobUnit(_protein_db, cluster, _cutoff, _next_protein, last);
 
