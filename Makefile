@@ -45,7 +45,6 @@ COMMON_SOURCES = \
     common/protein.cpp
 
 MAIN_SOURCES = \
-    server/protein_database.cpp \
     server/cluster.cpp \
     server/clusterer_output.cpp \
     server/clusterer_main.cpp
