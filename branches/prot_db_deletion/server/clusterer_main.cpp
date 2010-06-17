@@ -94,6 +94,7 @@ const size_t DEFAULT_PORT   = 31337;
 const float  DEFAULT_CUTOFF = 0.15;
 
 const std::string DEFAULT_INPUT_FORMAT("xtc");
+const std::string DEFAULT_CACHE_POLICY("protein_sliding_window");
 
 
 void show_help()
@@ -111,6 +112,9 @@ void show_help()
         "\t                             e.g.: \"cluster\" will generate cluster_0.xtc and so on.\n"
         "\t-o --output       [optional] Output text file, listing the number of each cluster.\n"
         "\t-s --stats        [optional] Output some statistical data to text file.\n"
+        "\t-a --cache_policy [optional] Specify the cache_policy. Available options are: full_cache \n"
+        "                               and protein_sliding_window (default, only available with \n"
+        "                               compressed format).\n"
         "\n"
         "Some kind of output must be specified, so either -e, -g, -l, -o or -s shall be present.\n\n"
     ;
@@ -125,6 +129,7 @@ int main(int argc, char** argv)
 
     std::string input_file;
     std::string input_format(DEFAULT_INPUT_FORMAT);
+    std::string cache_policy(DEFAULT_CACHE_POLICY);
 
     GetOpt_pp options(argc, argv);
 
@@ -142,7 +147,8 @@ int main(int argc, char** argv)
             options >> Option('p', "port", port)        >>
                        Option('c', "cutoff", cutoff)    >>
                        Option('i', "input", input_file) >>
-                       Option('f', "input_format", input_format);
+                       Option('f', "input_format", input_format, DEFAULT_INPUT_FORMAT) >>
+                       Option('a', "cache_policy", cache_policy, DEFAULT_CACHE_POLICY);
 
             try
             {
@@ -154,7 +160,13 @@ int main(int argc, char** argv)
                 else
                 {
                     reader->open_read( input_file );
-                    ProteinDatabase* db = new ProteinDatabase( reader );
+                    ProteinDatabase* db = new ProteinDatabase( reader, cache_policy );
+                    
+                    if(input_format == "xtc" && cache_policy != "full_cache")
+                    {
+                        cerr << "Cache Policy changed to full_cache. No other policies are available for xtc format."
+                        cache_policy = "full_cache";
+                    }
 
                     std::vector<Cluster> clusters;
 
