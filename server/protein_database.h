@@ -31,38 +31,11 @@
  *
  */
 
-#ifndef PROTEIN_DATABASE_H
-#define PROTEIN_DATABASE_H
+
 
 #include "protein.h"
 #include "cluster.h"
 #include "prot-filer/format_filer.h"
+#include "prot-filer/protein_database.h"
 
-namespace clusterer
-{
-    class ProteinDatabase
-    {
-        public:
-            ProteinDatabase(FormatFiler* reader) throw (const char*);
 
-            size_t             get_atom_number()  const;
-
-            const float*       get_box();
-
-            float              get_precision()    const;
-
-            bool               finished_reading() const;
-
-            size_t             size()             const;
-
-            Protein& operator[](ProteinID id);
-
-        private:
-            std::vector<Protein>     _proteins;
-            FormatFiler * const      _reader;
-
-            static ProteinID         _last_protein_id;
-    };
-}
-
-#endif
