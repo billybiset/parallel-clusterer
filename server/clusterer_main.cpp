@@ -164,7 +164,7 @@ int main(int argc, char** argv)
                     
                     if(input_format == "xtc" && cache_policy != "full_cache")
                     {
-                        cerr << "Cache Policy changed to full_cache. No other policies are available for xtc format."
+                        cerr << "Cache Policy changed to full_cache. No other policies are available for xtc format.";
                         cache_policy = "full_cache";
                     }
 
