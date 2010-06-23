@@ -92,6 +92,7 @@ using namespace clusterer;
 
 const size_t DEFAULT_PORT   = 31337;
 const float  DEFAULT_CUTOFF = 0.15;
+const size_t DEFAULT_MAX_NUMBER_OF_ELEMENTS = 100000;
 
 const std::string DEFAULT_INPUT_FORMAT("xtc");
 const std::string DEFAULT_CACHE_POLICY("protein_sliding_window");
@@ -113,8 +114,14 @@ void show_help()
         "\t-o --output       [optional] Output text file, listing the number of each cluster.\n"
         "\t-s --stats        [optional] Output some statistical data to text file.\n"
         "\t-a --cache_policy [optional] Specify the cache_policy. Available options are: full_cache \n"
-        "                               and protein_sliding_window (default, only available with \n"
-        "                               compressed format).\n"
+        "\t                             and protein_sliding_window (default, only available with \n"
+        "\t                             compressed format).\n"
+        "\t-M --max_cache_elements [optional] \n"
+        "\t                             Specify the maximum number of elements a cache can hold. \n"
+        "\t                             The restriction will be ignored when working with full_cache \n"
+        "\t                             policy.\n"
+        "\t                             Default: " << DEFAULT_MAX_NUMBER_OF_ELEMENTS<< "\n"
+        ""
         "\n"
         "Some kind of output must be specified, so either -e, -g, -l, -o or -s shall be present.\n\n"
     ;
@@ -130,7 +137,7 @@ int main(int argc, char** argv)
     std::string input_file;
     std::string input_format(DEFAULT_INPUT_FORMAT);
     std::string cache_policy(DEFAULT_CACHE_POLICY);
-
+    size_t max_number_of_elements(DEFAULT_MAX_NUMBER_OF_ELEMENTS);
     GetOpt_pp options(argc, argv);
 
     if (options >> OptionPresent('h', "help"))
@@ -148,7 +155,8 @@ int main(int argc, char** argv)
                        Option('c', "cutoff", cutoff)    >>
                        Option('i', "input", input_file) >>
                        Option('f', "input_format", input_format, DEFAULT_INPUT_FORMAT) >>
-                       Option('a', "cache_policy", cache_policy, DEFAULT_CACHE_POLICY);
+                       Option('a', "cache_policy", cache_policy, DEFAULT_CACHE_POLICY) >>
+                       Option('M', "max_cache_elements", max_number_of_elements, DEFAULT_MAX_NUMBER_OF_ELEMENTS);
 
             try
             {
@@ -160,7 +168,7 @@ int main(int argc, char** argv)
                 else
                 {
                     reader->open_read( input_file );
-                    ProteinDatabase* db = new ProteinDatabase( reader, cache_policy );
+                    ProteinDatabase* db = new ProteinDatabase( reader, cache_policy, max_number_of_elements );
                     
                     if(input_format == "xtc" && cache_policy != "full_cache")
                     {
