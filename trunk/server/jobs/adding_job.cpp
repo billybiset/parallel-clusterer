@@ -133,13 +133,13 @@ AddingJob::AddingJobJobUnit::AddingJobJobUnit(ProteinDatabase& db, Cluster& clus
 
     if (first == 0)
     {
-        _bos << cluster.get_id() << (last - first) + 1;
+        _bos << cluster.get_id() << fud_uint( (last - first) + 1);
         _bos << db[ cluster.representative() ];
         set_size((last - first) + 1);
     }
     else
     {
-        _bos << cluster.get_id() << last - first;
+        _bos << cluster.get_id() << fud_uint(last - first);
         set_size(last - first);
     }
 

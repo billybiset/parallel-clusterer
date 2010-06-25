@@ -102,7 +102,7 @@ JobUnit* ClustersJob::produce_next_job_unit(JobUnitSize size)
         (*res) << Clusters;
 
         // Add all the proteins with marked ids
-        (*res) << _cutoff << _clusters.size();
+        (*res) << _cutoff << fud_uint(_clusters.size());
         for (size_t i(0); i < _clusters.size(); ++i)
             (*res)  << ProteinRefWithClusterID(_protein_db[ _clusters[i].representative() ] , i); //ugly, but fast
             //passes the ClusterID (i) as the ProteinID...
@@ -125,7 +125,7 @@ JobUnit* ClustersJob::produce_next_job_unit(JobUnitSize size)
             --end;
 
         //how many there will be?
-        (*res) <<  end - begin;
+        (*res) <<  fud_uint(end - begin);
 
         for (size_t i(begin); i < end; ++i)
             (*res) << _protein_db[ i ];
