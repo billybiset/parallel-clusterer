@@ -136,7 +136,7 @@ CentersJob::CentersJobJobUnit::CentersJobJobUnit(ProteinDatabase& db, Cluster& c
     }
     else
     {
-        _bos << last - first;
+        _bos << fud_uint(last - first);
         set_size(last - first);
     }
 
