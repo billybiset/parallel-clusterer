@@ -7,6 +7,7 @@ LDFLAGS+= -lboost_thread-gcc43-mt
 LDFLAGS+= -lboost_system-gcc43-mt
 LDFLAGS+= -lprot-filer
 LDFLAGS+= -lgetopt_pp
+LDFLAGS+= -lbiopp
 
 
 CPPFLAGS+= -Icommon -Iserver -I/usr/local/include/xdrfile/ -DMILI_NAMESPACE -Iclient/include
@@ -41,8 +42,7 @@ endif
 
 #########Sources###############################################
 
-COMMON_SOURCES = \
-    common/protein.cpp
+COMMON_SOURCES = 
 
 MAIN_SOURCES = \
     server/cluster.cpp \

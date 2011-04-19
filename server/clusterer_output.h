@@ -37,7 +37,6 @@
 #include <string>
 
 #include "getopt_pp.h"
-
 #include "protein_database.h"
 
 namespace clusterer
