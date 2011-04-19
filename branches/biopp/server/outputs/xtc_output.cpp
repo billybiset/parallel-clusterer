@@ -61,7 +61,7 @@ XtcOutput::XtcOutput(const char* file_name, const float* box, float prec) throw(
 
 void XtcOutput::add(const Protein& protein)
 {
-    write_xtc(_xdr_file, (int) protein.atoms(),_step, _time ,_matrix,
+    write_xtc(_xdr_file, (int) protein.items(),_step, _time ,_matrix,
               const_cast<rvec*>(reinterpret_cast<const rvec*>(&protein.front() )) , _precision);
     // const_cast is safe here, after analysis.
     // The base address of the first Coord3d in the proteins works as the rvec vector.

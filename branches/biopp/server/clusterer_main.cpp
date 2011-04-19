@@ -75,6 +75,7 @@
 #include <iostream>
 #include <iomanip>
 
+#include "prot-filer/format_filer.h"
 #include "getopt_pp.h"
 
 #include "protein_database.h"
@@ -89,6 +90,8 @@
 using namespace fud;
 using namespace GetOpt;
 using namespace clusterer;
+using prot_filer::Coord3DReaderFactory;
+using prot_filer::Coord3DSeqReaderFactory;
 
 const size_t DEFAULT_PORT   = 31337;
 const float  DEFAULT_CUTOFF = 0.15;
@@ -162,60 +165,52 @@ int main(int argc, char** argv)
             {
                 ClustererOutput output(options);
 
-                FormatFiler* reader = FilerFactory::get_instance()->create(input_format);
-                if (reader == NULL)
-                    std::cerr << "Error opening data." << std::endl;
-                else
+                ProteinDatabase* db = new ProteinDatabase(input_format, input_file, cache_policy, max_number_of_elements );
+
+                std::vector<Cluster> clusters;
+
+                RepresentativesJob* repjob = new RepresentativesJob(*db,cutoff);
+                repjob->run();
+                repjob->wait_completion();
+
+                ClustersJob*  clusters_job = new ClustersJob(*db, repjob->get_marked_ids_vector(), clusters, cutoff);
+                clusters_job->run();
+                clusters_job->wait_completion();
+
+                if (options >> OptionPresent('m',"means") )
                 {
-                    reader->open_read( input_file );
-                    ProteinDatabase* db = new ProteinDatabase( reader, cache_policy, max_number_of_elements );
-                    
-                    if(input_format == "xtc" && cache_policy != "full_cache")
-                    {
-                        cerr << "Cache Policy changed to full_cache. No other policies are available for xtc format.";
-                        cache_policy = "full_cache";
-                    }
+                    AddingJob*      adding_job = new AddingJob(*db, clusters, cutoff);
+                    adding_job->run();
+                    adding_job->wait_completion();
 
-                    std::vector<Cluster> clusters;
+                    CentersJob*      centers_job = new CentersJob(*db, clusters, cutoff);
+                    centers_job->run();
+                    centers_job->wait_completion();
 
-                    RepresentativesJob* repjob = new RepresentativesJob(*db,cutoff);
-                    repjob->run();
-                    repjob->wait_completion();
+                    std::vector<ProteinID> new_reps;
+                    for (size_t i(0); i < clusters.size(); ++i)
+                        new_reps.push_back(clusters[i].representative());
 
-                    ClustersJob*  clusters_job = new ClustersJob(*db, repjob->get_marked_ids_vector(), clusters, cutoff);
-                    clusters_job->run();
-                    clusters_job->wait_completion();
+                    clusters.clear();
 
-                    if (options >> OptionPresent('m',"means") )
-                    {
-                        AddingJob*      adding_job = new AddingJob(*db, clusters, cutoff);
-                        adding_job->run();
-                        adding_job->wait_completion();
-
-                        CentersJob*      centers_job = new CentersJob(*db, clusters, cutoff);
-                        centers_job->run();
-                        centers_job->wait_completion();
-
-                        std::vector<ProteinID> new_reps;
-                        for (size_t i(0); i < clusters.size(); ++i)
-                            new_reps.push_back(clusters[i].representative());
-
-                        clusters.clear();
-
-                        ClustersJob* last_run = new ClustersJob(*db,new_reps, clusters, cutoff);
-                        last_run->run();
-                        last_run->wait_completion();
-                    }
-
-                    if ( options >> OptionPresent('g', "geo")) //for output purposes
-                    {
-                        AddingJob*   last_addition = new AddingJob(*db, clusters, cutoff);
-                        last_addition->run();
-                        last_addition->wait_completion();
-                    }
-
-                    output.output_results(*db,clusters,cutoff);
+                    ClustersJob* last_run = new ClustersJob(*db,new_reps, clusters, cutoff);
+                    last_run->run();
+                    last_run->wait_completion();
                 }
+
+                if ( options >> OptionPresent('g', "geo")) //for output purposes
+                {
+                    AddingJob*   last_addition = new AddingJob(*db, clusters, cutoff);
+                    last_addition->run();
+                    last_addition->wait_completion();
+                }
+
+                output.output_results(*db,clusters,cutoff);
+
+                db->close();
+                delete db;
+                Coord3DReaderFactory::destroy_instance();
+                Coord3DSeqReaderFactory::destroy_instance();
             }
             catch(const char* msg)
             {

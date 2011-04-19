@@ -110,18 +110,15 @@ JobUnit* ClustersJob::produce_next_job_unit(JobUnitSize size)
         const ProteinID begin = _next_protein;
         ProteinID end;
 
-        if ( _protein_db.finished_reading() )
-            end = std::min(begin + size, _protein_db.size() );
-        else
+        size_t c = 0;
+        Protein* p = NULL;
+        while ((c < size) && ((p = _protein_db.read(c)) != NULL))
         {
-            size_t i;
-            for (i = 0; (i < size) && (! _protein_db.finished_reading() ); ++i)
-                _protein_db[ begin + i ]; //read in order, but discard
-
-            end = begin + i;
+            ++c;
         }
+        end = begin + c;
 
-        if ( _protein_db.finished_reading() )
+        if (p == NULL)
             --end;
 
         //how many there will be?
@@ -133,7 +130,7 @@ JobUnit* ClustersJob::produce_next_job_unit(JobUnitSize size)
         res->set_size(_clusters.size() + (end - begin));
 
         _next_protein = end;
-        _finished     = _protein_db.finished_reading() && _next_protein >= _protein_db.size() - 1;
+        _finished     = p == NULL && _next_protein >= _protein_db.size() - 1;
 
         return res;
     }
