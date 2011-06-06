@@ -54,29 +54,6 @@ namespace clusterer
 
     typedef biopp::StructureID ProteinID;
     typedef biopp::StructureWithRotationAndClusterID Protein;
-
-    //// forward these
-    class ProteinRefWithClusterID;
-    inline mili::bostream& operator<< (mili::bostream& bos, const ProteinRefWithClusterID& protein);
-
-    class ProteinRefWithClusterID
-    {
-        public:
-            ProteinRefWithClusterID(const Protein& ref, ProteinID id) :
-                _vec(ref._item_vector),
-                _id(id)
-            {}
-
-            friend inline mili::bostream& operator<< (mili::bostream& bos, const ProteinRefWithClusterID& protein)
-            {
-                bos << protein._id << protein._vec;
-                return bos;
-            }
-
-        private:
-            const std::vector<Coord3d>& _vec;
-            ProteinID                   _id; //Used to id the cluster it belongs to
-    };
 }
 
 #endif

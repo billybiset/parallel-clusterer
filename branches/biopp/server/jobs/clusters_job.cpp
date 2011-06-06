@@ -104,8 +104,11 @@ JobUnit* ClustersJob::produce_next_job_unit(JobUnitSize size)
         // Add all the proteins with marked ids
         (*res) << _cutoff << fud_uint(_clusters.size());
         for (size_t i(0); i < _clusters.size(); ++i)
-            (*res)  << ProteinRefWithClusterID(_protein_db[ _clusters[i].representative() ] , i); //ugly, but fast
+        {
+            const Protein& protein = _protein_db[ _clusters[i].representative() ];
             //passes the ClusterID (i) as the ProteinID...
+            (*res) << protein;
+        }
 
         const ProteinID begin = _next_protein;
         ProteinID end;
