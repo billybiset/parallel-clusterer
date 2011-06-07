@@ -147,7 +147,7 @@ bool ClustererProcessor::adding_process(InputMessage& input, OutputMessage& outp
 
 //     std::cerr << "Adding " << cluster.size() << " proteins in cluster " << cluster_id << std::endl;
 
-    size_t atoms(cluster[0].atoms());
+    size_t atoms(cluster[0].items());
 
     //initialize
     std::vector<Coord3d> added(atoms);

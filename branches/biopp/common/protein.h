@@ -53,7 +53,36 @@ namespace clusterer
     using biopp::Centers;
 
     typedef biopp::StructureID ProteinID;
-    typedef biopp::StructureWithRotationAndClusterID Protein;
+
+
+
+    template <class> class ClusterID_Aspect;
+    typedef ClusterID_Aspect< biopp::StructureWithRotation > Protein;
+    //inline bostream& operator<< (bostream& bos, const Protein& structure);
+
+    template<class A>
+    class ClusterID_Aspect : public A
+    {
+    public:
+        ClusterID_Aspect(const A& ref, ProteinID id) :
+            A(ref),
+            _id(id)
+        {}
+
+        ClusterID_Aspect()
+        {}
+
+        friend inline bostream& operator<< (bostream& bos, const Protein& structure)
+        {
+            bos << structure._id << structure._item_vector;
+            return bos;
+        }
+
+    private:
+        ProteinID _id; //Used to id the cluster it belongs to
+
+    };
+
 }
 
 #endif
