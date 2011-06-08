@@ -87,7 +87,7 @@ JobUnit* RepresentativesJob::produce_next_job_unit(JobUnitSize size)
         size_t c = 0;
         Protein* p = NULL;
 
-        while ((c < size) && ((p = _protein_db.read(c)) != NULL))
+        while ((c < size) && ((p = _protein_db.read(begin + c)) != NULL))
         {
             ++c;
         }
