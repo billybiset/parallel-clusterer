@@ -153,7 +153,7 @@ class ProteinDatabase
             {
                 Coord3DSeqReader* reader = Coord3DSeqReaderFactory::get_instance()->create(input_format);
                 reader->open( input_file );
-                return new CachedReaderImple<SlidingWindowCache<1>::CacheType, Coord3DSeqReader>(reader);
+                return new CachedReaderImple<SlidingWindowCache<100>::CacheType, Coord3DSeqReader>(reader);
             }
             else
             {

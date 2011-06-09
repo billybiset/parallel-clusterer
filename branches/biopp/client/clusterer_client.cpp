@@ -41,15 +41,15 @@ using namespace GetOpt;
 /* main program*/
 int main(int argc, char** argv)
 {
-    size_t      port(31337);
-    std::string address("127.0.0.1");
+    size_t      port;
+    std::string address;
 
     GetOpt_pp ops(argc, argv);
-    ops >> Option('a', "address", address) >> Option('p', "port", port) ;
+    ops >> Option('a', "address", address, "127.0.0.1") >> Option('p', "port", port, static_cast<size_t>(31337));
 
     new ClustererProcessor();
 
-    DistributionClient* distribution_client = create_distribution_client(address,port);
+    DistributionClient* const distribution_client = create_distribution_client(address,port);
     distribution_client->run();
 
     return 0;

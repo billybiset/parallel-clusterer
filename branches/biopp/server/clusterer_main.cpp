@@ -165,25 +165,25 @@ int main(int argc, char** argv)
             {
                 ClustererOutput output(options);
 
-                ProteinDatabase* db = new ProteinDatabase(input_format, input_file, cache_policy, max_number_of_elements );
+                ProteinDatabase db(input_format, input_file, cache_policy, max_number_of_elements );
 
                 std::vector<Cluster> clusters;
 
-                RepresentativesJob* repjob = new RepresentativesJob(*db,cutoff);
+                RepresentativesJob* repjob = new RepresentativesJob(db,cutoff);
                 repjob->run();
                 repjob->wait_completion();
 
-                ClustersJob*  clusters_job = new ClustersJob(*db, repjob->get_marked_ids_vector(), clusters, cutoff);
+                ClustersJob*  clusters_job = new ClustersJob(db, repjob->get_marked_ids_vector(), clusters, cutoff);
                 clusters_job->run();
                 clusters_job->wait_completion();
 
                 if (options >> OptionPresent('m',"means") )
                 {
-                    AddingJob*      adding_job = new AddingJob(*db, clusters, cutoff);
+                    AddingJob*      adding_job = new AddingJob(db, clusters, cutoff);
                     adding_job->run();
                     adding_job->wait_completion();
 
-                    CentersJob*      centers_job = new CentersJob(*db, clusters, cutoff);
+                    CentersJob*      centers_job = new CentersJob(db, clusters, cutoff);
                     centers_job->run();
                     centers_job->wait_completion();
 
@@ -193,22 +193,21 @@ int main(int argc, char** argv)
 
                     clusters.clear();
 
-                    ClustersJob* last_run = new ClustersJob(*db,new_reps, clusters, cutoff);
+                    ClustersJob* last_run = new ClustersJob(db,new_reps, clusters, cutoff);
                     last_run->run();
                     last_run->wait_completion();
                 }
 
                 if ( options >> OptionPresent('g', "geo")) //for output purposes
                 {
-                    AddingJob*   last_addition = new AddingJob(*db, clusters, cutoff);
+                    AddingJob*   last_addition = new AddingJob(db, clusters, cutoff);
                     last_addition->run();
                     last_addition->wait_completion();
                 }
 
-                output.output_results(*db,clusters,cutoff);
+                output.output_results(db,clusters,cutoff);
 
-                db->close();
-                delete db;
+                db.close();
                 Coord3DReaderFactory::destroy_instance();
                 Coord3DSeqReaderFactory::destroy_instance();
             }
