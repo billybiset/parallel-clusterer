@@ -72,12 +72,14 @@ namespace clusterer
         ClusterID_Aspect()
         {}
 
+        virtual ~ClusterID_Aspect()
+		{}
+
         friend inline bostream& operator<< (bostream& bos, const Protein& structure)
         {
             bos << structure._id << structure._item_vector;
             return bos;
         }
-
     private:
         ProteinID _id; //Used to id the cluster it belongs to
 
