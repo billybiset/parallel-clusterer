@@ -73,7 +73,7 @@ namespace clusterer
         {}
 
         virtual ~ClusterID_Aspect()
-		{}
+        {}
 
         friend inline bostream& operator<< (bostream& bos, const Protein& structure)
         {
