@@ -45,16 +45,18 @@
 
 namespace clusterer
 {
+
     using biopp::Coord3d;
-    using biopp::JobID;
-    using biopp::Representatives;
-    using biopp::Clusters;
-    using biopp::Adding;
-    using biopp::Centers;
 
     typedef biopp::StructureID ProteinID;
 
-
+    enum JobID
+    {
+        Representatives,
+        Clusters,
+        Adding,
+        Centers
+    };
 
     template <class> class ClusterID_Aspect;
     typedef ClusterID_Aspect< biopp::StructureWithRotation > Protein;
@@ -72,8 +74,15 @@ namespace clusterer
         ClusterID_Aspect()
         {}
 
-        virtual ~ClusterID_Aspect()
-        {}
+        float rmsd_to(const std::vector<Coord3d> &b)
+        {
+            return A::rmsd_to(b, useRotalignValue());
+        }
+
+        float rmsd_to(const ClusterID_Aspect& b)
+        {
+            return A::rmsd_to(b, useRotalignValue());
+        }
 
         friend inline bostream& operator<< (bostream& bos, const Protein& structure)
         {
@@ -82,6 +91,14 @@ namespace clusterer
         }
     private:
         ProteinID _id; //Used to id the cluster it belongs to
+        static bool useRotalignValue() 
+        {
+            #ifdef ROTALIGN
+                return true;
+            #else
+                return false;
+            #endif
+        }
 
     };
 
