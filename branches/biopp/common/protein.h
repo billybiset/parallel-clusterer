@@ -74,6 +74,11 @@ namespace clusterer
         ClusterID_Aspect()
         {}
 
+        ClusterID_Aspect(const std::vector<Coord3d> &vector, const biopp::StructureID& id):
+            A(vector, id),
+            _id()
+        {}
+
         float rmsd_to(const std::vector<Coord3d> &b)
         {
             return A::rmsd_to(b, useRotalignValue());
@@ -88,6 +93,15 @@ namespace clusterer
         {
             bos << structure._id << structure._item_vector;
             return bos;
+        }
+        friend inline bistream& operator>> (bistream& bis, Protein& structure)
+        {
+            std::vector<Coord3d> v;
+            biopp::StructureID id;
+            bis >> id;
+            bis >> v;
+            structure = Protein(v, id);
+            return bis;
         }
     private:
         ProteinID _id; //Used to id the cluster it belongs to
