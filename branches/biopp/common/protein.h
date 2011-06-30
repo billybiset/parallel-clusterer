@@ -46,75 +46,75 @@
 namespace clusterer
 {
 
-    using biopp::Coord3d;
+using biopp::Coord3d;
 
-    typedef biopp::StructureID ProteinID;
+typedef biopp::StructureID ProteinID;
 
-    enum JobID
+enum JobID
+{
+    Representatives,
+    Clusters,
+    Adding,
+    Centers
+};
+
+template <class> class ClusterID_Aspect;
+typedef ClusterID_Aspect< biopp::StructureWithRotation > Protein;
+//inline bostream& operator<< (bostream& bos, const Protein& structure);
+
+template<class A>
+class ClusterID_Aspect : public A
+{
+public:
+    ClusterID_Aspect(const A& ref, ProteinID id) :
+        A(ref),
+        _id(id)
+    {}
+
+    ClusterID_Aspect()
+    {}
+
+    ClusterID_Aspect(const std::vector<Coord3d> &vector, const biopp::StructureID& id):
+        A(vector, id),
+        _id()
+    {}
+
+    float rmsd_to(const std::vector<Coord3d> &b)
     {
-        Representatives,
-        Clusters,
-        Adding,
-        Centers
-    };
+        return A::rmsd_to(b, useRotalignValue());
+    }
 
-    template <class> class ClusterID_Aspect;
-    typedef ClusterID_Aspect< biopp::StructureWithRotation > Protein;
-    //inline bostream& operator<< (bostream& bos, const Protein& structure);
-
-    template<class A>
-    class ClusterID_Aspect : public A
+    float rmsd_to(const ClusterID_Aspect& b)
     {
-    public:
-        ClusterID_Aspect(const A& ref, ProteinID id) :
-            A(ref),
-            _id(id)
-        {}
+        return A::rmsd_to(b, useRotalignValue());
+    }
 
-        ClusterID_Aspect()
-        {}
+    friend inline bostream& operator<< (bostream& bos, const Protein& structure)
+    {
+        bos << structure._id << structure._item_vector;
+        return bos;
+    }
+    friend inline bistream& operator>> (bistream& bis, Protein& structure)
+    {
+        std::vector<Coord3d> v;
+        biopp::StructureID id;
+        bis >> id;
+        bis >> v;
+        structure = Protein(v, id);
+        return bis;
+    }
+private:
+    ProteinID _id; //Used to id the cluster it belongs to
+    static bool useRotalignValue()
+    {
+#ifdef ROTALIGN
+        return true;
+#else
+        return false;
+#endif
+    }
 
-        ClusterID_Aspect(const std::vector<Coord3d> &vector, const biopp::StructureID& id):
-            A(vector, id),
-            _id()
-        {}
-
-        float rmsd_to(const std::vector<Coord3d> &b)
-        {
-            return A::rmsd_to(b, useRotalignValue());
-        }
-
-        float rmsd_to(const ClusterID_Aspect& b)
-        {
-            return A::rmsd_to(b, useRotalignValue());
-        }
-
-        friend inline bostream& operator<< (bostream& bos, const Protein& structure)
-        {
-            bos << structure._id << structure._item_vector;
-            return bos;
-        }
-        friend inline bistream& operator>> (bistream& bis, Protein& structure)
-        {
-            std::vector<Coord3d> v;
-            biopp::StructureID id;
-            bis >> id;
-            bis >> v;
-            structure = Protein(v, id);
-            return bis;
-        }
-    private:
-        ProteinID _id; //Used to id the cluster it belongs to
-        static bool useRotalignValue() 
-        {
-            #ifdef ROTALIGN
-                return true;
-            #else
-                return false;
-            #endif
-        }
-
-    };
+};
 
 }
 
