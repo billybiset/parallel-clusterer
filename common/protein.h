@@ -74,7 +74,7 @@ public:
     ClusterID_Aspect()
     {}
 
-    ClusterID_Aspect(const std::vector<Coord3d> &vector, const biopp::StructureID& id):
+    ClusterID_Aspect(const std::vector<Coord3d>& vector, const biopp::StructureID& id):
         A(vector, id),
         _id()
     {}
